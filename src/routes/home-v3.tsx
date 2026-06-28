@@ -15,7 +15,7 @@ import {
   Gavel,
   Car,
 } from "lucide-react";
-import heroCarLot from "@/assets/hero-car-lot.png";
+import heroCarsRow from "@/assets/hero-cars-row.jpg.asset.json";
 
 export const Route = createFileRoute("/home-v3")({
   head: () => ({
@@ -78,12 +78,12 @@ function HomeV3() {
             </div>
           </div>
 
-          <div className="relative">
-            <div className="absolute -inset-6 rounded-3xl bg-accent/20 blur-3xl" />
-            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/10 shadow-2xl">
+          <div className="relative flex h-full min-h-[400px] items-center justify-end">
+            <div className="absolute inset-0 right-0 w-[40%] ml-auto rounded-none bg-accent/20 blur-3xl" />
+            <div className="relative h-[80%] w-[40%] overflow-hidden border border-white/10 shadow-2xl">
               <img
-                src={heroCarLot}
-                alt="Parc de véhicules professionnels en vente sur Bidlik"
+                src={heroCarsRow.url}
+                alt="Rangée de véhicules professionnels en vente sur Bidlik"
                 className="h-full w-full object-cover"
               />
             </div>
