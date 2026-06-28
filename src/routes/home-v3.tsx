@@ -282,7 +282,7 @@ function HomeV3() {
         <div className="absolute inset-0 bg-[var(--gradient-accent)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,oklch(1_0_0_/_0.15),transparent_60%)]" />
         <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-6 px-4 py-20 text-center sm:px-6">
-          <h2 className="max-w-3xl text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl">
+          <h2 className="max-w-3xl text-3xl font-extrabold tracking-tight text-brand-orange sm:text-4xl md:text-5xl">
             Rejoignez une plateforme pensée pour le marché marocain de
             l'automobile professionnelle.
           </h2>
