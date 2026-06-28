@@ -2,6 +2,30 @@
 @source "../src";
 @import "tw-animate-css";
 
+@font-face {
+  font-family: "Parkson";
+  src: url("/__l5e/assets-v1/046d50a7-08b7-41c9-a17f-699256a39d6d/Parkson-DemiBold.woff2") format("woff2"),
+       url("/__l5e/assets-v1/72f49d19-f95c-4549-a9fd-526efab172bb/Parkson-DemiBold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Yalta Sans";
+  src: url("/__l5e/assets-v1/494f4016-1397-4dd1-856e-dffc47865f8d/YaltaSans.woff") format("woff"),
+       url("/__l5e/assets-v1/2e828284-cf7c-4630-866b-9cfec3106117/YaltaSans.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-parkson: "Parkson", "Fraunces", Georgia, serif;
+  --font-ronnia: "Source Sans 3", "Inter", system-ui, sans-serif;
+  --font-yalta: "Yalta Sans", "Outfit", system-ui, sans-serif;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 /*
