@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Gavel, ShieldCheck, Sparkles, Timer, TrendingUp, Wallet } from "lucide-react";
-import heroCar from "@/assets/hero-car.png";
+import heroCarLot from "@/assets/hero-car-lot.png";
 
 export const Route = createFileRoute("/home-v2")({
   head: () => ({
@@ -74,23 +74,12 @@ function HomeV2() {
             <div className="absolute -inset-6 rounded-full bg-accent/20 blur-3xl" />
             <div className="relative aspect-square overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent backdrop-blur">
               <img
-                src={heroCar}
-                alt="Voiture en enchère sur Bidlic"
+                src={heroCarLot}
+                alt="Parc de voitures premium disponibles aux enchères Bidlic"
+                width={1024}
+                height={1024}
                 className="absolute inset-0 h-full w-full object-cover object-center"
               />
-              <div className="absolute inset-x-4 bottom-4 rounded-2xl bg-primary/80 p-4 backdrop-blur-md ring-1 ring-white/10">
-                <div className="flex items-center justify-between text-xs uppercase tracking-wider text-white/60">
-                  <span>Lot · vitrine</span>
-                  <span className="flex items-center gap-1.5 text-accent">
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
-                    Live
-                  </span>
-                </div>
-                <div className="mt-2 flex items-baseline justify-between">
-                  <p className="text-lg font-bold text-white">Mercedes-Benz C200</p>
-                  <p className="text-xl font-extrabold text-accent">285 000 MAD</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
