@@ -43,7 +43,14 @@ function HomeV3() {
       {/* HERO */}
       <section className="relative overflow-hidden bg-primary text-primary-foreground">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,oklch(0.66_0.21_35_/_0.35),transparent_60%)]" />
-        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 md:grid-cols-2 md:py-28">
+        <div className="absolute right-0 top-[10%] z-0 hidden h-[80%] w-[40%] overflow-hidden border border-white/10 shadow-2xl md:block">
+          <img
+            src={heroCarsRow.url}
+            alt="Rangée de véhicules professionnels en vente sur Bidlik"
+            className="h-full w-full object-cover"
+          />
+        </div>
+        <div className="relative z-10 mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 md:grid-cols-2 md:py-28">
           <div className="flex flex-col justify-center">
             <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 font-yalta text-xs font-semibold uppercase tracking-[0.25em] text-accent">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />
@@ -77,17 +84,7 @@ function HomeV3() {
               </Link>
             </div>
           </div>
-
-          <div className="relative flex h-full min-h-[400px] items-center justify-end">
-            <div className="absolute inset-0 right-0 w-[40%] ml-auto rounded-none bg-accent/20 blur-3xl" />
-            <div className="relative h-[80%] w-[40%] overflow-hidden border border-white/10 shadow-2xl">
-              <img
-                src={heroCarsRow.url}
-                alt="Rangée de véhicules professionnels en vente sur Bidlik"
-                className="h-full w-full object-cover"
-              />
-            </div>
-          </div>
+          <div className="hidden md:block" />
         </div>
       </section>
 
