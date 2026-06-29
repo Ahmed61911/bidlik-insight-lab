@@ -243,10 +243,10 @@ function HomeV3() {
       {/* FAQ */}
       <section className="mx-auto max-w-4xl px-4 py-20 sm:px-6">
         <div className="text-center">
-          <p className="font-yalta text-xs font-semibold uppercase tracking-[0.3em] text-accent">
+          <p className="font-yalta text-sm font-semibold uppercase tracking-[0.3em] text-accent">
             Questions fréquentes
           </p>
-          <h2 className="font-parkson mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+          <h2 className="font-parkson mt-3 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
             Ce qu'il faut savoir avant de commencer
           </h2>
         </div>
@@ -356,10 +356,10 @@ function FaqItem({
 }) {
   return (
     <AccordionItem value={value} className="border-border">
-      <AccordionTrigger className="text-left text-base font-semibold text-foreground hover:no-underline">
+      <AccordionTrigger className="text-left text-lg font-semibold text-foreground hover:no-underline">
         {question}
       </AccordionTrigger>
-      <AccordionContent className="text-sm text-muted-foreground">
+      <AccordionContent className="text-base text-muted-foreground">
         {answer}
       </AccordionContent>
     </AccordionItem>
