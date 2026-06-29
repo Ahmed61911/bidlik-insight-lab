@@ -22,7 +22,7 @@
 
 @theme {
   --font-parkson: "Parkson", "Fraunces", Georgia, serif;
-  --font-ronnia: "Source Sans 3", "Inter", system-ui, sans-serif;
+  --font-ronnia: "Yalta Sans", system-ui, sans-serif;
   --font-yalta: "Yalta Sans", "Outfit", system-ui, sans-serif;
 }
 
@@ -71,7 +71,7 @@
   --color-surface-elevated: var(--surface-elevated);
 
   --font-display: "Parkson", "Fraunces", Georgia, serif;
-  --font-sans: "Source Sans 3", "Inter", system-ui, sans-serif;
+  --font-sans: "Yalta Sans", system-ui, sans-serif;
   --font-mono-brand: "Yalta Sans", "Outfit", system-ui, sans-serif;
 
   --shadow-card: 0 1px 2px oklch(0 0 0 / 0.04), 0 8px 24px oklch(0.2 0.05 260 / 0.06);
