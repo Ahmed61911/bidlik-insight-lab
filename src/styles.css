@@ -184,6 +184,10 @@
     overflow-x: clip;
   }
 
+  html {
+    font-size: 17px;
+  }
+
   h1,
   h2,
   h3,
