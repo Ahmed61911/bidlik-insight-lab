@@ -1,293 +1,367 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { CalendarClock } from "lucide-react";
-import { api } from "@/lib/api";
-import { authStore } from "@/lib/auth";
-import type { Auction } from "@/types/auction";
-import { AuctionCard } from "@/components/AuctionCard";
-import { Countdown } from "@/components/Countdown";
-import { formatDateTime } from "@/lib/format";
-import heroCar from "@/assets/hero-car.png";
-import heroTruck from "@/assets/hero-truck-new.png";
-import heroMoto from "@/assets/hero-moto.png";
-import heroGavelFigure from "@/assets/hero-gavel-figure.png";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  ShieldCheck,
+  Smartphone,
+  TrendingUp,
+  HandshakeIcon,
+  CheckCircle2,
+  ArrowRight,
+  Gavel,
+  Car,
+} from "lucide-react";
+import heroCarsRow from "@/assets/hero-cars-row.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
-  beforeLoad: () => {
-    const { session } = authStore.getState();
-    const roles = session?.user.roles ?? [];
-    if (roles.includes("expert") && !roles.some((r) => r === "admin" || r === "acheteur" || r === "vendeur")) {
-      throw redirect({ to: "/expert/inspections" });
-    }
-    if (roles.includes("vendeur") && !roles.includes("admin")) {
-      throw redirect({ to: "/vendeur" });
-    }
-  },
   head: () => ({
     meta: [
-      { title: "Bidlic — Enchères automobiles en temps réel au Maroc" },
+      { title: "Bidlik — Enchères automobiles professionnelles au Maroc" },
       {
         name: "description",
         content:
-          "Découvrez les enchères en cours sur Bidlic. Voitures expertisées, paiement sécurisé, livraison au Maroc.",
+          "BIDLIK organise des enchères en ligne entre entreprises, loueurs et marchands automobiles référencés au Maroc. Transparent, sécurisé, sans tracas.",
       },
-      { property: "og:title", content: "Bidlic — Enchères automobiles au Maroc" },
+      { property: "og:title", content: "Bidlik — Accueil (v3)" },
       {
         property: "og:description",
-        content: "Enchères en direct, voitures expertisées, prix en MAD.",
+        content:
+          "Vendez vos véhicules en fin de vie au juste prix. Achetez en toute confiance.",
       },
     ],
   }),
-  component: HomePage,
+  component: HomeV3,
 });
 
-function HomePage() {
-  const [featured, setFeatured] = useState<Auction[]>([]);
-  const [nextAuction, setNextAuction] = useState<Auction | null>(null);
-
-  useEffect(() => {
-    // Seed shuffle by current hour so the selection rotates every hour
-    // and stays stable within that hour.
-    const pickRandom = (all: Auction[]) => {
-      const hourSeed = Math.floor(Date.now() / (60 * 60 * 1000));
-      let s = hourSeed;
-      const rand = () => {
-        s = (s * 9301 + 49297) % 233280;
-        return s / 233280;
-      };
-      const shuffled = [...all]
-        .map((a) => ({ a, k: rand() }))
-        .sort((x, y) => x.k - y.k)
-        .map(({ a }) => a);
-      return shuffled.slice(0, 3);
-    };
-
-    const refresh = () => {
-      api.listAuctions("closed").then((all) => setFeatured(pickRandom(all)));
-    };
-    refresh();
-    // Re-roll at the top of each hour.
-    const msToNextHour = 60 * 60 * 1000 - (Date.now() % (60 * 60 * 1000));
-    const timeout = setTimeout(() => {
-      refresh();
-      const interval = setInterval(refresh, 60 * 60 * 1000);
-      // Cleanup handled by outer effect return via captured ref.
-      (refresh as unknown as { _i?: ReturnType<typeof setInterval> })._i = interval;
-    }, msToNextHour);
-
-    api.listAuctions("live").then((all) => {
-      const now = Date.now();
-      const upcoming = all
-        .filter((a) => new Date(a.startsAt).getTime() > now)
-        .sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime());
-      setNextAuction(upcoming[0] ?? null);
-    });
-
-    return () => {
-      clearTimeout(timeout);
-      const i = (refresh as unknown as { _i?: ReturnType<typeof setInterval> })._i;
-      if (i) clearInterval(i);
-    };
-  }, []);
-
+function HomeV3() {
   return (
-    <>
-      {/* Hero */}
-      <section className="hero-gradient relative overflow-hidden">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-20 md:grid-cols-[1.2fr_1fr] md:items-center md:py-28">
-          <div className="text-white">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-medium backdrop-blur">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
-              Enchères en direct au Maroc
+    <div className="font-ronnia">
+      {/* HERO */}
+      <section className="relative overflow-hidden bg-primary text-primary-foreground">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,oklch(0.66_0.21_35_/_0.35),transparent_60%)]" />
+        <div className="absolute right-0 top-[10%] z-0 hidden h-[80%] w-[40%] overflow-hidden border border-white/10 shadow-2xl md:block">
+          <img
+            src={heroCarsRow.url}
+            alt="Rangée de véhicules professionnels en vente sur Bidlik"
+            className="h-full w-full object-cover"
+          />
+        </div>
+        <div className="relative z-10 mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 md:grid-cols-2 md:py-28">
+          <div className="flex flex-col justify-center">
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 font-yalta text-xs font-semibold uppercase tracking-[0.25em] text-accent">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+              Plateforme B2B Maroc
             </span>
-            <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl">
-              Achetez votre prochaine voiture <span className="text-accent">aux enchères</span>.
+            <h1 className="font-parkson mt-6 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl">
+              Vendez vos véhicules en fin de vie{" "}
+              <span className="text-accent">au juste prix.</span>
+              <br />
+              Achetez en toute confiance.
             </h1>
-            <p className="mt-5 max-w-xl text-base text-white/75 sm:text-lg">
-              Bidlic réunit acheteurs, vendeurs et experts automobiles dans une plateforme d'enchères transparente,
-              sécurisée et 100% en temps réel.
+            <p className="mt-6 max-w-xl text-base text-white/75 sm:text-lg">
+              BIDLIK organise des enchères en ligne entre entreprises, loueurs
+              et marchands automobiles référencés au Maroc. Transparent,
+              sécurisé, sans tracas.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-10 flex flex-wrap gap-4">
               <Link
                 to="/auctions"
-                className="inline-flex items-center justify-center rounded-lg bg-accent px-6 py-3 text-base font-semibold text-accent-foreground shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-glow-orange)]"
+                className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-semibold uppercase tracking-wider text-accent-foreground transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-glow-orange)]"
               >
-                Voir les enchères
+                <Gavel className="h-4 w-4" />
+                Je veux acheter
               </Link>
               <Link
-                to="/comment-ca-marche"
-                className="inline-flex items-center justify-center rounded-lg border border-white/25 bg-white/5 px-6 py-3 text-base font-semibold text-white backdrop-blur transition-colors hover:bg-white/10"
+                to="/login"
+                className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/5 px-7 py-3.5 text-sm font-semibold uppercase tracking-wider text-white transition-colors hover:bg-white/10"
               >
-                Comment ça marche
+                <Car className="h-4 w-4" />
+                Je veux vendre mon parc
               </Link>
             </div>
-
-            <dl className="mt-10 grid max-w-md grid-cols-3 gap-6 border-t border-white/10 pt-6">
-              <Stat label="Voitures expertisées" value="100%" />
-              <Stat label="Durée enchère" value="24h" />
-              <Stat label="Devise" value="MAD" />
-            </dl>
           </div>
-
-          <div className="relative hidden md:block">
-            <div className="absolute -inset-10 rounded-full bg-accent/20 blur-3xl" />
-
-            {/* Truck behind, to the left */}
-            <div
-              className="absolute right-[5%] top-[5%] z-2 w-[78%] opacity-90 animate-car-enter"
-              style={{ animationDelay: "150ms" }}
-            >
-              <img src={heroTruck} alt="" aria-hidden className="w-full drop-shadow-xl" />
-              {/* Orange strobe light on the roof */}
-              <span
-                aria-hidden
-                className="pointer-events-none absolute strobe-light"
-                style={{ left: "18%", top: "27%", width: "21%", height: "6%" }}
-              />
-            </div>
-
-            {/* Car (foreground center) */}
-            <div className="relative z-10 left-[30%] mt-16 animate-car-enter" style={{ containerType: "inline-size" }}>
-              <img
-                src={heroCar}
-                alt="Voiture de luxe aux enchères sur Bidlic"
-                className="relative mx-auto w-full max-w-[560px] drop-shadow-2xl"
-              />
-              {/* Headlight flash anchors — 0x0 points centered exactly on each headlight.
-                  All glow/flare layers center on these anchors so they stay aligned at every breakpoint. */}
-              <span
-                aria-hidden
-                className="pointer-events-none absolute headlight-flash"
-                style={{ left: "10%", top: "51%" }}
-              />
-              <span>
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute headlight-flash"
-                  style={{ left: "43%", top: "52%" }}
-                />
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute headlight-flash"
-                  style={{ left: "47%", top: "50%" }}
-                />
-              </span>
-            </div>
-
-            {/* Motorcycle in front, to the right */}
-            <div
-              className="absolute right-[68%] bottom-[35%] z-1 w-[30%] -translate-y-1/3 animate-car-enter"
-              style={{ animationDelay: "300ms" }}
-            >
-              <img src={heroMoto} alt="" aria-hidden className="w-full drop-shadow-2xl" />
-            </div>
-
-            {/* 3D gavel figure — front-most mascot */}
-            <div
-              className="absolute right-[-26%] bottom-[12%] z-30 w-[42%] animate-car-enter"
-              style={{ animationDelay: "450ms" }}
-            >
-              <img
-                src={heroGavelFigure}
-                alt="Mascotte 3D tenant un marteau de commissaire-priseur"
-                className="w-full drop-shadow-2xl"
-              />
-            </div>
-          </div>
+          <div className="hidden md:block" />
         </div>
       </section>
 
-      {/* Next auction countdown */}
-      {nextAuction && (
-        <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-accent">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.15),transparent_50%)]" />
-          <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-6 px-4 py-14 text-center sm:px-6 sm:py-20">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-white backdrop-blur">
-              <CalendarClock className="h-4 w-4" />
-              Prochaine enchère
-            </span>
-            <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl">
-              La prochaine vente démarre dans
-            </h2>
-            <div className="rounded-2xl border border-white/20 bg-white/10 px-8 py-6 backdrop-blur-md">
-              <Countdown endsAt={nextAuction.startsAt} className="!text-4xl !text-white sm:!text-6xl md:!text-7xl" />
-            </div>
-            <p className="text-sm text-white/80 sm:text-base">
-              Préparez-vous — l'enchère ouvrira le {formatDateTime(nextAuction.startsAt)}.
+      {/* 4 PILIERS */}
+      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="font-yalta text-xs font-semibold uppercase tracking-[0.3em] text-accent">
+            Nos engagements
+          </p>
+          <h2 className="font-parkson mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+            Quatre piliers, une seule promesse.
+          </h2>
+        </div>
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <Pillar
+            icon={<ShieldCheck className="h-5 w-5" />}
+            title="La confiance"
+            text="Chaque véhicule est expertisé, chaque acheteur est vérifié et caution déposée."
+          />
+          <Pillar
+            icon={<Smartphone className="h-5 w-5" />}
+            title="La simplicité"
+            text="Enchérissez où vous voulez, quand vous voulez, depuis votre téléphone."
+          />
+          <Pillar
+            icon={<TrendingUp className="h-5 w-5" />}
+            title="La performance"
+            text="Un marché ouvert entre professionnels pour le meilleur prix, sans intermédiaire inutile."
+          />
+          <Pillar
+            icon={<HandshakeIcon className="h-5 w-5" />}
+            title="L'accompagnement"
+            text="Une équipe BIDLIK vous suit du dépôt du dossier jusqu'à la sortie du véhicule."
+          />
+        </div>
+      </section>
+
+      {/* SECTION ACHETEURS */}
+      <section className="bg-secondary/40 py-20">
+        <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 md:grid-cols-[1.2fr_1fr] md:items-center">
+          <div>
+            <p className="font-yalta text-xs font-semibold uppercase tracking-[0.3em] text-accent">
+              Pour les acheteurs
             </p>
+            <h2 className="font-parkson mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+              Achetez des véhicules professionnels, en toute transparence
+            </h2>
+            <p className="mt-5 text-muted-foreground">
+              BIDLIK donne accès aux marchands et revendeurs référencés à des
+              véhicules issus de flottes d'entreprises, de loueurs et de
+              particuliers — avec un rapport d'expertise complet, des photos
+              détaillées et un historique clair pour chaque véhicule. Vous
+              enchérissez en ligne, à votre rythme, sans déplacement
+              obligatoire. Une fois l'enchère gagnée, le paiement et la sortie
+              du véhicule sont encadrés étape par étape par notre équipe.
+            </p>
+            <ul className="mt-6 space-y-3">
+              <Bullet>Véhicules expertisés avant chaque session</Bullet>
+              <Bullet>Enchères 100% en ligne, accessibles depuis votre mobile</Bullet>
+              <Bullet>Caution sécurisée, règles claires, aucune mauvaise surprise</Bullet>
+              <Bullet>Un interlocuteur dédié pour vous accompagner</Bullet>
+            </ul>
             <Link
-              to="/auctions"
-              search={{ filter: "live" }}
-              className="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 text-base font-semibold text-primary shadow-lg transition-all hover:-translate-y-0.5"
+              to="/login"
+              className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-transform hover:-translate-y-0.5"
             >
-              Voir toutes les enchères
+              Devenir acheteur référencé
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-        </section>
-      )}
 
-      {/* Live auctions preview */}
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
-        <div className="mb-6 flex items-end justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Enchères Passées</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Les ventes récemment clôturées.</p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <StatCard label="Caution standard" value="5 000" suffix="MAD / session" />
+            <StatCard label="Catalogue dispo" value="24h" suffix="avant session" />
+            <StatCard label="Points d'expertise" value="200+" suffix="par véhicule" />
+            <StatCard label="Identité" value="100%" suffix="confidentielle" />
           </div>
-          <Link to="/auctions" className="text-sm font-semibold text-accent hover:underline">
-            Tout voir →
+        </div>
+      </section>
+
+      {/* SECTION VENDEURS */}
+      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
+        <div className="grid gap-12 md:grid-cols-2 md:items-center">
+          <div className="order-2 md:order-1">
+            <div className="relative overflow-hidden rounded-3xl border border-border bg-card p-10 shadow-[var(--shadow-card)]">
+              <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-accent/10 blur-2xl" />
+              <Car className="h-10 w-10 text-accent" />
+              <p className="mt-6 text-2xl font-bold leading-tight text-foreground">
+                "Un canal de revente structuré pour vos véhicules en fin de
+                cycle."
+              </p>
+              <p className="mt-4 text-sm text-muted-foreground">
+                Flottes d'entreprises, loueurs longue durée, particuliers — un
+                process unique, lisible et tracé.
+              </p>
+            </div>
+          </div>
+
+          <div className="order-1 md:order-2">
+            <p className="font-yalta text-xs font-semibold uppercase tracking-[0.3em] text-accent">
+              Pour les vendeurs
+            </p>
+            <h2 className="font-parkson mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+              Cédez votre parc en fin de cycle, sans perdre de valeur
+            </h2>
+            <p className="mt-5 text-muted-foreground">
+              Entreprises, loueurs ou particuliers : BIDLIK prend en charge la
+              mise en vente de vos véhicules en fin de vie auprès d'un réseau
+              de marchands actifs et solvables. Vous fixez votre prix de
+              réserve, nous nous occupons du reste — expertise, mise en
+              concurrence, sécurisation du paiement et suivi administratif.
+            </p>
+            <ul className="mt-6 space-y-3">
+              <Bullet>Vous gardez le contrôle du prix minimum</Bullet>
+              <Bullet>Paiement sécurisé et tracé</Bullet>
+              <Bullet>Aucune négociation directe à gérer</Bullet>
+              <Bullet>Process pensé pour les flottes récurrentes</Bullet>
+            </ul>
+            <Link
+              to="/login"
+              className="mt-8 inline-flex items-center gap-2 rounded-full border border-primary px-7 py-3.5 text-sm font-semibold uppercase tracking-wider text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+            >
+              Vendre mon parc avec BIDLIK
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* PARTENAIRES */}
+      <section className="border-y border-border bg-surface py-16">
+        <div className="mx-auto max-w-7xl px-4 text-center sm:px-6">
+          <p className="font-yalta text-xs font-semibold uppercase tracking-[0.3em] text-accent">
+            Réseau & partenaires
+          </p>
+          <h2 className="font-parkson mt-3 text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
+            Ils nous font confiance
+          </h2>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Zone réservée aux logos clients — à activer dès les premiers
+            partenariats signés.
+          </p>
+          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex h-20 items-center justify-center rounded-xl border border-dashed border-border bg-background text-xs uppercase tracking-widest text-muted-foreground"
+              >
+                Logo
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="mx-auto max-w-4xl px-4 py-20 sm:px-6">
+        <div className="text-center">
+          <p className="font-yalta text-xs font-semibold uppercase tracking-[0.3em] text-accent">
+            Questions fréquentes
+          </p>
+          <h2 className="font-parkson mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+            Ce qu'il faut savoir avant de commencer
+          </h2>
+        </div>
+        <Accordion type="single" collapsible className="mt-10">
+          <FaqItem
+            value="q1"
+            question="Qui peut acheter sur BIDLIK ?"
+            answer="Les marchands et revendeurs automobiles professionnels, après validation de leur dossier d'inscription."
+          />
+          <FaqItem
+            value="q2"
+            question="Quels véhicules trouve-t-on sur BIDLIK ?"
+            answer="Des véhicules issus de flottes d'entreprises, de loueurs et de particuliers — jamais de véhicules saisis ou judiciaires."
+          />
+          <FaqItem
+            value="q3"
+            question="Y a-t-il des frais ?"
+            answer="Oui, des frais de dossier fixes sont appliqués à chaque achat. Le détail est précisé dans nos conditions générales."
+          />
+          <FaqItem
+            value="q4"
+            question="Comment se déroule une enchère ?"
+            answer="Vous consultez le catalogue, vous enchérissez en ligne avant la clôture de la session, et vous êtes informé immédiatement en cas d'adjudication."
+          />
+        </Accordion>
+      </section>
+
+      {/* CLOSING CTA */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-[var(--gradient-accent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,oklch(1_0_0_/_0.15),transparent_60%)]" />
+        <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-6 px-4 py-20 text-center sm:px-6">
+          <h2 className="font-parkson max-w-3xl text-3xl font-extrabold tracking-tight text-brand-orange sm:text-4xl md:text-5xl">
+            Rejoignez une plateforme pensée pour le marché marocain de
+            l'automobile professionnelle.
+          </h2>
+          <Link
+            to="/login"
+            className="mt-2 inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-transform hover:-translate-y-0.5"
+          >
+            Créer mon compte
+            <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {featured.map((a) => (
-            <AuctionCard key={a.id} auction={a} />
-          ))}
-        </div>
       </section>
-
-      {/* How it works */}
-      <section className="bg-secondary/40 py-14">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Une expérience d'enchère pensée pour vous
-          </h2>
-          <div className="mt-8 grid gap-5 md:grid-cols-3">
-            <Feature
-              num="01"
-              title="Voitures expertisées"
-              text="Chaque véhicule est inspecté par un expert indépendant et noté sur 10."
-            />
-            <Feature
-              num="02"
-              title="Enchères en temps réel"
-              text="Voyez chaque offre instantanément. Activez l'auto-enchère pour ne jamais perdre."
-            />
-            <Feature
-              num="03"
-              title="Paiement sécurisé"
-              text="48 heures pour régler votre achat après validation de l'enchère."
-            />
-          </div>
-        </div>
-      </section>
-    </>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="text-xs uppercase tracking-wider text-white/60">{label}</dt>
-      <dd className="mt-1 text-2xl font-bold text-white">{value}</dd>
     </div>
   );
 }
 
-function Feature({ num, title, text }: { num: string; title: string; text: string }) {
+function Pillar({
+  icon,
+  title,
+  text,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  text: string;
+}) {
   return (
-    <div className="rounded-xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
-      <span className="text-xs font-bold tracking-wider text-accent">{num}</span>
-      <h3 className="mt-2 text-lg font-bold text-foreground">{title}</h3>
-      <p className="mt-2 text-sm text-muted-foreground">{text}</p>
+    <div className="group rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)] transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]">
+      <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent transition-colors group-hover:bg-accent group-hover:text-accent-foreground">
+        {icon}
+      </div>
+      <h3 className="font-parkson mt-5 text-lg font-bold text-foreground">{title}</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{text}</p>
     </div>
+  );
+}
+
+function Bullet({ children }: { children: React.ReactNode }) {
+  return (
+    <li className="flex items-start gap-3 text-sm text-foreground">
+      <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-accent" />
+      <span>{children}</span>
+    </li>
+  );
+}
+
+function StatCard({
+  label,
+  value,
+  suffix,
+}: {
+  label: string;
+  value: string;
+  suffix: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {label}
+      </p>
+      <p className="font-yalta mt-3 text-3xl font-extrabold text-primary">{value}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{suffix}</p>
+    </div>
+  );
+}
+
+function FaqItem({
+  value,
+  question,
+  answer,
+}: {
+  value: string;
+  question: string;
+  answer: string;
+}) {
+  return (
+    <AccordionItem value={value} className="border-border">
+      <AccordionTrigger className="text-left text-base font-semibold text-foreground hover:no-underline">
+        {question}
+      </AccordionTrigger>
+      <AccordionContent className="text-sm text-muted-foreground">
+        {answer}
+      </AccordionContent>
+    </AccordionItem>
   );
 }
