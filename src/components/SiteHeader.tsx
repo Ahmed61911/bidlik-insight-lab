@@ -19,6 +19,7 @@ export function SiteHeader() {
   const auth = useAuth();
   const navigate = useNavigate();
   const userRoles = auth.user?.roles ?? [];
+  const isAdmin = userRoles.includes("admin");
   const isExpertOnly = userRoles.includes("expert") && !userRoles.some((r) => r === "admin" || r === "acheteur" || r === "vendeur");
   const isVendeur = userRoles.includes("vendeur") && !userRoles.includes("admin");
   const showHomeAndVehicules = !isExpertOnly && !isVendeur;
@@ -45,7 +46,7 @@ export function SiteHeader() {
           {!auth.isAuthenticated && <NavLink to="/comment-ca-marche-vendeur">Vendeur</NavLink>}
           {showHomeAndVehicules && <NavLink to="/auctions">Enchères</NavLink>}
           {showHomeAndVehicules && auth.isAuthenticated && <NavLink to="/vehicules">Véhicules</NavLink>}
-          {auth.isAuthenticated && !isExpertOnly && <NavLink to="/comment-ca-marche">Comment ça marche</NavLink>}
+          {auth.isAuthenticated && !isExpertOnly && !isAdmin && <NavLink to="/comment-ca-marche">Comment ça marche</NavLink>}
           {isExpertOnly && (
             <>
               <NavLink to="/expert">Vue d'ensemble</NavLink>
