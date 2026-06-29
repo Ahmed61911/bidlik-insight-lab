@@ -1,15 +1,3 @@
-# Full local stack: TanStack Start app + self-hosted Supabase.
-# Boot order is enforced via healthchecks:
-#   db (healthy) → auth (healthy, creates auth schema) → migrate (one-shot)
-#   → rest / realtime / storage / kong → app
-#
-# Migrations and init SQL are COPIED into images — no nested bind mounts,
-# so this works on Docker Desktop for Windows out of the box.
-#
-# Quickstart:
-#   cp .env.docker.example .env.docker
-#   docker compose --env-file .env.docker up -d
-
 name: bidlik
 
 services:
@@ -22,24 +10,38 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
       JWT_SECRET: ${JWT_SECRET}
-      JWT_EXP: 3600
+      JWT_EXP: ${JWT_EXP:-3600}
     command:
       - postgres
       - -c
       - shared_preload_libraries=pg_cron,pg_stat_statements,pgaudit
       - -c
-      - cron.database_name=postgres
+      - cron.database_name=${POSTGRES_DB:-postgres}
       - -c
       - wal_level=logical
+      - -c
+      - max_replication_slots=10
+      - -c
+      - max_wal_senders=10
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:
-      # No -U flag: pg_isready only needs to verify the server accepts
-      # connections, not authenticate. The supabase/postgres image does not
-      # always provision a `postgres` login role, so -U postgres would fail.
-      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -q"]
+      test: ["CMD-SHELL", "PGPASSWORD=$$POSTGRES_PASSWORD psql -h 127.0.0.1 -p 5432 -U supabase_auth_admin -d $${POSTGRES_DB:-postgres} -tAc 'SELECT 1' | grep -q 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 20s
+
+  inbucket:
+    image: inbucket/inbucket:3.0.4
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "2500:2500"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:9000/readyz"]
       interval: 5s
       timeout: 5s
       retries: 30
@@ -49,18 +51,20 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      inbucket:
+        condition: service_healthy
     restart: unless-stopped
     environment:
       GOTRUE_API_HOST: 0.0.0.0
       GOTRUE_API_PORT: 9999
-      API_EXTERNAL_URL: ${API_EXTERNAL_URL}
+      API_EXTERNAL_URL: ${API_EXTERNAL_URL:-http://localhost:8000}
       GOTRUE_DB_DRIVER: postgres
-      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      GOTRUE_SITE_URL: ${SITE_URL}
+      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-postgres}
+      GOTRUE_SITE_URL: ${SITE_URL:-http://localhost:8080}
       GOTRUE_URI_ALLOW_LIST: "*"
       GOTRUE_DISABLE_SIGNUP: "false"
       GOTRUE_JWT_SECRET: ${JWT_SECRET}
-      GOTRUE_JWT_EXP: 3600
+      GOTRUE_JWT_EXP: ${JWT_EXP:-3600}
       GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
       GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
       GOTRUE_MAILER_AUTOCONFIRM: "true"
@@ -72,50 +76,38 @@ services:
       GOTRUE_SMTP_SENDER_NAME: Bidlik
       GOTRUE_LOG_LEVEL: info
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:9999/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:9999/health"]
       interval: 5s
       timeout: 5s
-      retries: 30
-
-  migrate:
-    build:
-      context: .
-      dockerfile: docker/migrate/Dockerfile
-    image: bidlik/migrate:local
-    depends_on:
-      db:
-        condition: service_healthy
-      auth:
-        condition: service_healthy
-    environment:
-      PGHOST: db
-      PGPORT: 5432
-      PGUSER: supabase_admin
-      PGDATABASE: ${POSTGRES_DB}
-      PGPASSWORD: ${POSTGRES_PASSWORD}
-      AUTH_HEALTH_URL: http://auth:9999/health
-    restart: "no"
+      retries: 60
+      start_period: 10s
 
   rest:
     image: postgrest/postgrest:v12.2.3
     depends_on:
-      migrate:
-        condition: service_completed_successfully
+      db:
+        condition: service_healthy
     restart: unless-stopped
     environment:
-      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-postgres}
       PGRST_DB_SCHEMAS: public,storage
       PGRST_DB_ANON_ROLE: anon
       PGRST_JWT_SECRET: ${JWT_SECRET}
       PGRST_DB_USE_LEGACY_GUCS: "false"
       PGRST_APP_SETTINGS_JWT_SECRET: ${JWT_SECRET}
-      PGRST_APP_SETTINGS_JWT_EXP: 3600
+      PGRST_APP_SETTINGS_JWT_EXP: ${JWT_EXP:-3600}
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 10s
 
   realtime:
     image: supabase/realtime:v2.30.34
     depends_on:
-      migrate:
-        condition: service_completed_successfully
+      db:
+        condition: service_healthy
     restart: unless-stopped
     environment:
       PORT: 4000
@@ -123,7 +115,8 @@ services:
       DB_PORT: 5432
       DB_USER: supabase_admin
       DB_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_NAME: ${POSTGRES_DB}
+      DB_NAME: ${POSTGRES_DB:-postgres}
+      DB_AFTER_CONNECT_QUERY: "SET search_path TO _realtime"
       DB_ENC_KEY: supabaserealtime
       API_JWT_SECRET: ${JWT_SECRET}
       SECRET_KEY_BASE: UpNVntn3cDxHJpq99YMc1T1AQgQpc8kfYTuRgBiYa15BLrx8etQoXz3gZv1/u2oq
@@ -133,48 +126,93 @@ services:
       APP_NAME: realtime
       SEED_SELF_HOST: "true"
       RUN_JANITOR: "true"
+      TENANT_ID: realtime-dev
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sSfL --head -o /dev/null -H 'Authorization: Bearer ${ANON_KEY}' http://127.0.0.1:4000/api/tenants/realtime-dev/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 20s
 
   storage:
     image: supabase/storage-api:v1.11.13
     depends_on:
-      migrate:
-        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+      auth:
+        condition: service_healthy
       rest:
-        condition: service_started
+        condition: service_healthy
     restart: unless-stopped
     environment:
       ANON_KEY: ${ANON_KEY}
       SERVICE_KEY: ${SERVICE_ROLE_KEY}
       POSTGREST_URL: http://rest:3000
       PGRST_JWT_SECRET: ${JWT_SECRET}
-      DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-postgres}
       FILE_SIZE_LIMIT: "52428800"
       STORAGE_BACKEND: file
       FILE_STORAGE_BACKEND_PATH: /var/lib/storage
       TENANT_ID: stub
-      REGION: stub
+      REGION: local
       GLOBAL_S3_BUCKET: stub
+      ENABLE_IMAGE_TRANSFORMATION: "false"
     volumes:
       - storage-data:/var/lib/storage
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:5000/status"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 20s
+
+  migrate:
+    build:
+      context: .
+      dockerfile: docker/migrate/Dockerfile
+    image: bidlik/migrate:local
+    depends_on:
+      auth:
+        condition: service_healthy
+      storage:
+        condition: service_healthy
+      realtime:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGPORT: 5432
+      PGUSER: supabase_admin
+      PGDATABASE: ${POSTGRES_DB:-postgres}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      AUTH_HEALTH_URL: http://auth:9999/health
+      STORAGE_HEALTH_URL: http://storage:5000/status
+    restart: "no"
 
   meta:
     image: supabase/postgres-meta:v0.84.2
     depends_on:
-      db:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     restart: unless-stopped
     environment:
       PG_META_PORT: 8080
       PG_META_DB_HOST: db
       PG_META_DB_PORT: 5432
-      PG_META_DB_NAME: ${POSTGRES_DB}
+      PG_META_DB_NAME: ${POSTGRES_DB:-postgres}
       PG_META_DB_USER: supabase_admin
       PG_META_DB_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8080/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 10s
 
   studio:
     image: supabase/studio:20241014-c083b3b
     depends_on:
-      - meta
+      meta:
+        condition: service_healthy
     restart: unless-stopped
     ports:
       - "${STUDIO_PORT:-3000}:3000"
@@ -183,19 +221,35 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       DEFAULT_ORGANIZATION_NAME: Local
       DEFAULT_PROJECT_NAME: Bidlik
-      SUPABASE_URL: ${API_EXTERNAL_URL}
-      SUPABASE_PUBLIC_URL: ${API_EXTERNAL_URL}
+      SUPABASE_URL: ${API_EXTERNAL_URL:-http://localhost:8000}
+      SUPABASE_PUBLIC_URL: ${API_EXTERNAL_URL:-http://localhost:8000}
       SUPABASE_ANON_KEY: ${ANON_KEY}
       SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
       AUTH_JWT_SECRET: ${JWT_SECRET}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/profile').then((r)=>{if(r.status!==200)throw new Error(r.status)})"]
+      interval: 5s
+      timeout: 10s
+      retries: 60
+      start_period: 20s
 
   kong:
-    image: kong:2.8.1
+    build:
+      context: ./docker/kong-image
+    image: bidlik/kong:local
     depends_on:
-      - auth
-      - rest
-      - realtime
-      - storage
+      auth:
+        condition: service_healthy
+      rest:
+        condition: service_healthy
+      realtime:
+        condition: service_healthy
+      storage:
+        condition: service_healthy
+      meta:
+        condition: service_healthy
+      studio:
+        condition: service_healthy
     restart: unless-stopped
     ports:
       - "${KONG_HTTP_PORT:-8000}:8000"
@@ -203,18 +257,16 @@ services:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
       KONG_DNS_ORDER: LAST,A,CNAME
-      KONG_PLUGINS: request-transformer,cors,key-auth
-      ANON_KEY: ${ANON_KEY}
-      SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
-    volumes:
-      - ./docker/kong.yml:/var/lib/kong/kong.yml:ro
-
-  inbucket:
-    image: inbucket/inbucket:3.0.4
-    restart: unless-stopped
-    ports:
-      - "9000:9000"
-      - "2500:2500"
+      KONG_PLUGINS: bundled
+      KONG_STATUS_LISTEN: 0.0.0.0:8100
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 10s
 
   app:
     build:
@@ -222,31 +274,29 @@ services:
       dockerfile: Dockerfile
       target: dev
     depends_on:
-      - kong
+      kong:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     restart: unless-stopped
     ports:
       - "${APP_PORT:-8080}:8080"
     environment:
       NODE_ENV: development
-      # Browser-visible: point at Kong on the host.
-      VITE_SUPABASE_URL: ${API_EXTERNAL_URL}
+      VITE_SUPABASE_URL: ${API_EXTERNAL_URL:-http://localhost:8000}
       VITE_SUPABASE_PUBLISHABLE_KEY: ${ANON_KEY}
       VITE_SUPABASE_PROJECT_ID: local
-      # Server-side (SSR / server fns): talk to Kong inside the compose network.
       SUPABASE_URL: http://kong:8000
       SUPABASE_PUBLISHABLE_KEY: ${ANON_KEY}
       SUPABASE_SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
       SUPABASE_PROJECT_ID: local
-    volumes:
-      - ./src:/app/src
-      - ./public:/app/public
-      - ./package.json:/app/package.json
-      - ./bun.lock:/app/bun.lock
-      - ./vite.config.ts:/app/vite.config.ts
-      - ./tsconfig.json:/app/tsconfig.json
-      - app-node-modules:/app/node_modules
+    healthcheck:
+      test: ["CMD", "bun", "-e", "fetch('http://127.0.0.1:8080').then((r)=>{if(!r.ok)process.exit(1)})"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 30s
 
 volumes:
   db-data:
   storage-data:
-  app-node-modules:

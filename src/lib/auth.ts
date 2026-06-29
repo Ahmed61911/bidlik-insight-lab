@@ -1,5 +1,5 @@
 /**
- * Auth store + provider — backed by Lovable Cloud (Supabase Auth).
+ * Auth store + provider — backed by the local self-hosted Supabase Auth service.
  *
  * Same public surface as before: a tiny external store consumed via
  * `useSyncExternalStore` and `authStore.*` from route guards. All consumers

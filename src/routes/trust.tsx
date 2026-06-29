@@ -77,7 +77,7 @@ function TrustPage() {
 
         <Section title="Hébergement & infrastructure">
           <p>
-            Bidlik s'appuie sur l'infrastructure managée Lovable Cloud pour la base de
+            Bidlik s'appuie sur l'infrastructure Supabase auto-hébergée locale pour la base de
             données, l'authentification et le stockage. Les communications avec
             l'application sont chiffrées en transit (HTTPS).
           </p>

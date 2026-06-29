@@ -1,5 +1,5 @@
 /**
- * API client — backed by Lovable Cloud (Supabase).
+ * API client — backed by the local self-hosted Supabase stack.
  * The interface is preserved 1:1 with the original mock so all routes
  * keep working without changes. See src/lib/supabaseApi.ts for the impl.
  */
