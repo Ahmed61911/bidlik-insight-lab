@@ -19,6 +19,7 @@ export function SiteHeader() {
   const auth = useAuth();
   const navigate = useNavigate();
   const userRoles = auth.user?.roles ?? [];
+  const isAdmin = userRoles.includes("admin");
   const isExpertOnly = userRoles.includes("expert") && !userRoles.some((r) => r === "admin" || r === "acheteur" || r === "vendeur");
   const isVendeur = userRoles.includes("vendeur") && !userRoles.includes("admin");
   const showHomeAndVehicules = !isExpertOnly && !isVendeur;
