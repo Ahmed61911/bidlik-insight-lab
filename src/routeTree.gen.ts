@@ -15,8 +15,7 @@ import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
 import { Route as TrustRouteImport } from './routes/trust'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InscriptionEnAttenteRouteImport } from './routes/inscription-en-attente'
-import { Route as HomeV3RouteImport } from './routes/home-v3'
-import { Route as HomeV2RouteImport } from './routes/home-v2'
+import { Route as HomeOldRouteImport } from './routes/home-old'
 import { Route as ExpertRouteImport } from './routes/expert'
 import { Route as CommentCaMarcheVendeurRouteImport } from './routes/comment-ca-marche-vendeur'
 import { Route as CommentCaMarcheAcheteurRouteImport } from './routes/comment-ca-marche-acheteur'
@@ -89,14 +88,9 @@ const InscriptionEnAttenteRoute = InscriptionEnAttenteRouteImport.update({
   path: '/inscription-en-attente',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HomeV3Route = HomeV3RouteImport.update({
-  id: '/home-v3',
-  path: '/home-v3',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HomeV2Route = HomeV2RouteImport.update({
-  id: '/home-v2',
-  path: '/home-v2',
+const HomeOldRoute = HomeOldRouteImport.update({
+  id: '/home-old',
+  path: '/home-old',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExpertRoute = ExpertRouteImport.update({
@@ -317,8 +311,7 @@ export interface FileRoutesByFullPath {
   '/comment-ca-marche-acheteur': typeof CommentCaMarcheAcheteurRoute
   '/comment-ca-marche-vendeur': typeof CommentCaMarcheVendeurRoute
   '/expert': typeof ExpertRouteWithChildren
-  '/home-v2': typeof HomeV2Route
-  '/home-v3': typeof HomeV3Route
+  '/home-old': typeof HomeOldRoute
   '/inscription-en-attente': typeof InscriptionEnAttenteRoute
   '/login': typeof LoginRoute
   '/trust': typeof TrustRoute
@@ -365,8 +358,7 @@ export interface FileRoutesByTo {
   '/comment-ca-marche': typeof CommentCaMarcheRoute
   '/comment-ca-marche-acheteur': typeof CommentCaMarcheAcheteurRoute
   '/comment-ca-marche-vendeur': typeof CommentCaMarcheVendeurRoute
-  '/home-v2': typeof HomeV2Route
-  '/home-v3': typeof HomeV3Route
+  '/home-old': typeof HomeOldRoute
   '/inscription-en-attente': typeof InscriptionEnAttenteRoute
   '/login': typeof LoginRoute
   '/trust': typeof TrustRoute
@@ -416,8 +408,7 @@ export interface FileRoutesById {
   '/comment-ca-marche-acheteur': typeof CommentCaMarcheAcheteurRoute
   '/comment-ca-marche-vendeur': typeof CommentCaMarcheVendeurRoute
   '/expert': typeof ExpertRouteWithChildren
-  '/home-v2': typeof HomeV2Route
-  '/home-v3': typeof HomeV3Route
+  '/home-old': typeof HomeOldRoute
   '/inscription-en-attente': typeof InscriptionEnAttenteRoute
   '/login': typeof LoginRoute
   '/trust': typeof TrustRoute
@@ -469,8 +460,7 @@ export interface FileRouteTypes {
     | '/comment-ca-marche-acheteur'
     | '/comment-ca-marche-vendeur'
     | '/expert'
-    | '/home-v2'
-    | '/home-v3'
+    | '/home-old'
     | '/inscription-en-attente'
     | '/login'
     | '/trust'
@@ -517,8 +507,7 @@ export interface FileRouteTypes {
     | '/comment-ca-marche'
     | '/comment-ca-marche-acheteur'
     | '/comment-ca-marche-vendeur'
-    | '/home-v2'
-    | '/home-v3'
+    | '/home-old'
     | '/inscription-en-attente'
     | '/login'
     | '/trust'
@@ -567,8 +556,7 @@ export interface FileRouteTypes {
     | '/comment-ca-marche-acheteur'
     | '/comment-ca-marche-vendeur'
     | '/expert'
-    | '/home-v2'
-    | '/home-v3'
+    | '/home-old'
     | '/inscription-en-attente'
     | '/login'
     | '/trust'
@@ -619,8 +607,7 @@ export interface RootRouteChildren {
   CommentCaMarcheAcheteurRoute: typeof CommentCaMarcheAcheteurRoute
   CommentCaMarcheVendeurRoute: typeof CommentCaMarcheVendeurRoute
   ExpertRoute: typeof ExpertRouteWithChildren
-  HomeV2Route: typeof HomeV2Route
-  HomeV3Route: typeof HomeV3Route
+  HomeOldRoute: typeof HomeOldRoute
   InscriptionEnAttenteRoute: typeof InscriptionEnAttenteRoute
   LoginRoute: typeof LoginRoute
   TrustRoute: typeof TrustRoute
@@ -682,18 +669,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InscriptionEnAttenteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/home-v3': {
-      id: '/home-v3'
-      path: '/home-v3'
-      fullPath: '/home-v3'
-      preLoaderRoute: typeof HomeV3RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/home-v2': {
-      id: '/home-v2'
-      path: '/home-v2'
-      fullPath: '/home-v2'
-      preLoaderRoute: typeof HomeV2RouteImport
+    '/home-old': {
+      id: '/home-old'
+      path: '/home-old'
+      fullPath: '/home-old'
+      preLoaderRoute: typeof HomeOldRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/expert': {
@@ -1089,8 +1069,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommentCaMarcheAcheteurRoute: CommentCaMarcheAcheteurRoute,
   CommentCaMarcheVendeurRoute: CommentCaMarcheVendeurRoute,
   ExpertRoute: ExpertRouteWithChildren,
-  HomeV2Route: HomeV2Route,
-  HomeV3Route: HomeV3Route,
+  HomeOldRoute: HomeOldRoute,
   InscriptionEnAttenteRoute: InscriptionEnAttenteRoute,
   LoginRoute: LoginRoute,
   TrustRoute: TrustRoute,

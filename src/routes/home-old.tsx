@@ -12,7 +12,7 @@ import heroTruck from "@/assets/hero-truck-new.png";
 import heroMoto from "@/assets/hero-moto.png";
 import heroGavelFigure from "@/assets/hero-gavel-figure.png";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/home-old")({
   beforeLoad: () => {
     const { session } = authStore.getState();
     const roles = session?.user.roles ?? [];

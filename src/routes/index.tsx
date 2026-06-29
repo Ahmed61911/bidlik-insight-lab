@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import heroCarsRow from "@/assets/hero-cars-row.jpg.asset.json";
 
-export const Route = createFileRoute("/home-v3")({
+export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Bidlik — Enchères automobiles professionnelles au Maroc" },
