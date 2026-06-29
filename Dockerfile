@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package.json bun.lock bunfig.toml ./
 RUN bun install --frozen-lockfile
 
-FROM oven/bun:1.1-alpine AS dev
+FROM oven/bun:1.3-alpine AS dev
 WORKDIR /app
 ENV NODE_ENV=development
 ENV HOST=0.0.0.0
