@@ -1,7 +1,7 @@
 # Dev-friendly image that runs the TanStack Start Vite dev server.
 # For production builds you can add a second stage; dev mode keeps HMR
 # and avoids the Cloudflare Workers target the prod build defaults to.
-FROM oven/bun:1.1-alpine AS deps
+FROM oven/bun:1.3-alpine AS deps
 WORKDIR /app
 COPY package.json bun.lock bunfig.toml ./
 RUN bun install --frozen-lockfile
