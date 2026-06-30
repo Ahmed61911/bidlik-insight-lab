@@ -39,7 +39,7 @@ export const Route = createFileRoute("/")({
 
 function HomeV3() {
   return (
-    <div className="font-ronnia">
+    <div className="font-yalta">
       {/* HERO */}
       <section className="relative overflow-hidden bg-primary text-primary-foreground">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,oklch(0.66_0.21_35_/_0.35),transparent_60%)]" />
