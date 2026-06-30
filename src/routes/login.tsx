@@ -87,25 +87,18 @@ function LoginPage() {
         goAfterAuth(session.user.roles);
       } else {
         const phone = String(fd.get("phone"));
-        await authStore.register({
+        const session = await authStore.register({
           nom: String(fd.get("name")),
           email: `${phone.replace(/\D/g, "")}@bidlic.local`,
           telephone: phone,
           password: String(fd.get("password")),
           role: "acheteur",
         });
-        toast.success("Compte créé. Validation par un administrateur requise.");
-        navigate({ to: "/inscription-en-attente" });
-        return;
+        toast.success("Compte créé avec succès");
+        goAfterAuth(session.user.roles);
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Erreur d'authentification";
-      if (msg.toLowerCase().includes("attente de validation")) {
-        toast.info(msg);
-        navigate({ to: "/inscription-en-attente" });
-        return;
-      }
-      toast.error(msg);
+      toast.error(err instanceof Error ? err.message : "Erreur d'authentification");
     } finally {
       setLoading(false);
     }
