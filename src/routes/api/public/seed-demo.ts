@@ -14,13 +14,14 @@ type DemoAccount = {
   password: string;
   role: "admin" | "expert" | "vendeur" | "acheteur";
   nom: string;
+  telephone: string;
 };
 
 const DEMO: DemoAccount[] = [
-  { email: "admin@bidlic.ma", password: "Admin1234!", role: "admin", nom: "Admin Bidlic" },
-  { email: "expert@bidlic.ma", password: "Expert1234!", role: "expert", nom: "Youssef El Amrani" },
-  { email: "vendeur@bidlic.ma", password: "Vendeur1234!", role: "vendeur", nom: "Karim Bennani" },
-  { email: "acheteur@bidlic.ma", password: "Acheteur1234!", role: "acheteur", nom: "Salma Idrissi" },
+  { email: "admin@bidlic.ma", password: "Admin1234!", role: "admin", nom: "Admin Bidlic", telephone: "+212 600 000 001" },
+  { email: "expert@bidlic.ma", password: "Expert1234!", role: "expert", nom: "Youssef El Amrani", telephone: "+212 600 000 002" },
+  { email: "vendeur@bidlic.ma", password: "Vendeur1234!", role: "vendeur", nom: "Karim Bennani", telephone: "+212 600 000 003" },
+  { email: "acheteur@bidlic.ma", password: "Acheteur1234!", role: "acheteur", nom: "Salma Idrissi", telephone: "+212 600 000 004" },
 ];
 
 export const Route = createFileRoute("/api/public/seed-demo")({
@@ -40,7 +41,7 @@ export const Route = createFileRoute("/api/public/seed-demo")({
               email: acc.email,
               password: acc.password,
               email_confirm: true,
-              user_metadata: { nom: acc.nom, role: acc.role },
+              user_metadata: { nom: acc.nom, telephone: acc.telephone, role: acc.role, actif: true },
             });
             if (error) {
               return new Response(
@@ -54,7 +55,7 @@ export const Route = createFileRoute("/api/public/seed-demo")({
             await supabaseAdmin.auth.admin.updateUserById(userId, {
               password: acc.password,
               email_confirm: true,
-              user_metadata: { nom: acc.nom, role: acc.role },
+              user_metadata: { nom: acc.nom, telephone: acc.telephone, role: acc.role, actif: true },
             });
           }
 
@@ -66,6 +67,8 @@ export const Route = createFileRoute("/api/public/seed-demo")({
                 user_id: userId,
                 nom: acc.nom,
                 email: acc.email,
+                telephone: acc.telephone,
+                actif: true,
                 caution_validee: acc.role === "acheteur",
               },
               { onConflict: "user_id" },

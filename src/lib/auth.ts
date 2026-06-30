@@ -126,24 +126,32 @@ export const authStore = {
     return () => listeners.delete(listener);
   },
   async login(input: LoginInput): Promise<AuthSession> {
-    const { error } = await supabase.auth.signInWithPassword({
+    let { error } = await supabase.auth.signInWithPassword({
       email: input.email,
       password: input.password,
     });
-    if (error) throw new Error(translateAuthError(error.message));
-    // Block sign-in if the account hasn't been validated by an admin yet.
-    const { data: active } = await supabase.rpc("is_my_account_active");
-    if (active === false) {
-      await supabase.auth.signOut();
-      setState({ status: "anonymous", session: null });
-      throw new Error("Votre compte est en attente de validation par un administrateur.");
+
+    // Local/offline convenience: if a demo credential is typed manually before
+    // the demo seeder has run, seed the demo users once and retry the login.
+    if (error && DEMO_ACCOUNTS.some((a) => a.email.toLowerCase() === input.email.toLowerCase())) {
+      try {
+        await fetch("/api/public/seed-demo", { method: "POST" });
+        ({ error } = await supabase.auth.signInWithPassword({
+          email: input.email,
+          password: input.password,
+        }));
+      } catch {
+        // Keep the original auth error below if seeding/retry fails.
+      }
     }
+
+    if (error) throw new Error(translateAuthError(error.message));
     const session = await sessionFromSupabase();
     if (!session) throw new Error("Connexion impossible.");
     setState({ status: "authenticated", session });
     return session;
   },
-  async register(input: RegisterInput): Promise<void> {
+  async register(input: RegisterInput): Promise<AuthSession> {
     const { error } = await supabase.auth.signUp({
       email: input.email,
       password: input.password,
@@ -153,14 +161,26 @@ export const authStore = {
           nom: input.nom,
           telephone: input.telephone,
           role: input.role,
+          actif: true,
         },
       },
     });
     if (error) throw new Error(translateAuthError(error.message));
-    // New accounts are inactive by default — sign out and let the caller route
-    // the user to a "pending validation" page.
-    await supabase.auth.signOut();
-    setState({ status: "anonymous", session: null });
+    // With local auto-confirm, Supabase can issue a session immediately.
+    // If not, sign in explicitly so the user can continue offline without an
+    // external email confirmation dependency.
+    let session = await sessionFromSupabase();
+    if (!session) {
+      const { error: signInErr } = await supabase.auth.signInWithPassword({
+        email: input.email,
+        password: input.password,
+      });
+      if (signInErr) throw new Error(translateAuthError(signInErr.message));
+      session = await sessionFromSupabase();
+    }
+    if (!session) throw new Error("Inscription impossible.");
+    setState({ status: "authenticated", session });
+    return session;
   },
   logout() {
     // Fire-and-forget — flip UI immediately for snappy UX.
