@@ -1,8 +1,8 @@
-# Bidlic — Architecture & .NET Migration Documentation
+# Bidlic — Architecture & Finish-in-Place Documentation
 
-Exhaustive reverse-engineering of the Bidlic codebase and a full blueprint for
-migrating the **backend only** to ASP.NET Core 8 while keeping the React
-frontend intact.
+Exhaustive reverse-engineering of the Bidlic codebase and a roadmap to finish
+the project on its current stack (React 19 + TanStack Start + self-hosted
+Supabase). No backend rewrite planned.
 
 ## Reading order
 
@@ -20,9 +20,10 @@ frontend intact.
 | 10 | [10-request-flows.md](./10-request-flows.md) | End-to-end traces for 9 real user actions |
 | 11 | [11-dependencies.md](./11-dependencies.md) | Every npm dep & every Docker image |
 | 12 | [12-connections-map.md](./12-connections-map.md) | Module graph, coupling, tech debt, bottlenecks |
-| 13 | [13-dotnet-migration.md](./13-dotnet-migration.md) | ASP.NET Core 8 blueprint + per-file TS→C# mapping |
-| 14 | [14-database-migration.md](./14-database-migration.md) | EF Core DbContext, Dapper sidebars, alt-DB strategies |
-| 15 | [15-final-report.md](./15-final-report.md) | Diagrams, phases, risks, difficulty matrix, strategy |
+| 15 | [15-final-report.md](./15-final-report.md) | Finish-in-place roadmap: remaining scope, effort, risks, launch plan |
+
+> Files 13 (`.NET migration blueprint`) and 14 (`database migration`) were
+> removed. The project keeps its current stack; there is no rewrite planned.
 
 ## Legend
 
@@ -35,6 +36,4 @@ frontend intact.
 
 - File paths are always project-relative (`src/routes/index.tsx`).
 - SQL identifiers are lowercase.
-- `.NET 8 + EF Core + Npgsql` is the primary target; **Dapper** notes appear
-  where RLS/RPC semantics make EF Core awkward.
 - Diagrams are ASCII (no external tooling required).
