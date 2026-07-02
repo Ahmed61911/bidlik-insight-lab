@@ -3,9 +3,10 @@
 @import "tw-animate-css";
 
 @theme {
-  --font-display: "Fraunces", Georgia, serif;
-  --font-sans: "Outfit", system-ui, sans-serif;
+  --font-display: "Barlow Condensed", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Open Sans", system-ui, sans-serif;
 }
+
 
 
 @custom-variant dark (&:is(.dark *));
@@ -52,9 +53,10 @@
   --color-surface: var(--surface);
   --color-surface-elevated: var(--surface-elevated);
 
-  --font-display: "Fraunces", Georgia, serif;
-  --font-sans: "Outfit", system-ui, sans-serif;
-  --font-mono-brand: "Outfit", system-ui, sans-serif;
+  --font-display: "Barlow Condensed", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Open Sans", system-ui, sans-serif;
+  --font-mono-brand: "Open Sans", system-ui, sans-serif;
+
 
 
   --shadow-card: 0 1px 2px oklch(0 0 0 / 0.04), 0 8px 24px oklch(0.2 0.05 260 / 0.06);
