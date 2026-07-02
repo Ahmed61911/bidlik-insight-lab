@@ -49,7 +49,6 @@ type AuctionRow = {
   bid_count: number;
   ends_at: string;
   status: string;
-  top_bidder_id: string | null;
 };
 type CarRow = {
   id: string;
@@ -85,9 +84,14 @@ async function refreshEncheres(uid: string) {
 
   const { data: auctions } = await supabase
     .from("auctions")
-    .select("id, car_id, current_price, bid_count, ends_at, status, top_bidder_id")
+    .select("id, car_id, current_price, bid_count, ends_at, status")
     .in("id", auctionIds);
   const aRows = (auctions ?? []) as AuctionRow[];
+
+  // Fetch which of these auctions the current user is currently leading. top_bidder_id
+  // is not exposed to authenticated users; a role-scoped RPC returns only ids the caller leads.
+  const { data: leadingRows } = await supabase.rpc("my_leading_auctions", { p_ids: auctionIds });
+  const leadingSet = new Set(((leadingRows ?? []) as Array<{ auction_id: string }>).map((r) => r.auction_id));
 
   const carIds = Array.from(new Set(aRows.map((a) => a.car_id)));
   const { data: cars } = await supabase
@@ -99,7 +103,7 @@ async function refreshEncheres(uid: string) {
 
   const encheres: MonEnchere[] = aRows.map((a) => {
     const car = carMap.get(a.car_id);
-    const isLeader = a.top_bidder_id === uid;
+    const isLeader = leadingSet.has(a.id);
     return {
       auctionId: a.id,
       carId: a.car_id,
