@@ -135,29 +135,23 @@ function nextCarId(existing: string[]): string {
 async function getStats(): Promise<AdminStats> {
   const monthStart = startOfMonthISO();
 
-  const [
-    totalAuctionsRes,
-    liveAuctionsRes,
-    pendingValidationsRes,
-    validatedMonthRes,
-    closedMonthRes,
-    allClosedMonthRes,
-    rolesRes,
-    allValidatedRes,
-    paidPaymentsRes,
-  ] = await Promise.all([
+  const [statsRes, rolesRes, paidPaymentsRes] = await Promise.all([
     supabase.rpc("admin_auction_stats", { p_since: monthStart }),
     supabase.from("user_roles").select("role, user_id"),
     supabase.from("payments").select("amount").eq("status", "paid"),
   ]);
+  if (statsRes.error) throw new Error(statsRes.error.message);
+  const s = (statsRes.data as Array<{
+    total_auctions: number; live_auctions: number; pending_validations: number;
+    validated_month_count: number; validated_month_volume: number;
+    closed_month_total: number; closed_month_with_bids: number;
+    total_validated_volume: number;
+  }>)?.[0];
 
-  const validated = validatedMonthRes.data ?? [];
-  const volumeMois = validated.reduce((s, r) => s + (r.current_price ?? 0), 0);
+  const volumeMois = Number(s?.validated_month_volume ?? 0);
   const caMois = Math.round(volumeMois * COMMISSION_RATE);
-
-  const closedMonth = closedMonthRes.data ?? [];
-  const closedTotal = allClosedMonthRes.count ?? 0;
-  const withBids = closedMonth.filter((r) => (r.bid_count ?? 0) > 0).length;
+  const closedTotal = Number(s?.closed_month_total ?? 0);
+  const withBids = Number(s?.closed_month_with_bids ?? 0);
   const tauxConversion = closedTotal > 0 ? withBids / closedTotal : 0;
 
   const roles = rolesRes.data ?? [];
@@ -165,38 +159,35 @@ async function getStats(): Promise<AdminStats> {
   const count = (role: string) => roles.filter((r) => r.role === role).length;
 
   return {
-    totalAuctions: totalAuctionsRes.count ?? 0,
-    liveAuctions: liveAuctionsRes.count ?? 0,
+    totalAuctions: Number(s?.total_auctions ?? 0),
+    liveAuctions: Number(s?.live_auctions ?? 0),
     totalUsers: uniqueUsers.size,
     acheteursActifs: count("acheteur"),
     vendeursActifs: count("vendeur"),
     experts: count("expert"),
-    ventesValideesMois: validated.length,
+    ventesValideesMois: Number(s?.validated_month_count ?? 0),
     caMois,
     volumeMois,
-    totalVentesValidees: (allValidatedRes.data ?? []).reduce((s, r) => s + (r.current_price ?? 0), 0),
-    totalVentesEncaissees: (paidPaymentsRes.data ?? []).reduce((s, r) => s + (r.amount ?? 0), 0),
+    totalVentesValidees: Number(s?.total_validated_volume ?? 0),
+    totalVentesEncaissees: (paidPaymentsRes.data ?? []).reduce((sum, r) => sum + (r.amount ?? 0), 0),
     tauxConversion,
-    enchersValidationsEnAttente: pendingValidationsRes.count ?? 0,
+    enchersValidationsEnAttente: Number(s?.pending_validations ?? 0),
   };
 }
 
 async function getRevenue(days = 30): Promise<RevenuePoint[]> {
   const since = new Date(Date.now() - (days - 1) * 86_400_000);
   since.setHours(0, 0, 0, 0);
-  const { data, error } = await supabase
-    .from("auctions")
-    .select("current_price, updated_at, status")
-    .in("status", ["closed", "validated"])
-    .gte("updated_at", since.toISOString());
+  const { data, error } = await supabase.rpc("admin_revenue_series", { p_since: since.toISOString() });
   if (error) throw new Error(error.message);
+  const rows = (data ?? []) as Array<{ current_price: number; updated_at: string; status: string }>;
   const buckets = new Map<string, { ca: number; ventes: number }>();
   for (let i = 0; i < days; i++) {
     const d = new Date(since.getTime() + i * 86_400_000);
     buckets.set(d.toISOString().slice(0, 10), { ca: 0, ventes: 0 });
   }
-  for (const row of data ?? []) {
-    const key = new Date(row.updated_at as string).toISOString().slice(0, 10);
+  for (const row of rows) {
+    const key = new Date(row.updated_at).toISOString().slice(0, 10);
     const b = buckets.get(key);
     if (!b) continue;
     b.ventes += 1;
