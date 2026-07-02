@@ -39,7 +39,7 @@ export const Route = createFileRoute("/")({
 
 function HomeV3() {
   return (
-    <div className="font-yalta">
+    <div className="font-sans">
       {/* HERO */}
       <section className="relative overflow-hidden bg-primary text-primary-foreground">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,oklch(0.66_0.21_35_/_0.35),transparent_60%)]" />
@@ -52,11 +52,11 @@ function HomeV3() {
         </div>
         <div className="relative z-10 mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 md:grid-cols-2 md:py-28">
           <div className="flex flex-col justify-center">
-            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 font-yalta text-xs font-semibold uppercase tracking-[0.25em] text-accent">
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 font-sans text-xs font-semibold uppercase tracking-[0.25em] text-accent">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />
               Plateforme B2B Maroc
             </span>
-            <h1 className="font-parkson mt-6 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl">
+            <h1 className="font-display mt-6 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl">
               Vendez vos véhicules en fin de vie{" "}
               <span className="text-accent">au juste prix.</span>
               <br />
@@ -91,10 +91,10 @@ function HomeV3() {
       {/* 4 PILIERS */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="font-yalta text-xs font-semibold uppercase tracking-[0.3em] text-accent">
+          <p className="font-sans text-xs font-semibold uppercase tracking-[0.3em] text-accent">
             Nos engagements
           </p>
-          <h2 className="font-parkson mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+          <h2 className="font-display mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
             Quatre piliers, une seule promesse.
           </h2>
         </div>
@@ -126,10 +126,10 @@ function HomeV3() {
       <section className="bg-secondary/40 py-20">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 md:grid-cols-[1.2fr_1fr] md:items-center">
           <div>
-            <p className="font-yalta text-xs font-semibold uppercase tracking-[0.3em] text-accent">
+            <p className="font-sans text-xs font-semibold uppercase tracking-[0.3em] text-accent">
               Pour les acheteurs
             </p>
-            <h2 className="font-parkson mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+            <h2 className="font-display mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
               Achetez des véhicules professionnels, en toute transparence
             </h2>
             <p className="mt-5 text-muted-foreground">
@@ -184,10 +184,10 @@ function HomeV3() {
           </div>
 
           <div className="order-1 md:order-2">
-            <p className="font-yalta text-xs font-semibold uppercase tracking-[0.3em] text-accent">
+            <p className="font-sans text-xs font-semibold uppercase tracking-[0.3em] text-accent">
               Pour les vendeurs
             </p>
-            <h2 className="font-parkson mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+            <h2 className="font-display mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
               Cédez votre parc en fin de cycle, sans perdre de valeur
             </h2>
             <p className="mt-5 text-muted-foreground">
@@ -217,10 +217,10 @@ function HomeV3() {
       {/* PARTENAIRES */}
       <section className="border-y border-border bg-surface py-16">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6">
-          <p className="font-yalta text-xs font-semibold uppercase tracking-[0.3em] text-accent">
+          <p className="font-sans text-xs font-semibold uppercase tracking-[0.3em] text-accent">
             Réseau & partenaires
           </p>
-          <h2 className="font-parkson mt-3 text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
+          <h2 className="font-display mt-3 text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
             Ils nous font confiance
           </h2>
           <p className="mt-3 text-sm text-muted-foreground">
@@ -243,10 +243,10 @@ function HomeV3() {
       {/* FAQ */}
       <section className="mx-auto max-w-4xl px-4 py-20 sm:px-6">
         <div className="text-center">
-          <p className="font-yalta text-sm font-semibold uppercase tracking-[0.3em] text-accent">
+          <p className="font-sans text-sm font-semibold uppercase tracking-[0.3em] text-accent">
             Questions fréquentes
           </p>
-          <h2 className="font-parkson mt-3 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
+          <h2 className="font-display mt-3 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
             Ce qu'il faut savoir avant de commencer
           </h2>
         </div>
@@ -279,7 +279,7 @@ function HomeV3() {
         <div className="absolute inset-0 bg-[var(--gradient-accent)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,oklch(1_0_0_/_0.15),transparent_60%)]" />
         <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-6 px-4 py-20 text-center sm:px-6">
-          <h2 className="font-parkson max-w-3xl text-3xl font-extrabold tracking-tight text-brand-orange sm:text-4xl md:text-5xl">
+          <h2 className="font-display max-w-3xl text-3xl font-extrabold tracking-tight text-brand-orange sm:text-4xl md:text-5xl">
             Rejoignez une plateforme pensée pour le marché marocain de
             l'automobile professionnelle.
           </h2>
@@ -310,7 +310,7 @@ function Pillar({
       <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent transition-colors group-hover:bg-accent group-hover:text-accent-foreground">
         {icon}
       </div>
-      <h3 className="font-parkson mt-5 text-lg font-bold text-foreground">{title}</h3>
+      <h3 className="font-display mt-5 text-lg font-bold text-foreground">{title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{text}</p>
     </div>
   );
@@ -339,7 +339,7 @@ function StatCard({
       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
       </p>
-      <p className="font-yalta mt-3 text-3xl font-extrabold text-primary">{value}</p>
+      <p className="font-sans mt-3 text-3xl font-extrabold text-primary">{value}</p>
       <p className="mt-1 text-xs text-muted-foreground">{suffix}</p>
     </div>
   );
