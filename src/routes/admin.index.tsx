@@ -65,7 +65,7 @@ function AdminOverview() {
           <div className="mb-4 flex items-center justify-between">
             <div>
               <h2 className="text-base font-semibold text-foreground">Chiffre d'affaires — 30 jours</h2>
-              <p className="text-xs text-muted-foreground">Commission Bidlic en MAD</p>
+              <p className="text-xs text-muted-foreground">Commission Bidlik en MAD</p>
             </div>
             <span className="text-xs text-muted-foreground">
               Total : {formatMad(revenue.reduce((s, r) => s + r.ca, 0))}
