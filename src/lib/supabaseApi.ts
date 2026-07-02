@@ -367,7 +367,7 @@ export const supabaseApi: ApiClient = {
     if (!ev) throw new Error("Événement d'enchère introuvable");
     const { data: lots, error: lotsErr } = await supabase
       .from("auctions")
-      .select("*, cars(*)")
+      .select(`${PUBLIC_AUCTION_COLUMNS}, cars(${PUBLIC_CAR_COLUMNS})`)
       .eq("event_id", id)
       .order("ends_at", { ascending: true });
     if (lotsErr) throw new Error(lotsErr.message);
