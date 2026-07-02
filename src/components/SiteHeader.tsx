@@ -12,7 +12,7 @@ const ROLE_NAV: Record<Role, { to: string; label: string }> = {
   admin: { to: "/admin", label: "Admin" },
   expert: { to: "/expert", label: "Expert" },
   vendeur: { to: "/vendeur", label: "Vendeur" },
-  acheteur: { to: "/acheteur", label: "Acheteur" },
+  acheteur: { to: "/acheteur", label: "Mon espace" },
 };
 
 export function SiteHeader() {
