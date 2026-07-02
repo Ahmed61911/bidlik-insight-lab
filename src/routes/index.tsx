@@ -54,7 +54,7 @@ function HomeV3() {
           <div className="flex flex-col justify-center">
             <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 font-sans text-xs font-semibold uppercase tracking-[0.25em] text-accent">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              Plateforme B2B Maroc
+              LA PREMIÈRE PLATEFORME D'ENCHÈRES EN LIGNE AU MAROC
             </span>
             <h1 className="font-display mt-6 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl">
               Vendez vos véhicules en fin de vie{" "}
