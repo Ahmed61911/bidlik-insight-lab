@@ -586,3 +586,251 @@ function Field({ label, children, locked }: { label: string; children: React.Rea
   );
 }
 
+type ExpertReportInfo = {
+  status: string;
+  assigneLe: string | null;
+  rapportRecuLe: string | null;
+  noteFinale: number | null;
+  expertNom: string | null;
+};
+
+function CarPreviewDialog({
+  car,
+  onClose,
+  onEdit,
+  onDelete,
+}: {
+  car: CarRow;
+  onClose: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const [report, setReport] = useState<ExpertReportInfo | null>(null);
+  const [loadingReport, setLoadingReport] = useState(true);
+  const [imgIdx, setImgIdx] = useState(0);
+
+  const images = car.images && car.images.length > 0 ? car.images : [];
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoadingReport(true);
+      const { data } = await supabase
+        .from("expert_assignments")
+        .select("status, assigne_le, rapport_recu_le, note_finale, expert_id")
+        .eq("car_id", car.id)
+        .order("assigne_le", { ascending: false, nullsFirst: false })
+        .limit(1);
+      const row = data?.[0];
+      if (!row) {
+        if (!cancelled) { setReport(null); setLoadingReport(false); }
+        return;
+      }
+      let expertNom: string | null = null;
+      if (row.expert_id) {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("nom")
+          .eq("user_id", row.expert_id)
+          .maybeSingle();
+        expertNom = prof?.nom ?? null;
+      }
+      if (!cancelled) {
+        setReport({
+          status: row.status as string,
+          assigneLe: row.assigne_le as string | null,
+          rapportRecuLe: row.rapport_recu_le as string | null,
+          noteFinale: (row.note_finale as number) ?? null,
+          expertNom,
+        });
+        setLoadingReport(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [car.id]);
+
+  const expertValidated = report?.status === "rapport_recu";
+
+  const InfoRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
+    <div className="flex items-start justify-between gap-3 border-b border-border py-2 last:border-0">
+      <span className="text-xs uppercase tracking-wide text-muted-foreground">{label}</span>
+      <span className="text-right text-sm font-medium text-foreground break-words">{value ?? "—"}</span>
+    </div>
+  );
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-4">
+      <div className="max-h-[95vh] w-full max-w-4xl overflow-y-auto rounded-t-2xl bg-card shadow-xl sm:rounded-2xl">
+        {/* Header */}
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-border bg-card/95 px-4 py-3 backdrop-blur sm:px-6">
+          <div className="min-w-0">
+            <p className="truncate text-xs text-muted-foreground">
+              <span className="font-mono">#{car.id}</span> · Vendeur : {car.vendeurNom}
+            </p>
+            <h3 className="truncate text-base font-semibold text-foreground sm:text-lg">
+              {car.marque} {car.modele} {car.finition && <span className="text-muted-foreground">· {car.finition}</span>}
+            </h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <StatusBadge status={car.status} />
+            <button onClick={onClose} className="rounded-md p-1 text-muted-foreground hover:bg-secondary" aria-label="Fermer">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        <div className="grid gap-4 p-4 sm:p-6 md:grid-cols-2">
+          {/* Gallery */}
+          <div>
+            <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-secondary">
+              {images.length > 0 ? (
+                <>
+                  <img
+                    src={images[imgIdx]}
+                    alt={`${car.marque} ${car.modele} ${imgIdx + 1}/${images.length}`}
+                    className="h-full w-full object-cover"
+                  />
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        onClick={() => setImgIdx((i) => (i - 1 + images.length) % images.length)}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-1.5 text-white hover:bg-black/70"
+                        aria-label="Précédent"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => setImgIdx((i) => (i + 1) % images.length)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-1.5 text-white hover:bg-black/70"
+                        aria-label="Suivant"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                      <span className="absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white">
+                        {imgIdx + 1} / {images.length}
+                      </span>
+                    </>
+                  )}
+                </>
+              ) : (
+                <div className="flex h-full items-center justify-center text-sm text-muted-foreground">Aucune image</div>
+              )}
+            </div>
+            {images.length > 1 && (
+              <div className="mt-2 grid grid-cols-5 gap-1.5">
+                {images.slice(0, 10).map((src, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setImgIdx(i)}
+                    className={`aspect-square overflow-hidden rounded-md border-2 transition-colors ${i === imgIdx ? "border-accent" : "border-transparent opacity-70 hover:opacity-100"}`}
+                  >
+                    <img src={src} alt="" className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Details */}
+          <div className="space-y-4">
+            <section>
+              <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Véhicule</h4>
+              <InfoRow label="Marque" value={car.marque} />
+              <InfoRow label="Modèle" value={car.modele} />
+              <InfoRow label="Finition" value={car.finition || "—"} />
+              <InfoRow label="Carrosserie" value={car.bodyType || "—"} />
+              <InfoRow label="MEC" value={car.annee} />
+              <InfoRow label="Kilométrage" value={`${car.kilometrage.toLocaleString("fr-FR")} km`} />
+              <InfoRow label="Transmission" value={car.transmission} />
+              <InfoRow label="Carburant" value={car.carburant} />
+              <InfoRow label="Puissance fiscale" value={`${car.puissanceFiscale} CV`} />
+              <InfoRow label="Couleur ext." value={car.couleurExterieur} />
+              <InfoRow label="Couleur int." value={car.couleurInterieur} />
+            </section>
+
+            <section>
+              <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Administratif</h4>
+              <InfoRow label="Type vendeur" value={car.type} />
+              <InfoRow label="Nombre de clés" value={car.nombreCles} />
+              <InfoRow label="Opposition" value={car.opposition ? "Oui" : "Non"} />
+              <InfoRow label="Main levée" value={car.mainLevee ? "Oui" : "Non"} />
+              <InfoRow label="Carte grise barrée" value={car.carteGriseBarree ? "Oui" : "Non"} />
+              <InfoRow label="Procuration" value={car.procuration} />
+            </section>
+
+            <section>
+              <h4 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Prix (interne)</h4>
+              <InfoRow label="Prix plancher" value={car.prixPlancher != null ? formatMad(car.prixPlancher) : "—"} />
+              <InfoRow label="Prix minimum" value={car.prixMinimum != null ? formatMad(car.prixMinimum) : "—"} />
+              <InfoRow label="Prix attendu" value={car.prixAttendu ? formatMad(car.prixAttendu) : "—"} />
+            </section>
+          </div>
+
+          {/* Expert report — full width */}
+          <div className="md:col-span-2">
+            <div className="rounded-xl border border-border bg-secondary/30 p-4">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <h4 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                  Rapport d'expertise
+                </h4>
+                {expertValidated && (
+                  <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+                    Validé — verrouillé
+                  </span>
+                )}
+              </div>
+              {loadingReport ? (
+                <p className="text-sm text-muted-foreground">Chargement…</p>
+              ) : !report ? (
+                <p className="text-sm text-muted-foreground">Aucun expert n'a encore été assigné à cette voiture.</p>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <InfoRow label="Expert" value={report.expertNom || "—"} />
+                    <InfoRow label="Statut" value={report.status === "rapport_recu" ? "Rapport reçu" : "En inspection"} />
+                    <InfoRow label="Assigné le" value={report.assigneLe ? new Date(report.assigneLe).toLocaleDateString("fr-FR") : "—"} />
+                    <InfoRow label="Rapport reçu le" value={report.rapportRecuLe ? new Date(report.rapportRecuLe).toLocaleDateString("fr-FR") : "—"} />
+                  </div>
+                  <div className="flex flex-col items-center justify-center rounded-lg bg-background p-4">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Note finale</p>
+                    <p className="mt-1 text-4xl font-bold text-foreground">
+                      {report.noteFinale != null ? report.noteFinale : car.noteExpert ?? "—"}
+                      <span className="text-lg text-muted-foreground">/10</span>
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer actions */}
+        <div className="sticky bottom-0 flex flex-col-reverse gap-2 border-t border-border bg-card/95 px-4 py-3 backdrop-blur sm:flex-row sm:justify-between sm:px-6">
+          <button
+            onClick={onDelete}
+            className="inline-flex items-center justify-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/5 px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
+          >
+            <Trash2 className="h-4 w-4" /> Supprimer
+          </button>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <button
+              onClick={onClose}
+              className="rounded-md px-4 py-2 text-sm text-muted-foreground hover:bg-secondary"
+            >
+              Fermer
+            </button>
+            <button
+              onClick={onEdit}
+              className="inline-flex items-center justify-center gap-1.5 rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground shadow-sm transition-opacity hover:opacity-90"
+            >
+              <Pencil className="h-4 w-4" /> Modifier
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
