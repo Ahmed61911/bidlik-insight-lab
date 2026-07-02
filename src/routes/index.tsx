@@ -173,7 +173,7 @@ function HomeV3() {
               <Car className="h-10 w-10 text-accent" />
               <p className="mt-6 text-2xl font-bold leading-tight text-foreground">
                 "Un canal de revente structuré pour vos véhicules en fin de
-                cycle."
+                vie."
               </p>
               <p className="mt-4 text-sm text-muted-foreground">
                 Flottes d'entreprises, loueurs longue durée, particuliers — un
