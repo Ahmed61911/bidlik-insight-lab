@@ -6,7 +6,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         <div className="grid gap-8 md:grid-cols-4">
           <div>
-            <p className="text-base font-bold text-foreground">Bidlic</p>
+            <p className="text-base font-bold text-foreground">Bidlik</p>
             <p className="mt-2 text-sm text-muted-foreground">
               La plateforme d'enchères automobiles au Maroc. Sécurisée, transparente, en temps réel.
             </p>
@@ -27,7 +27,7 @@ export function SiteFooter() {
           </FooterCol>
         </div>
         <div className="mt-8 border-t border-border pt-6 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Bidlic. Tous droits réservés. Prix en Dirhams marocains (MAD).
+          © {new Date().getFullYear()} Bidlik. Tous droits réservés. Prix en Dirhams marocains (MAD).
         </div>
       </div>
 
