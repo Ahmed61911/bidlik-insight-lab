@@ -51,26 +51,39 @@ export const Route = createFileRoute("/api/public/admin-create-user")({
         }
         const { nom, email, telephone, role, password: providedPwd } = parsed.data;
 
-        // 3. Idempotency — refuse if email already exists
-        const { data: list } = await supabaseAdmin.auth.admin.listUsers();
-        if (list?.users.some((u) => u.email?.toLowerCase() === email)) {
+        // 3. Idempotency — refuse if email already exists (paginated).
+        let alreadyExists = false;
+        for (let page = 1; page <= 20; page++) {
+          const { data: list } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
+          if (!list) break;
+          if (list.users.some((u) => u.email?.toLowerCase() === email)) {
+            alreadyExists = true;
+            break;
+          }
+          if (list.users.length < 200) break;
+        }
+        if (alreadyExists) {
           return json({ ok: false, error: "Un compte existe déjà avec cet email" }, 409);
         }
 
-        // 4. Create auth user — trigger handle_new_user creates profile + role
+        // 4. Create auth user — trigger handle_new_user creates profile + role.
+        //    (actif is forced to false by the trigger; we activate below since
+        //    an admin explicitly created the account.)
         const password = providedPwd ?? randomBytes(12).toString("base64url") + "A1!";
         const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
           email,
           password,
           email_confirm: true,
-          user_metadata: { nom, telephone, role, actif: true },
+          user_metadata: { nom, telephone, role },
         });
         if (createErr || !created.user) return json({ ok: false, error: createErr?.message ?? "Création impossible" }, 500);
 
-        // 5. Patch telephone on profile (trigger may have set it from metadata already)
-        if (telephone) {
-          await supabaseAdmin.from("profiles").update({ telephone }).eq("user_id", created.user.id);
-        }
+        // 5. Activate the account and set the phone number.
+        await supabaseAdmin
+          .from("profiles")
+          .update({ actif: true, ...(telephone ? { telephone } : {}) })
+          .eq("user_id", created.user.id);
+
 
         return json({ ok: true, userId: created.user.id, tempPassword: password }, 200);
       },

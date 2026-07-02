@@ -46,7 +46,7 @@ export const Route = createFileRoute("/api/public/cmi-callback")({
 
         const { data: payment } = await supabaseAdmin
           .from("payments")
-          .select("id, user_id, type, status")
+          .select("id, user_id, type, status, amount")
           .eq("reference", oid)
           .maybeSingle();
 
@@ -55,10 +55,33 @@ export const Route = createFileRoute("/api/public/cmi-callback")({
           return new Response("FAILURE", { status: 404 });
         }
 
+        // Idempotent: if already terminal, don't re-process.
+        if (payment.status === "paye" || payment.status === "annule") {
+          return new Response(payment.status === "paye" ? "APPROVED" : "FAILURE", {
+            status: 200,
+            headers: { "Content-Type": "text/plain" },
+          });
+        }
+
+        // Verify CMI-reported amount matches the payment record.
+        const reportedAmount = Number(body.amount ?? body.Amount ?? "0");
+        if (success && reportedAmount && Math.round(reportedAmount) !== payment.amount) {
+          console.error("CMI callback: amount mismatch", {
+            oid,
+            reported: reportedAmount,
+            expected: payment.amount,
+          });
+          await supabaseAdmin
+            .from("payments")
+            .update({ status: "annule", notes: "Montant CMI incohérent" })
+            .eq("id", payment.id);
+          return new Response("FAILURE", { status: 400 });
+        }
+
         if (success) {
           await supabaseAdmin
             .from("payments")
-            .update({ status: "paye" })
+            .update({ status: "paye", paid_at: new Date().toISOString() })
             .eq("id", payment.id);
 
           if (payment.type === "caution") {
@@ -73,6 +96,7 @@ export const Route = createFileRoute("/api/public/cmi-callback")({
             .update({ status: "annule" })
             .eq("id", payment.id);
         }
+
 
         // CMI expects "ACTION=POSTAUTH" or simply 200 OK with "APPROVED"/"FAILURE"
         return new Response(success ? "APPROVED" : "FAILURE", {
