@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { Eye, Pencil, Plus, Trash2, X, ChevronLeft, ChevronRight, ShieldCheck, Lock } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { supabaseAdminApi } from "@/lib/supabaseAdminApi";
 import type { Car } from "@/types/auction";
 import { BODY_TYPES } from "@/types/auction";
@@ -12,6 +13,7 @@ import { CAR_CATALOG, CAR_MAKES } from "@/lib/carCatalog";
 export const Route = createFileRoute("/admin/voitures")({
   component: AdminCarsPage,
 });
+
 
 type CarRow = Car & { proprietaireId: string };
 
