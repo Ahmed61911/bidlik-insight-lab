@@ -472,7 +472,7 @@ function CarFormDialog({ existing, onClose, onSaved }: { existing?: CarRow; onCl
               ]}
             />
           </Field>
-          <Field label="Carburant">
+          <Field label="Carburant" locked={isLocked("carburant")}>
             <Dropdown
               value={form.carburant}
               onChange={(v) => setForm({ ...form, carburant: v as typeof form.carburant })}
