@@ -146,26 +146,8 @@ async function getStats(): Promise<AdminStats> {
     allValidatedRes,
     paidPaymentsRes,
   ] = await Promise.all([
-    supabase.from("auctions").select("id", { count: "exact", head: true }),
-    supabase.from("auctions").select("id", { count: "exact", head: true }).eq("status", "live"),
-    supabase.from("auctions").select("id", { count: "exact", head: true }).eq("status", "closed"),
-    supabase
-      .from("auctions")
-      .select("current_price")
-      .eq("status", "validated")
-      .gte("updated_at", monthStart),
-    supabase
-      .from("auctions")
-      .select("id, bid_count")
-      .in("status", ["closed", "validated"])
-      .gte("updated_at", monthStart),
-    supabase
-      .from("auctions")
-      .select("id", { count: "exact", head: true })
-      .in("status", ["closed", "validated", "cancelled"])
-      .gte("updated_at", monthStart),
+    supabase.rpc("admin_auction_stats", { p_since: monthStart }),
     supabase.from("user_roles").select("role, user_id"),
-    supabase.from("auctions").select("current_price").eq("status", "validated"),
     supabase.from("payments").select("amount").eq("status", "paid"),
   ]);
 
