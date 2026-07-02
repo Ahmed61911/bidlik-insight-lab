@@ -25,15 +25,6 @@ function AdminCarsPage() {
   const [previewing, setPreviewing] = useState<CarRow | null>(null);
   const [query, setQuery] = useState("");
 
-  const handleDelete = async (c: CarRow) => {
-    if (!confirm(`Supprimer ${c.marque} ${c.modele} ?`)) return;
-    await supabaseAdminApi.deleteCar(c.id);
-    toast.success("Voiture supprimée");
-    if (previewing?.id === c.id) setPreviewing(null);
-    refresh();
-  };
-
-
   const refresh = () => {
     setLoading(true);
     supabaseAdminApi.listCars().then((c) => {
@@ -42,6 +33,15 @@ function AdminCarsPage() {
     });
   };
   useEffect(refresh, []);
+
+  const handleDelete = async (c: CarRow) => {
+    if (!confirm(`Supprimer ${c.marque} ${c.modele} ?`)) return;
+    await supabaseAdminApi.deleteCar(c.id);
+    toast.success("Voiture supprimée");
+    if (previewing?.id === c.id) setPreviewing(null);
+    refresh();
+  };
+
 
   const filtered = cars.filter((c) => {
     if (!query) return true;
