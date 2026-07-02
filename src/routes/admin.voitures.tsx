@@ -386,7 +386,7 @@ function CarFormDialog({ existing, onClose, onSaved }: { existing?: CarRow; onCl
               options={BODY_TYPES.map((b) => ({ value: b, label: b }))}
             />
           </Field>
-          <Field label="Marque">
+          <Field label="Marque" locked={isLocked("marque")}>
             <Dropdown
               value={marqueSel}
               onChange={(v) => {
