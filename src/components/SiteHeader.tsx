@@ -9,7 +9,7 @@ import { useAuth, ROLE_HOME } from "@/lib/auth";
 import type { Role } from "@/types/auth";
 
 const ROLE_NAV: Record<Role, { to: string; label: string }> = {
-  admin: { to: "/admin", label: "Admin" },
+  admin: { to: "/admin", label: "Espace Admin" },
   expert: { to: "/expert", label: "Expert" },
   vendeur: { to: "/vendeur", label: "Vendeur" },
   acheteur: { to: "/acheteur", label: "Mon espace" },
