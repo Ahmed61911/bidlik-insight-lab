@@ -154,7 +154,7 @@ function mapAuction(row: AuctionRow, carOverride?: Car): Auction {
     bidCount: row.bid_count,
     status: row.status,
     visibility: row.visibility,
-    topBidderId: row.top_bidder_id,
+    topBidderId: row.top_bidder_id ?? null,
     auctionType: row.auction_type,
     eventId: row.event_id,
   };
