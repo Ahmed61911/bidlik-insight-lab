@@ -306,10 +306,8 @@ async function createUser(input: {
 /* ──────────────────────────── cars ──────────────────────────── */
 
 async function listCars(): Promise<(Car & { proprietaireId: string })[]> {
-  const { data, error } = await supabase
-    .from("cars")
-    .select("*")
-    .order("created_at", { ascending: false });
+  // Sensitive columns aren't directly readable by authenticated users; use admin RPC.
+  const { data, error } = await supabase.rpc("admin_list_cars");
   if (error) throw new Error(error.message);
   return (data as CarRow[]).map((r) => ({ ...mapCar(r), proprietaireId: r.vendeur_id ?? "" }));
 }
@@ -328,24 +326,28 @@ async function createCar(
     annee: input.annee,
     prix_attendu: input.prixAttendu,
   };
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("cars")
     .insert(payload as never)
-    .select("*")
+    .select("id")
     .single();
   if (error) throw new Error(error.message);
-  return mapCar(data as CarRow);
+  const { data: full, error: fErr } = await supabase.rpc("admin_list_cars_by_ids", { p_ids: [id] });
+  if (fErr) throw new Error(fErr.message);
+  return mapCar((full as CarRow[])[0]);
 }
 
 async function updateCar(id: string, patch: Partial<Car>): Promise<Car> {
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("cars")
     .update(carPatchToRow(patch) as never)
     .eq("id", id)
-    .select("*")
+    .select("id")
     .single();
   if (error) throw new Error(error.message);
-  return mapCar(data as CarRow);
+  const { data: full, error: fErr } = await supabase.rpc("admin_list_cars_by_ids", { p_ids: [id] });
+  if (fErr) throw new Error(fErr.message);
+  return mapCar((full as CarRow[])[0]);
 }
 
 async function deleteCar(id: string): Promise<void> {
