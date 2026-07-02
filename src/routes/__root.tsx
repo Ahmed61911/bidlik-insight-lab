@@ -50,6 +50,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Bidlic — Enchères automobiles au Maroc" },
+      { name: "description", content: "Bidlik Sparkle Analysis clones and analyzes a project for sparkle effects." },
+      { property: "og:description", content: "Bidlik Sparkle Analysis clones and analyzes a project for sparkle effects." },
+      { name: "twitter:description", content: "Bidlik Sparkle Analysis clones and analyzes a project for sparkle effects." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/df49ed4d-420c-4729-92f0-57d9a6a3ca16/id-preview-7e5f60fd--dd155662-d175-499b-a12e-9aee0e1e31be.lovable.app-1782993203393.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/df49ed4d-420c-4729-92f0-57d9a6a3ca16/id-preview-7e5f60fd--dd155662-d175-499b-a12e-9aee0e1e31be.lovable.app-1782993203393.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
