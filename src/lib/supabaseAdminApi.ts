@@ -438,25 +438,13 @@ async function assignExpert(carId: string, expertId: string): Promise<void> {
 /* ─────────────────────── auctions / events ─────────────────────── */
 
 async function listExpertiseReady(): Promise<(Car & { proprietaireId: string; noteFinale: number })[]> {
-  const { data: assignments, error: aErr } = await supabase
-    .from("expert_assignments")
-    .select("car_id, note_finale")
-    .eq("status", "rapport_recu");
-  if (aErr) throw new Error(aErr.message);
-  const ids = (assignments ?? []).map((a) => a.car_id as string);
-  if (ids.length === 0) return [];
-  const { data: cars, error: cErr } = await supabase
-    .from("cars")
-    .select("*")
-    .in("id", ids)
-    .eq("status", "open");
-  if (cErr) throw new Error(cErr.message);
-  const noteByCar = new Map<string, number>();
-  for (const a of assignments ?? []) noteByCar.set(a.car_id as string, (a.note_finale as number) ?? 0);
-  return (cars as CarRow[]).map((r) => ({
-    ...mapCar(r),
-    proprietaireId: r.vendeur_id ?? "",
-    noteFinale: noteByCar.get(r.id) ?? 0,
+  const { data, error } = await supabase.rpc("admin_list_expertise_ready");
+  if (error) throw new Error(error.message);
+  const rows = (data ?? []) as Array<{ car: CarRow; note_finale: number }>;
+  return rows.map((r) => ({
+    ...mapCar(r.car),
+    proprietaireId: r.car.vendeur_id ?? "",
+    noteFinale: r.note_finale ?? 0,
   }));
 }
 
@@ -477,7 +465,7 @@ async function insertAuctionRow(car: CarRow, opts: CreateAuctionOpts) {
   const status = startsAtMs <= Date.now() ? "live" : "scheduled";
   const auctionType = opts.auctionType ?? "ouverte";
   const id = `${car.id}-${Date.now().toString(36)}`;
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("auctions")
     .insert({
       id,
@@ -491,7 +479,7 @@ async function insertAuctionRow(car: CarRow, opts: CreateAuctionOpts) {
       visibility: opts.visibility ?? "ouvert",
       auction_type: auctionType,
     } as never)
-    .select("*")
+    .select("id")
     .single();
   if (error) throw new Error(error.message);
 
@@ -504,23 +492,21 @@ async function insertAuctionRow(car: CarRow, opts: CreateAuctionOpts) {
     } as never)
     .eq("id", car.id);
 
-  return data as { id: string };
+  return { id };
 }
 
 async function createAuctionFromCar(carId: string, opts: CreateAuctionOpts): Promise<Auction> {
-  const { data: car, error } = await supabase.from("cars").select("*").eq("id", carId).maybeSingle();
+  // Fetch car via SECURITY DEFINER (admins get sensitive columns).
+  const { data: car, error } = await supabase.rpc("get_car_full", { p_car_id: carId });
   if (error) throw new Error(error.message);
   if (!car) throw new Error("Voiture introuvable");
   if ((car as CarRow).status !== "open") throw new Error("Cette voiture est déjà en enchère");
   const inserted = await insertAuctionRow(car as CarRow, opts);
-  // Re-fetch with joined car to build Auction
-  const { data: full } = await supabase
-    .from("auctions")
-    .select("*, cars(*)")
-    .eq("id", inserted.id)
-    .single();
-  const c = mapCar((full as { cars: CarRow }).cars);
-  const f = full as Record<string, unknown>;
+  // Re-fetch full auction row via admin RPC
+  const { data: fullAuction, error: aErr } = await supabase.rpc("admin_get_auction", { p_id: inserted.id });
+  if (aErr) throw new Error(aErr.message);
+  const c = mapCar(car as CarRow);
+  const f = fullAuction as Record<string, unknown>;
   return {
     id: f.id as string,
     car: c,
@@ -536,6 +522,7 @@ async function createAuctionFromCar(carId: string, opts: CreateAuctionOpts): Pro
     eventId: (f.event_id as string) ?? null,
   };
 }
+
 
 async function createMultiCarEvent(input: {
   title: string;
