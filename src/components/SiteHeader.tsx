@@ -99,7 +99,7 @@ export function SiteHeader() {
       </div>
 
       <nav className="scrollbar-none flex items-center gap-6 overflow-x-auto overflow-y-hidden border-t border-border px-4 pb-3.5 pt-2.5 md:hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        {showHomeAndVehicules && <NavLink to="/" mobile>Accueil</NavLink>}
+        {showHomeAndVehicules && !isAcheteurOnly && <NavLink to="/" mobile>Accueil</NavLink>}
         {!auth.isAuthenticated && <RoleDropdown mobile />}
         {showHomeAndVehicules && <NavLink to="/auctions" mobile>Enchères</NavLink>}
         {showHomeAndVehicules && auth.isAuthenticated && <NavLink to="/vehicules" mobile>Véhicules</NavLink>}
