@@ -22,7 +22,17 @@ function AdminCarsPage() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<CarRow | null>(null);
+  const [previewing, setPreviewing] = useState<CarRow | null>(null);
   const [query, setQuery] = useState("");
+
+  const handleDelete = async (c: CarRow) => {
+    if (!confirm(`Supprimer ${c.marque} ${c.modele} ?`)) return;
+    await supabaseAdminApi.deleteCar(c.id);
+    toast.success("Voiture supprimée");
+    if (previewing?.id === c.id) setPreviewing(null);
+    refresh();
+  };
+
 
   const refresh = () => {
     setLoading(true);
