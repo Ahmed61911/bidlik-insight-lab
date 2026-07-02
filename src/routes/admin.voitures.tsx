@@ -148,7 +148,11 @@ function AdminCarsPage() {
               <tr><td colSpan={10} className="px-4 py-10 text-center text-sm text-muted-foreground">Aucune voiture trouvée.</td></tr>
             )}
             {filtered.map((c) => (
-              <tr key={c.id} className="border-t border-border">
+              <tr
+                key={c.id}
+                onClick={() => setPreviewing(c)}
+                className="cursor-pointer border-t border-border transition-colors hover:bg-secondary/40"
+              >
                 <td className="px-4 py-3">
                   <p className="font-medium text-foreground"><span className="font-mono text-muted-foreground">#{c.id}</span> · {c.marque} {c.modele}</p>
                   <p className="text-xs text-muted-foreground">{c.finition || "—"} · {c.couleurExterieur}</p>
@@ -162,8 +166,15 @@ function AdminCarsPage() {
                 <td className="px-4 py-3">
                   <StatusBadge status={c.status} />
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                   <div className="inline-flex items-center gap-2">
+                    <button
+                      onClick={() => setPreviewing(c)}
+                      className="inline-flex h-8 items-center gap-1 rounded-md border border-border bg-background px-2 text-xs text-foreground transition-colors hover:bg-secondary"
+                      title="Aperçu"
+                    >
+                      <Eye className="h-3.5 w-3.5" /> Voir
+                    </button>
                     <button
                       onClick={() => setEditing(c)}
                       className="inline-flex h-8 items-center gap-1 rounded-md border border-border bg-background px-2 text-xs text-foreground transition-colors hover:bg-secondary"
@@ -171,12 +182,7 @@ function AdminCarsPage() {
                       <Pencil className="h-3.5 w-3.5" /> Modifier
                     </button>
                     <button
-                      onClick={async () => {
-                        if (!confirm(`Supprimer ${c.marque} ${c.modele} ?`)) return;
-                        await supabaseAdminApi.deleteCar(c.id);
-                        toast.success("Voiture supprimée");
-                        refresh();
-                      }}
+                      onClick={() => handleDelete(c)}
                       className="inline-flex h-8 items-center gap-1 rounded-md border border-border bg-background px-2 text-xs text-destructive transition-colors hover:bg-destructive/10"
                     >
                       <Trash2 className="h-3.5 w-3.5" /> Supprimer
@@ -191,9 +197,18 @@ function AdminCarsPage() {
 
       {open && <CarFormDialog onClose={() => setOpen(false)} onSaved={() => { setOpen(false); refresh(); }} />}
       {editing && <CarFormDialog existing={editing} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); refresh(); }} />}
+      {previewing && (
+        <CarPreviewDialog
+          car={previewing}
+          onClose={() => setPreviewing(null)}
+          onEdit={() => { setEditing(previewing); setPreviewing(null); }}
+          onDelete={() => handleDelete(previewing)}
+        />
+      )}
     </div>
   );
 }
+
 
 function StatusBadge({ status }: { status: Car["status"] }) {
   const map: Record<Car["status"], { label: string; cls: string }> = {
