@@ -223,7 +223,35 @@ function StatusBadge({ status }: { status: Car["status"] }) {
   return <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${cls}`}>{label}</span>;
 }
 
+const EXPERT_LOCKED_FIELDS = [
+  "marque",
+  "modele",
+  "annee",
+  "kilometrage",
+  "couleurExterieur",
+  "couleurInterieur",
+  "bodyType",
+  "carburant",
+  "transmission",
+] as const;
+type LockedField = (typeof EXPERT_LOCKED_FIELDS)[number];
+
 function CarFormDialog({ existing, onClose, onSaved }: { existing?: CarRow; onClose: () => void; onSaved: () => void }) {
+  const [lockedFields, setLockedFields] = useState<Set<LockedField>>(new Set());
+  useEffect(() => {
+    if (!existing) return;
+    supabase
+      .from("expert_assignments")
+      .select("status")
+      .eq("car_id", existing.id)
+      .eq("status", "rapport_recu")
+      .limit(1)
+      .then(({ data }) => {
+        if (data && data.length > 0) setLockedFields(new Set(EXPERT_LOCKED_FIELDS));
+      });
+  }, [existing]);
+  const isLocked = (f: LockedField) => lockedFields.has(f);
+
   const isEdit = !!existing;
   const [form, setForm] = useState({
     vendeurId: existing?.vendeurId ?? "",
