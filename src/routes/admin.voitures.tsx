@@ -81,7 +81,11 @@ function AdminCarsPage() {
         {loading && <p className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">Chargement…</p>}
         {!loading && filtered.length === 0 && <p className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">Aucune voiture trouvée.</p>}
         {filtered.map((c) => (
-          <div key={c.id} className="rounded-xl border border-border bg-card p-3 shadow-sm">
+          <div
+            key={c.id}
+            onClick={() => setPreviewing(c)}
+            className="cursor-pointer rounded-xl border border-border bg-card p-3 shadow-sm transition-colors hover:bg-secondary/40"
+          >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-foreground"><span className="font-mono text-muted-foreground">#{c.id}</span> · {c.marque} {c.modele}</p>
@@ -96,7 +100,13 @@ function AdminCarsPage() {
               <div><p className="text-[10px] uppercase text-muted-foreground">Prix minimum</p><p className="font-medium">{c.prixMinimum != null ? formatMad(c.prixMinimum) : "—"}</p></div>
             </div>
             <p className="mt-2 text-xs text-muted-foreground">Vendeur : {c.vendeurNom}</p>
-            <div className="mt-3 grid grid-cols-2 gap-2">
+            <div className="mt-3 grid grid-cols-3 gap-2" onClick={(e) => e.stopPropagation()}>
+              <button
+                onClick={() => setPreviewing(c)}
+                className="inline-flex h-8 items-center justify-center gap-1 rounded-md border border-border bg-background px-2 text-xs text-foreground transition-colors hover:bg-secondary"
+              >
+                <Eye className="h-3.5 w-3.5" /> Voir
+              </button>
               <button
                 onClick={() => setEditing(c)}
                 className="inline-flex h-8 items-center justify-center gap-1 rounded-md border border-border bg-background px-2 text-xs text-foreground transition-colors hover:bg-secondary"
@@ -104,19 +114,15 @@ function AdminCarsPage() {
                 <Pencil className="h-3.5 w-3.5" /> Modifier
               </button>
               <button
-                onClick={async () => {
-                  if (!confirm(`Supprimer ${c.marque} ${c.modele} ?`)) return;
-                  await supabaseAdminApi.deleteCar(c.id);
-                  toast.success("Voiture supprimée");
-                  refresh();
-                }}
+                onClick={() => handleDelete(c)}
                 className="inline-flex h-8 items-center justify-center gap-1 rounded-md border border-border bg-background px-2 text-xs text-destructive transition-colors hover:bg-destructive/10"
               >
-                <Trash2 className="h-3.5 w-3.5" /> Supprimer
+                <Trash2 className="h-3.5 w-3.5" /> Suppr.
               </button>
             </div>
           </div>
         ))}
+
       </div>
 
       <div className="hidden overflow-x-auto rounded-xl border border-border bg-card shadow-sm md:block">
