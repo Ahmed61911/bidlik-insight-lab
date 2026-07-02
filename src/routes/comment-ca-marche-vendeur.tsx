@@ -37,7 +37,6 @@ import {
   BadgeCheck,
   HandshakeIcon,
   PenTool,
-  Key,
 } from "lucide-react";
 
 export const Route = createFileRoute("/comment-ca-marche-vendeur")({
