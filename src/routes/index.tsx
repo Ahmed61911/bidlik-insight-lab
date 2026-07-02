@@ -187,7 +187,7 @@ function HomeV3() {
               Pour les vendeurs
             </p>
             <h2 className="font-display mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-              Cédez votre parc en fin de vie, sans perdre de valeur
+              Cédez votre parc en fin de vie à&nbsp; sa juste valeur
             </h2>
             <p className="mt-5 text-muted-foreground">
               Entreprises, loueurs ou particuliers : BIDLIK prend en charge la
