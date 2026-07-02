@@ -376,7 +376,7 @@ function CarFormDialog({ existing, onClose, onSaved }: { existing?: CarRow; onCl
               ]}
             />
           </Field>
-          <Field label="Type (carrosserie)">
+          <Field label="Type (carrosserie)" locked={isLocked("bodyType")}>
             <Dropdown
               value={form.bodyType}
               onChange={(v) => setForm({ ...form, bodyType: v })}
