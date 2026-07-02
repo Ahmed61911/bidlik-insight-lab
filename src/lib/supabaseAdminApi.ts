@@ -555,10 +555,7 @@ async function createMultiCarEvent(input: {
   if (evErr) throw new Error(evErr.message);
 
   const carIds = input.items.map((it) => it.carId);
-  const { data: cars, error: cErr } = await supabase
-    .from("cars")
-    .select("*")
-    .in("id", carIds);
+  const { data: cars, error: cErr } = await supabase.rpc("admin_list_cars_by_ids", { p_ids: carIds });
   if (cErr) throw new Error(cErr.message);
   const carById = new Map<string, CarRow>((cars as CarRow[]).map((c) => [c.id, c]));
 
