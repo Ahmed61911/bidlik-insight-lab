@@ -417,7 +417,7 @@ function CarFormDialog({ existing, onClose, onSaved }: { existing?: CarRow; onCl
               />
             )}
           </Field>
-          <Field label="Modèle">
+          <Field label="Modèle" locked={isLocked("modele")}>
             {isMarqueAutre ? (
               <input
                 required
