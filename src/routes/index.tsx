@@ -135,12 +135,12 @@ function HomeV3() {
             </h2>
             <p className="mt-5 text-muted-foreground">
               BIDLIK donne accès aux marchands et revendeurs référencés à des
-              véhicules issus de flottes d'entreprises, de loueurs et de
-              particuliers — avec un rapport d'expertise complet, des photos
-              détaillées et un historique clair pour chaque véhicule. Vous
-              enchérissez en ligne, à votre rythme, sans déplacement
-              obligatoire. Une fois l'enchère gagnée, le paiement et la sortie
-              du véhicule sont encadrés étape par étape par notre équipe.
+              véhicules issus de flottes et de particuliers — avec un rapport
+              d'expertise complet et des photos détaillées pour chaque véhicule.
+              Vous enchérissez en ligne, à votre rythme, avec la possibilité de
+              voir les véhicules physiquement avant le démarrage effectif des
+              enchères. Une fois l'enchère gagnée, le paiement et la sortie du
+              véhicule sont encadrés étape par étape par notre équipe.
             </p>
             <ul className="mt-6 space-y-3">
               <Bullet>Véhicules expertisés avant chaque session</Bullet>
