@@ -519,6 +519,35 @@ export type Database = {
     }
     Functions: {
       admin_delete_payment: { Args: { p_id: string }; Returns: undefined }
+      admin_get_auction: {
+        Args: { p_id: string }
+        Returns: {
+          admin_validation_deadline: string | null
+          auction_type: Database["public"]["Enums"]["auction_type_t"]
+          bid_count: number
+          car_id: string
+          closed_at: string | null
+          created_at: string
+          current_price: number
+          ends_at: string
+          event_id: string | null
+          id: string
+          payment_deadline: string | null
+          starting_price: number
+          starts_at: string
+          status: Database["public"]["Enums"]["auction_status_t"]
+          top_bidder_id: string | null
+          updated_at: string
+          validated_at: string | null
+          visibility: Database["public"]["Enums"]["auction_visibility_t"]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "auctions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       admin_get_profile: {
         Args: { p_user_id: string }
         Returns: {
@@ -930,6 +959,35 @@ export type Database = {
           is_auto: boolean
           is_own: boolean
         }[]
+      }
+      list_my_pending_payment_auctions: {
+        Args: never
+        Returns: {
+          admin_validation_deadline: string | null
+          auction_type: Database["public"]["Enums"]["auction_type_t"]
+          bid_count: number
+          car_id: string
+          closed_at: string | null
+          created_at: string
+          current_price: number
+          ends_at: string
+          event_id: string | null
+          id: string
+          payment_deadline: string | null
+          starting_price: number
+          starts_at: string
+          status: Database["public"]["Enums"]["auction_status_t"]
+          top_bidder_id: string | null
+          updated_at: string
+          validated_at: string | null
+          visibility: Database["public"]["Enums"]["auction_visibility_t"]
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "auctions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       list_my_seller_cars: {
         Args: never
