@@ -487,8 +487,9 @@ function CarFormDialog({ existing, onClose, onSaved }: { existing?: CarRow; onCl
               ]}
             />
           </Field>
-          <Field label="MEC (Mise En Circulation)"><input type="number" value={form.annee} onChange={(e) => setForm({ ...form, annee: +e.target.value })} className="input" /></Field>
-          <Field label="Kilométrage"><input type="number" value={form.kilometrage} onChange={(e) => setForm({ ...form, kilometrage: +e.target.value })} className="input" /></Field>
+          <Field label="MEC (Mise En Circulation)" locked={isLocked("annee")}><input type="number" value={form.annee} onChange={(e) => setForm({ ...form, annee: +e.target.value })} className="input" /></Field>
+          <Field label="Kilométrage" locked={isLocked("kilometrage")}><input type="number" value={form.kilometrage} onChange={(e) => setForm({ ...form, kilometrage: +e.target.value })} className="input" /></Field>
+
           <div className="sm:col-span-2 rounded-lg border border-primary/30 bg-primary/5 p-3">
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-primary">Zone prix (interne)</p>
             <div className="grid gap-3 sm:grid-cols-2">
