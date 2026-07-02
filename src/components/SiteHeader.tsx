@@ -42,12 +42,16 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
-          {showHomeAndVehicules && <NavLink to="/">Accueil</NavLink>}
+          {showHomeAndVehicules && !isAcheteurOnly && <NavLink to="/">Accueil</NavLink>}
           {!auth.isAuthenticated && <NavLink to="/comment-ca-marche-acheteur">Acheteur</NavLink>}
           {!auth.isAuthenticated && <NavLink to="/comment-ca-marche-vendeur">Vendeur</NavLink>}
           {showHomeAndVehicules && <NavLink to="/auctions">Enchères</NavLink>}
           {showHomeAndVehicules && auth.isAuthenticated && <NavLink to="/vehicules">Véhicules</NavLink>}
-          {auth.isAuthenticated && !isExpertOnly && !isAdmin && <NavLink to="/comment-ca-marche">Comment ça marche</NavLink>}
+          {auth.isAuthenticated && !isExpertOnly && !isAdmin && (
+            <NavLink to={isAcheteurOnly ? "/comment-ca-marche-acheteur" : "/comment-ca-marche"}>
+              Comment ça marche
+            </NavLink>
+          )}
           {isExpertOnly && (
             <>
               <NavLink to="/expert">Vue d'ensemble</NavLink>
