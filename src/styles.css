@@ -3,9 +3,10 @@
 @import "tw-animate-css";
 
 @theme {
-  --font-display: "Fraunces", Georgia, serif;
-  --font-sans: "Outfit", system-ui, sans-serif;
+  --font-display: "Barlow Condensed", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Open Sans", system-ui, sans-serif;
 }
+
 
 
 @custom-variant dark (&:is(.dark *));
