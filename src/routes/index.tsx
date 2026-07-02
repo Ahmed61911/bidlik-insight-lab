@@ -157,7 +157,7 @@ function HomeV3() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <StatCard label="Caution standard" value="5 000" suffix="MAD / session" />
-            <StatCard label="Catalogue dispo" value="24h" suffix="avant session" />
+            <StatCard label="CATALOGUE DISPONIBLE" value="72h" suffix="avant session" />
             <StatCard label="Points d'expertise" value="200+" suffix="par véhicule" />
             <StatCard label="Identité" value="100%" suffix="confidentielle" />
           </div>
