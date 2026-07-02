@@ -22,6 +22,7 @@ export function SiteHeader() {
   const isAdmin = userRoles.includes("admin");
   const isExpertOnly = userRoles.includes("expert") && !userRoles.some((r) => r === "admin" || r === "acheteur" || r === "vendeur");
   const isVendeur = userRoles.includes("vendeur") && !userRoles.includes("admin");
+  const isAcheteurOnly = userRoles.includes("acheteur") && !userRoles.includes("admin") && !userRoles.includes("vendeur") && !userRoles.includes("expert");
   const showHomeAndVehicules = !isExpertOnly && !isVendeur;
 
 
@@ -41,12 +42,16 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
-          {showHomeAndVehicules && <NavLink to="/">Accueil</NavLink>}
+          {showHomeAndVehicules && !isAcheteurOnly && <NavLink to="/">Accueil</NavLink>}
           {!auth.isAuthenticated && <NavLink to="/comment-ca-marche-acheteur">Acheteur</NavLink>}
           {!auth.isAuthenticated && <NavLink to="/comment-ca-marche-vendeur">Vendeur</NavLink>}
           {showHomeAndVehicules && <NavLink to="/auctions">Enchères</NavLink>}
           {showHomeAndVehicules && auth.isAuthenticated && <NavLink to="/vehicules">Véhicules</NavLink>}
-          {auth.isAuthenticated && !isExpertOnly && !isAdmin && <NavLink to="/comment-ca-marche">Comment ça marche</NavLink>}
+          {auth.isAuthenticated && !isExpertOnly && !isAdmin && (
+            <NavLink to={isAcheteurOnly ? "/comment-ca-marche-acheteur" : "/comment-ca-marche"}>
+              Comment ça marche
+            </NavLink>
+          )}
           {isExpertOnly && (
             <>
               <NavLink to="/expert">Vue d'ensemble</NavLink>
@@ -94,7 +99,7 @@ export function SiteHeader() {
       </div>
 
       <nav className="scrollbar-none flex items-center gap-6 overflow-x-auto overflow-y-hidden border-t border-border px-4 pb-3.5 pt-2.5 md:hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        {showHomeAndVehicules && <NavLink to="/" mobile>Accueil</NavLink>}
+        {showHomeAndVehicules && !isAcheteurOnly && <NavLink to="/" mobile>Accueil</NavLink>}
         {!auth.isAuthenticated && <RoleDropdown mobile />}
         {showHomeAndVehicules && <NavLink to="/auctions" mobile>Enchères</NavLink>}
         {showHomeAndVehicules && auth.isAuthenticated && <NavLink to="/vehicules" mobile>Véhicules</NavLink>}
