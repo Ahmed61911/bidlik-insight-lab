@@ -553,11 +553,23 @@ function CarFormDialog({ existing, onClose, onSaved }: { existing?: CarRow; onCl
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, children, locked }: { label: string; children: React.ReactNode; locked?: boolean }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-medium text-muted-foreground">{label}</span>
-      {children}
+      <span className="mb-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">
+        {label}
+        {locked && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-400">
+            <Lock className="h-2.5 w-2.5" /> Expert
+          </span>
+        )}
+      </span>
+      {locked ? (
+        <fieldset disabled className="opacity-70 pointer-events-none">{children}</fieldset>
+      ) : (
+        children
+      )}
     </label>
   );
 }
+
