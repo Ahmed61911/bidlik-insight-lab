@@ -6,11 +6,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { computeCmiHash } from "@/lib/cmi";
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
+// Same-origin only — no CORS. Cross-origin sites must not be able to
+// trigger a CMI payment on behalf of a signed-in user (CSRF-adjacent).
 
 const BodySchema = z.object({
   type: z.enum(["caution"]).default("caution"),
@@ -20,14 +17,15 @@ const BodySchema = z.object({
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "Content-Type": "application/json", ...CORS },
+    headers: { "Content-Type": "application/json" },
   });
 }
+
 
 export const Route = createFileRoute("/api/public/cmi-init")({
   server: {
     handlers: {
-      OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
+
       POST: async ({ request }) => {
         try {
           const clientId = process.env.CMI_CLIENT_ID;

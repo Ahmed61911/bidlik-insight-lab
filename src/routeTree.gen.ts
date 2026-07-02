@@ -15,7 +15,6 @@ import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
 import { Route as TrustRouteImport } from './routes/trust'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InscriptionEnAttenteRouteImport } from './routes/inscription-en-attente'
-import { Route as HomeOldRouteImport } from './routes/home-old'
 import { Route as ExpertRouteImport } from './routes/expert'
 import { Route as CommentCaMarcheVendeurRouteImport } from './routes/comment-ca-marche-vendeur'
 import { Route as CommentCaMarcheAcheteurRouteImport } from './routes/comment-ca-marche-acheteur'
@@ -86,11 +85,6 @@ const LoginRoute = LoginRouteImport.update({
 const InscriptionEnAttenteRoute = InscriptionEnAttenteRouteImport.update({
   id: '/inscription-en-attente',
   path: '/inscription-en-attente',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HomeOldRoute = HomeOldRouteImport.update({
-  id: '/home-old',
-  path: '/home-old',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExpertRoute = ExpertRouteImport.update({
@@ -311,7 +305,6 @@ export interface FileRoutesByFullPath {
   '/comment-ca-marche-acheteur': typeof CommentCaMarcheAcheteurRoute
   '/comment-ca-marche-vendeur': typeof CommentCaMarcheVendeurRoute
   '/expert': typeof ExpertRouteWithChildren
-  '/home-old': typeof HomeOldRoute
   '/inscription-en-attente': typeof InscriptionEnAttenteRoute
   '/login': typeof LoginRoute
   '/trust': typeof TrustRoute
@@ -358,7 +351,6 @@ export interface FileRoutesByTo {
   '/comment-ca-marche': typeof CommentCaMarcheRoute
   '/comment-ca-marche-acheteur': typeof CommentCaMarcheAcheteurRoute
   '/comment-ca-marche-vendeur': typeof CommentCaMarcheVendeurRoute
-  '/home-old': typeof HomeOldRoute
   '/inscription-en-attente': typeof InscriptionEnAttenteRoute
   '/login': typeof LoginRoute
   '/trust': typeof TrustRoute
@@ -408,7 +400,6 @@ export interface FileRoutesById {
   '/comment-ca-marche-acheteur': typeof CommentCaMarcheAcheteurRoute
   '/comment-ca-marche-vendeur': typeof CommentCaMarcheVendeurRoute
   '/expert': typeof ExpertRouteWithChildren
-  '/home-old': typeof HomeOldRoute
   '/inscription-en-attente': typeof InscriptionEnAttenteRoute
   '/login': typeof LoginRoute
   '/trust': typeof TrustRoute
@@ -460,7 +451,6 @@ export interface FileRouteTypes {
     | '/comment-ca-marche-acheteur'
     | '/comment-ca-marche-vendeur'
     | '/expert'
-    | '/home-old'
     | '/inscription-en-attente'
     | '/login'
     | '/trust'
@@ -507,7 +497,6 @@ export interface FileRouteTypes {
     | '/comment-ca-marche'
     | '/comment-ca-marche-acheteur'
     | '/comment-ca-marche-vendeur'
-    | '/home-old'
     | '/inscription-en-attente'
     | '/login'
     | '/trust'
@@ -556,7 +545,6 @@ export interface FileRouteTypes {
     | '/comment-ca-marche-acheteur'
     | '/comment-ca-marche-vendeur'
     | '/expert'
-    | '/home-old'
     | '/inscription-en-attente'
     | '/login'
     | '/trust'
@@ -607,7 +595,6 @@ export interface RootRouteChildren {
   CommentCaMarcheAcheteurRoute: typeof CommentCaMarcheAcheteurRoute
   CommentCaMarcheVendeurRoute: typeof CommentCaMarcheVendeurRoute
   ExpertRoute: typeof ExpertRouteWithChildren
-  HomeOldRoute: typeof HomeOldRoute
   InscriptionEnAttenteRoute: typeof InscriptionEnAttenteRoute
   LoginRoute: typeof LoginRoute
   TrustRoute: typeof TrustRoute
@@ -667,13 +654,6 @@ declare module '@tanstack/react-router' {
       path: '/inscription-en-attente'
       fullPath: '/inscription-en-attente'
       preLoaderRoute: typeof InscriptionEnAttenteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/home-old': {
-      id: '/home-old'
-      path: '/home-old'
-      fullPath: '/home-old'
-      preLoaderRoute: typeof HomeOldRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/expert': {
@@ -1069,7 +1049,6 @@ const rootRouteChildren: RootRouteChildren = {
   CommentCaMarcheAcheteurRoute: CommentCaMarcheAcheteurRoute,
   CommentCaMarcheVendeurRoute: CommentCaMarcheVendeurRoute,
   ExpertRoute: ExpertRouteWithChildren,
-  HomeOldRoute: HomeOldRoute,
   InscriptionEnAttenteRoute: InscriptionEnAttenteRoute,
   LoginRoute: LoginRoute,
   TrustRoute: TrustRoute,
