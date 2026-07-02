@@ -29,10 +29,9 @@ function json(body: unknown, status = 200) {
   });
 }
 
-async function findUserByEmail(
-  admin: Awaited<ReturnType<typeof import("@/integrations/supabase/client.server").then>>["supabaseAdmin"],
-  email: string,
-) {
+type SupabaseAdmin = typeof import("@/integrations/supabase/client.server")["supabaseAdmin"];
+
+async function findUserByEmail(admin: SupabaseAdmin, email: string) {
   // Paginate — listUsers defaults to page 1, 50 per page.
   for (let page = 1; page <= 20; page++) {
     const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 200 });
@@ -43,6 +42,7 @@ async function findUserByEmail(
   }
   return null;
 }
+
 
 export const Route = createFileRoute("/api/public/seed-demo")({
   server: {
