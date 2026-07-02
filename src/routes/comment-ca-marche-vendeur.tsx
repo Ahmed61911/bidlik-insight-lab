@@ -6,8 +6,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import {
-  UserPlus,
-  Upload,
+  PhoneCall,
   ClipboardCheck,
   Search,
   Camera,
@@ -36,6 +35,8 @@ import {
   ArrowRight,
   AlertTriangle,
   BadgeCheck,
+  HandshakeIcon,
+  PenTool,
 } from "lucide-react";
 
 export const Route = createFileRoute("/comment-ca-marche-vendeur")({
@@ -45,13 +46,13 @@ export const Route = createFileRoute("/comment-ca-marche-vendeur")({
       {
         name: "description",
         content:
-          "Guide complet du vendeur Bidlik : parcours de vente, expertise indépendante, mise en enchères, paiement sécurisé et bonnes pratiques.",
+          "Guide complet du vendeur Bidlik : nous prenons en charge l'expertise, la création de l'annonce et l'organisation des enchères pour une vente transparente et sécurisée.",
       },
       { property: "og:title", content: "Comment vendre sur Bidlik ?" },
       {
         property: "og:description",
         content:
-          "Vendez votre véhicule rapidement grâce à un processus transparent, une expertise indépendante et des enchères en temps réel.",
+          "Confiez votre véhicule à Bidlik. Nous gérons l'expertise, l'annonce et les enchères — vous suivez la vente depuis votre espace vendeur.",
       },
     ],
   }),
@@ -73,22 +74,46 @@ function SellerGuide() {
             <span className="text-accent">Bidlik</span> ?
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base text-white/80 sm:text-lg">
-            Vendez votre véhicule rapidement grâce à un processus transparent,
-            une expertise indépendante et des enchères en temps réel.
+            Confiez votre véhicule à Bidlik. Nous prenons en charge l'expertise,
+            la création de l'annonce et l'organisation des enchères afin de vous
+            offrir une vente transparente, sécurisée et professionnelle.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Link
               to="/login"
               className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-semibold uppercase tracking-wider text-accent-foreground transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-glow-orange)]"
             >
-              <Upload className="h-4 w-4" /> Soumettre mon véhicule
+              <PhoneCall className="h-4 w-4" /> Nous contacter
             </Link>
           </div>
         </div>
       </section>
 
+      {/* SECTION 0 — Modèle géré */}
+      <section className="border-b border-border bg-accent/5 py-12">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+          <div className="flex flex-col items-start gap-6 rounded-2xl border border-accent/30 bg-card p-8 shadow-[var(--shadow-card)] md:flex-row md:items-center">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
+              <HandshakeIcon className="h-7 w-7" />
+            </div>
+            <div>
+              <h2 className="font-display text-xl font-bold text-foreground sm:text-2xl">
+                Une vente entièrement gérée par Bidlik
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                Vous n'avez ni annonce à créer, ni photos à téléverser, ni fiche
+                à remplir. Notre équipe s'occupe de tout : validation du
+                dossier, organisation de l'expertise, création de l'annonce et
+                mise aux enchères. Vous suivez simplement l'évolution de votre
+                vente depuis votre espace vendeur.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* SECTION 1 — Parcours vendeur */}
-      <Section eyebrow="De A à Z" title="Le parcours vendeur">
+      <Section eyebrow="De A à Z" title="Votre parcours vendeur">
         <ol className="relative mt-12 space-y-4 border-l border-border pl-6 sm:pl-8">
           {JOURNEY.map((s, i) => (
             <li
@@ -109,6 +134,19 @@ function SellerGuide() {
                   <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
                     {s.text}
                   </p>
+                  {s.bullets && (
+                    <ul className="mt-3 space-y-1.5">
+                      {s.bullets.map((b) => (
+                        <li
+                          key={b}
+                          className="flex items-start gap-2 text-sm text-muted-foreground"
+                        >
+                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                          <span>{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </div>
             </li>
@@ -118,59 +156,97 @@ function SellerGuide() {
 
       {/* SECTION 2 — Conditions */}
       <Section alt eyebrow="Prérequis" title="Conditions pour vendre">
+        <p className="mt-6 max-w-3xl text-muted-foreground">
+          Pour que Bidlik puisse intégrer votre véhicule à une session
+          d'enchères, quelques informations et documents sont indispensables.
+          Notre équipe vous guide à chaque étape.
+        </p>
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <InfoCard icon={<FileText className="h-5 w-5" />} title="Carte grise & documents de propriété" text="Fournir la carte grise originale ou tout document officiel prouvant la propriété du véhicule." />
-          <InfoCard icon={<ListChecks className="h-5 w-5" />} title="Informations exactes" text="Renseigner avec précision la marque, le modèle, l'année, l'état et l'historique du véhicule." />
-          <InfoCard icon={<Activity className="h-5 w-5" />} title="Kilométrage réel" text="Déclarer le kilométrage exact indiqué au compteur, sans arrondi ni approximation." />
-          <InfoCard icon={<FolderCheck className="h-5 w-5" />} title="Documents administratifs" text="Rassembler l'ensemble des documents nécessaires à la mutation et à la sortie du véhicule." />
-          <InfoCard icon={<CalendarClock className="h-5 w-5" />} title="Disponibilité pour l'expertise" text="Le véhicule doit être disponible et accessible pour l'inspection par l'expert indépendant." />
+          <InfoCard
+            icon={<FileText className="h-5 w-5" />}
+            title="Documents de propriété"
+            text="La carte grise originale ou tout document officiel prouvant que vous êtes le propriétaire du véhicule."
+          />
+          <InfoCard
+            icon={<ListChecks className="h-5 w-5" />}
+            title="Informations exactes"
+            text="Communiquez avec précision la marque, le modèle, l'année, l'état général et l'historique du véhicule."
+          />
+          <InfoCard
+            icon={<Activity className="h-5 w-5" />}
+            title="Kilométrage réel"
+            text="Le kilométrage exact affiché au compteur doit être déclaré, sans arrondi ni approximation."
+          />
+          <InfoCard
+            icon={<FolderCheck className="h-5 w-5" />}
+            title="Documents administratifs"
+            text="Rassemblez les documents nécessaires à la mutation et à la sortie du véhicule."
+          />
+          <InfoCard
+            icon={<CalendarClock className="h-5 w-5" />}
+            title="Disponibilité pour l'expertise"
+            text="Le véhicule doit être accessible pour que l'expert indépendant mandaté par Bidlik puisse l'inspecter."
+          />
+          <InfoCard
+            icon={<PenTool className="h-5 w-5" />}
+            title="Mandat de vente"
+            text="Un mandat clair est signé avec Bidlik afin d'encadrer l'ensemble de la vente aux enchères."
+          />
         </div>
 
         <Callout tone="warning" icon={<AlertTriangle className="h-5 w-5" />}>
-          <strong>Attention :</strong> toute déclaration inexacte ou omission
-          d'information peut entraîner un retard de mise en vente, une décote
-          significative, voire l'annulation pure et simple de la vente.
+          <strong>Attention :</strong> toute information inexacte ou incomplète
+          peut entraîner un report de la mise en vente, une décote significative,
+          voire un refus d'intégration à une session d'enchères.
         </Callout>
       </Section>
 
       {/* SECTION 3 — Expertise */}
-      <Section eyebrow="Transparence garantie" title="Expertise indépendante">
+      <Section
+        eyebrow="Transparence garantie"
+        title="Une expertise indépendante pour une vente en toute transparence"
+      >
         <p className="mt-6 max-w-3xl text-muted-foreground">
-          Chaque véhicule mis en vente passe par une expertise complète
-          réalisée par un professionnel indépendant. Le rapport produit est
-          intégralement visible par les acheteurs.
+          Chaque véhicule confié à Bidlik est inspecté par un expert automobile
+          indépendant. Le rapport complet est ensuite rendu accessible aux
+          acheteurs pour garantir une transparence totale.
         </p>
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <InfoCard icon={<Search className="h-5 w-5" />} title="Inspection complète" text="Un contrôle approfondi couvrant l'ensemble du véhicule." />
-          <InfoCard icon={<Wrench className="h-5 w-5" />} title="Contrôle mécanique" text="Analyse du moteur, de la transmission et des organes de sécurité." />
+          <InfoCard icon={<Wrench className="h-5 w-5" />} title="Inspection mécanique" text="Analyse du moteur, de la transmission et des organes de sécurité." />
           <InfoCard icon={<Car className="h-5 w-5" />} title="Contrôle carrosserie" text="Vérification de la structure, de la peinture et des éléments extérieurs." />
           <InfoCard icon={<Sofa className="h-5 w-5" />} title="Contrôle intérieur" text="Évaluation de l'habitacle, des équipements et des finitions." />
           <InfoCard icon={<ShieldCheck className="h-5 w-5" />} title="Vérification administrative" text="Contrôle de la conformité et de la validité des documents." />
+          <InfoCard icon={<ListChecks className="h-5 w-5" />} title="+ de 200 points de contrôle" text="Un référentiel d'expertise exhaustif et standardisé." />
           <InfoCard icon={<FileText className="h-5 w-5" />} title="Rapport détaillé" text="Un document complet remis au format PDF, accessible aux acheteurs." />
           <InfoCard icon={<Star className="h-5 w-5" />} title="Note globale sur 10" text="Une notation synthétique reflétant l'état général du véhicule." />
-          <InfoCard icon={<ListChecks className="h-5 w-5" />} title="+ de 200 points de contrôle" text="Un référentiel d'expertise exhaustif et standardisé." />
-          <InfoCard icon={<Camera className="h-5 w-5" />} title="Photos professionnelles" text="Reportage photo HD sous tous les angles réalisé par l'expert." />
-          <InfoCard icon={<Volume2 className="h-5 w-5" />} title="Enregistrements audio" text="Captation sonore du démarrage à froid et de l'accélération moteur." />
+          <InfoCard icon={<Camera className="h-5 w-5" />} title="Photos professionnelles" text="Reportage photo HD réalisé par notre équipe sous tous les angles." />
+          <InfoCard icon={<Volume2 className="h-5 w-5" />} title="Enregistrements audio" text="Captation sonore du démarrage à froid et du moteur lorsque nécessaire." />
         </div>
       </Section>
 
-      {/* SECTION 4 — Mise en vente */}
-      <Section alt eyebrow="Publication" title="Mise en vente">
-        <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <FlowStep n={1} title="Intégration à une session" text="Votre véhicule est planifié dans la prochaine session d'enchères adaptée." />
-          <FlowStep n={2} title="Consultation acheteurs" text="Les acheteurs consultent photos, rapport d'expertise et documents disponibles." />
-          <FlowStep n={3} title="Enchères en temps réel" text="Les offres sont visibles en direct pendant toute la session d'enchères." />
-          <FlowStep n={4} title="Suivi personnel" text="Vous suivez l'évolution de la vente depuis votre espace vendeur." />
+      {/* SECTION 4 — Déroulement de la vente */}
+      <Section alt eyebrow="Déroulement" title="Déroulement de la vente">
+        <p className="mt-6 max-w-3xl text-muted-foreground">
+          Une fois votre véhicule prêt, Bidlik le publie dans une session
+          d'enchères. Vous n'avez rien à gérer : vous suivez simplement les
+          offres depuis votre espace vendeur.
+        </p>
+        <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <FlowStep n={1} title="Publication en session" text="Votre véhicule est intégré à la prochaine session d'enchères adaptée." />
+          <FlowStep n={2} title="Consultation du dossier" text="Les acheteurs consultent photos, rapport d'expertise et documents." />
+          <FlowStep n={3} title="Enchères en temps réel" text="Les offres sont visibles en direct pendant toute la session." />
+          <FlowStep n={4} title="Suivi depuis votre espace" text="Vous suivez l'évolution de la vente en direct depuis votre tableau de bord." />
+          <FlowStep n={5} title="Validation de l'offre" text="La meilleure offre est validée conformément aux règles Bidlik." />
         </div>
       </Section>
 
-      {/* SECTION 5 — Après clôture */}
-      <Section eyebrow="Après la vente" title="Après la clôture">
-        <div className="mt-12 grid gap-3 md:grid-cols-6">
+      {/* SECTION 5 — Après la vente */}
+      <Section eyebrow="Après la vente" title="Après la vente">
+        <div className="mt-12 grid gap-3 md:grid-cols-3 lg:grid-cols-6">
           {AFTER_CLOSE.map((s, i) => (
             <div
               key={s.title}
-              className="rounded-2xl border border-border bg-card p-5 text-center shadow-[var(--shadow-card)]"
+              className="rounded-2xl border border-border bg-card p-5 text-center shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]"
             >
               <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                 {i + 1}
@@ -184,6 +260,11 @@ function SellerGuide() {
 
       {/* SECTION 6 — Paiement */}
       <Section alt eyebrow="Modalités financières" title="Paiement">
+        <p className="mt-6 max-w-3xl text-muted-foreground">
+          Le paiement du vendeur intervient uniquement après réception effective
+          des fonds de l'acheteur. La commission Bidlik est déduite avant le
+          versement du montant net.
+        </p>
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
           <PaymentCard
             icon={<CreditCard className="h-5 w-5" />}
@@ -193,7 +274,7 @@ function SellerGuide() {
           <PaymentCard
             icon={<Banknote className="h-5 w-5" />}
             title="Commission déduite avant versement"
-            text="La commission Bidlik est prélevée automatiquement avant transfert. Vous recevez le montant net, sans démarche supplémentaire."
+            text="La commission Bidlik est prélevée automatiquement avant transfert. Vous recevez le montant net, sans démarche supplémentaire de votre part."
           />
           <PaymentCard
             icon={<ShieldCheck className="h-5 w-5" />}
@@ -202,47 +283,71 @@ function SellerGuide() {
           />
           <PaymentCard
             icon={<Activity className="h-5 w-5" />}
-            title="Suivi en temps réel"
-            text="Consultez à tout moment le statut du paiement et l'historique complet depuis votre espace personnel."
+            title="Suivi depuis votre espace"
+            text="Consultez à tout moment le statut du paiement et l'historique complet depuis votre espace vendeur."
           />
         </div>
       </Section>
 
       {/* SECTION 7 — Pourquoi vendre */}
-      <Section eyebrow="Vos avantages" title="Pourquoi vendre sur Bidlik ?">
+      <Section eyebrow="Vos avantages" title="Pourquoi vendre avec Bidlik ?">
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <Advantage icon={<Search />} title="Expertise indépendante" text="Un expert tiers évalue objectivement votre véhicule." />
-          <Advantage icon={<Eye />} title="Enchères transparentes" text="Toutes les offres sont visibles en temps réel." />
+          <Advantage icon={<Headset />} title="Accompagnement complet" text="Un interlocuteur Bidlik vous suit à chaque étape." />
+          <Advantage icon={<Sparkles />} title="Aucune annonce à gérer" text="Bidlik crée l'intégralité de la fiche de votre véhicule." />
+          <Advantage icon={<Camera />} title="Photos professionnelles" text="Un reportage photo HD réalisé par notre équipe." />
+          <Advantage icon={<Eye />} title="Vente transparente" text="Toutes les offres sont visibles en temps réel." />
           <Advantage icon={<Users />} title="Acheteurs qualifiés" text="Uniquement des professionnels référencés et vérifiés." />
-          <Advantage icon={<Lock />} title="Processus sécurisé" text="Cadre juridique clair et engagements fermes." />
-          <Advantage icon={<ShieldCheck />} title="Paiement sécurisé" text="Versement uniquement après encaissement effectif." />
-          <Advantage icon={<Headset />} title="Accompagnement dédié" text="Un interlocuteur vous suit à chaque étape." />
+          <Advantage icon={<Lock />} title="Paiement sécurisé" text="Versement uniquement après encaissement effectif." />
+          <Advantage icon={<FolderCheck />} title="Accompagnement administratif" text="Nous vous guidons dans les formalités liées à la vente." />
           <Advantage icon={<Globe2 />} title="Visibilité nationale" text="Un réseau d'acheteurs actifs partout au Maroc." />
           <Advantage icon={<Activity />} title="Suivi en temps réel" text="Un tableau de bord clair et instantané." />
         </div>
       </Section>
 
       {/* SECTION 8 — Bonnes pratiques */}
-      <Section alt eyebrow="Maximisez la valeur de votre vente" title="Bonnes pratiques">
+      <Section alt eyebrow="Facilitez votre vente" title="Conseils pour faciliter votre vente">
         <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <PracticeCard icon={<ListChecks />} title="Fournir des informations exactes" text="La transparence rassure les acheteurs et sécurise votre vente." />
-          <PracticeCard icon={<Sparkles />} title="Présenter un véhicule propre" text="Un véhicule soigné met en valeur son état réel et son potentiel." />
-          <PracticeCard icon={<FolderCheck />} title="Fournir tous les documents" text="Un dossier complet accélère la validation et rassure les enchérisseurs." />
-          <PracticeCard icon={<CalendarClock />} title="Rester disponible pendant la vente" text="Une réactivité constante fluidifie l'ensemble du processus." />
-          <PracticeCard icon={<Activity />} title="Consulter régulièrement l'espace vendeur" text="Suivez les offres et notifications pour ne rien manquer." />
+          <PracticeCard icon={<ListChecks />} title="Fournir des informations précises" text="Des données exactes accélèrent la validation et rassurent les acheteurs." />
+          <PracticeCard icon={<FolderCheck />} title="Préparer les documents administratifs" text="Un dossier complet évite tout retard dans la mise en vente." />
+          <PracticeCard icon={<CalendarClock />} title="Rendre le véhicule disponible pour l'expertise" text="Une disponibilité rapide permet d'intégrer la prochaine session d'enchères." />
+          <PracticeCard icon={<PhoneCall />} title="Rester joignable pendant la vente" text="Une réactivité constante fluidifie l'ensemble du processus." />
+          <PracticeCard icon={<Activity />} title="Suivre régulièrement votre espace vendeur" text="Consultez les offres et notifications pour ne rien manquer." />
+          <PracticeCard icon={<Sparkles />} title="Présenter un véhicule propre" text="Un véhicule soigné met en valeur son état réel lors de l'expertise." />
         </div>
       </Section>
 
       {/* FAQ */}
       <Section eyebrow="Questions fréquentes" title="FAQ">
         <Accordion type="single" collapsible className="mx-auto mt-10 max-w-3xl">
-          <Faq q="Comment soumettre un véhicule ?" a="Depuis votre espace vendeur, remplissez le formulaire de soumission avec les informations et documents de votre véhicule. La demande est ensuite validée par l'équipe Bidlik." />
-          <Faq q="Combien coûte la mise en vente ?" a="La soumission d'un véhicule est libre ; une commission Bidlik n'est prélevée qu'en cas de vente effective, directement déduite du montant final avant versement." />
-          <Faq q="Qui réalise l'expertise ?" a="L'expertise est confiée à un expert automobile indépendant, sans lien avec le vendeur ni les acheteurs, garantissant une évaluation totalement objective." />
-          <Faq q="Puis-je suivre les enchères ?" a="Oui. Vous suivez en temps réel l'évolution des offres, le nombre d'enchérisseurs et l'état de la session depuis votre espace vendeur." />
-          <Faq q="Quand suis-je payé ?" a="Le versement est effectué dès que Bidlik a effectivement encaissé le paiement de l'acheteur, après déduction automatique de la commission." />
-          <Faq q="Puis-je retirer mon véhicule avant la vente ?" a="Le retrait avant publication d'une session est possible. Une fois le véhicule intégré à une session active, un retrait n'est envisageable qu'à titre exceptionnel et sur validation de Bidlik." />
-          <Faq q="Que se passe-t-il si la meilleure offre est refusée ?" a="Si l'offre finale n'est pas confirmée, le véhicule peut être reproposé lors d'une session ultérieure. Vous en êtes informé par notification depuis votre espace." />
+          <Faq
+            q="Comment proposer mon véhicule à Bidlik ?"
+            a="Contactez simplement notre équipe via le formulaire de contact ou par téléphone. Vous nous communiquez les informations principales de votre véhicule et nous revenons vers vous rapidement pour valider votre dossier."
+          />
+          <Faq
+            q="Qui crée l'annonce de mon véhicule ?"
+            a="C'est l'équipe Bidlik qui prend en charge la création complète de la fiche du véhicule, à partir des informations validées et du rapport d'expertise. Vous n'avez aucune annonce à rédiger, aucune photo à téléverser, aucun formulaire à remplir sur la plateforme."
+          />
+          <Faq
+            q="Qui réalise l'expertise ?"
+            a="L'expertise est confiée à un expert automobile indépendant mandaté par Bidlik, sans lien avec le vendeur ni les acheteurs. Cela garantit une évaluation totalement objective et transparente."
+          />
+          <Faq
+            q="Puis-je suivre les enchères ?"
+            a="Oui. Depuis votre espace vendeur, vous suivez en temps réel l'évolution des offres, le nombre d'enchérisseurs et l'état de la session."
+          />
+          <Faq
+            q="Quand serai-je payé ?"
+            a="Le versement est effectué après réception effective des fonds de l'acheteur (règlement à effectuer sous 48 heures). Bidlik déduit sa commission puis vous verse le montant net sur votre compte bancaire."
+          />
+          <Faq
+            q="Puis-je retirer mon véhicule avant la mise aux enchères ?"
+            a="Le retrait est possible tant que le véhicule n'a pas été intégré à une session active. Une fois la session ouverte, un retrait ne peut être envisagé qu'à titre exceptionnel et sur validation de Bidlik."
+          />
+          <Faq
+            q="Que se passe-t-il si la meilleure offre n'est pas validée ?"
+            a="Si l'offre finale n'est pas confirmée, le véhicule peut être reproposé lors d'une session ultérieure. Vous êtes informé par notification depuis votre espace vendeur."
+          />
         </Accordion>
       </Section>
 
@@ -255,15 +360,16 @@ function SellerGuide() {
             Prêt à vendre votre véhicule ?
           </h2>
           <p className="max-w-2xl text-base text-primary/90">
-            Soumettez votre véhicule dès aujourd'hui et bénéficiez d'une vente
-            sécurisée, transparente et compétitive grâce aux enchères Bidlik.
+            Contactez l'équipe Bidlik. Nous nous chargeons de l'expertise, de la
+            création de l'annonce et de toute l'organisation de la vente afin de
+            vous offrir une expérience simple, sécurisée et transparente.
           </p>
           <div className="mt-2 flex flex-wrap justify-center gap-4">
             <Link
               to="/login"
               className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-transform hover:-translate-y-0.5"
             >
-              <Upload className="h-4 w-4" /> Soumettre mon véhicule
+              <PhoneCall className="h-4 w-4" /> Nous contacter
             </Link>
             <Link
               to="/login"
@@ -280,26 +386,68 @@ function SellerGuide() {
 
 /* -------------------- Data -------------------- */
 
-const JOURNEY = [
-  { icon: <UserPlus className="h-5 w-5" />, title: "Création du compte vendeur", text: "Inscrivez-vous en quelques minutes et transmettez les justificatifs nécessaires à la validation de votre compte vendeur." },
-  { icon: <Upload className="h-5 w-5" />, title: "Soumission du véhicule", text: "Renseignez les informations complètes du véhicule et téléversez les documents requis depuis votre espace personnel." },
-  { icon: <ClipboardCheck className="h-5 w-5" />, title: "Validation administrative", text: "L'équipe Bidlik vérifie la cohérence des informations et la conformité des documents fournis." },
-  { icon: <Search className="h-5 w-5" />, title: "Inspection par un expert indépendant", text: "Un expert automobile tiers se déplace pour réaliser une inspection complète du véhicule." },
-  { icon: <Camera className="h-5 w-5" />, title: "Photos professionnelles", text: "Un reportage photo HD est réalisé afin de mettre en valeur votre véhicule auprès des acheteurs." },
-  { icon: <Megaphone className="h-5 w-5" />, title: "Publication dans une session", text: "Votre véhicule est intégré à la prochaine session d'enchères et devient visible dans le catalogue." },
-  { icon: <Gavel className="h-5 w-5" />, title: "Vente aux enchères", text: "Les acheteurs professionnels référencés enchérissent en temps réel pendant toute la session." },
-  { icon: <CheckCircle2 className="h-5 w-5" />, title: "Validation de la meilleure offre", text: "L'offre gagnante est présentée pour validation, garantissant votre pleine maîtrise du prix." },
-  { icon: <CreditCard className="h-5 w-5" />, title: "Paiement de l'acheteur", text: "L'acheteur règle intégralement le véhicule dans un délai encadré de 48 heures ouvrées." },
-  { icon: <Banknote className="h-5 w-5" />, title: "Versement du montant au vendeur", text: "Après encaissement effectif et déduction de la commission, votre versement est déclenché." },
+const JOURNEY: {
+  icon: React.ReactNode;
+  title: string;
+  text: string;
+  bullets?: string[];
+}[] = [
+  {
+    icon: <PhoneCall className="h-5 w-5" />,
+    title: "Contactez Bidlik",
+    text: "Le vendeur contacte notre équipe et transmet les informations principales concernant son véhicule (marque, modèle, année, kilométrage, état général, etc.).",
+  },
+  {
+    icon: <ClipboardCheck className="h-5 w-5" />,
+    title: "Validation du dossier",
+    text: "Notre équipe vérifie les informations et confirme que le véhicule peut être intégré à une prochaine session d'enchères.",
+  },
+  {
+    icon: <Search className="h-5 w-5" />,
+    title: "Expertise indépendante",
+    text: "Un expert mandaté par Bidlik inspecte le véhicule et réalise notamment :",
+    bullets: [
+      "plus de 200 points de contrôle",
+      "les photos commerciales",
+      "les enregistrements nécessaires",
+      "le rapport d'expertise",
+      "une note globale sur 10",
+    ],
+  },
+  {
+    icon: <PenTool className="h-5 w-5" />,
+    title: "Création de l'annonce",
+    text: "L'équipe Bidlik crée entièrement la fiche du véhicule à partir des informations validées et du rapport d'expertise. Le vendeur n'a aucune annonce à créer lui-même.",
+  },
+  {
+    icon: <Megaphone className="h-5 w-5" />,
+    title: "Mise aux enchères",
+    text: "Le véhicule est intégré à une session. Les acheteurs consultent les photos, le rapport et les documents disponibles, puis enchérissent en temps réel. Le vendeur suit l'évolution directement depuis son espace vendeur.",
+  },
+  {
+    icon: <Gavel className="h-5 w-5" />,
+    title: "Validation de la meilleure offre",
+    text: "À la fin de la session, Bidlik procède à la validation de l'enchère conformément aux règles de la plateforme.",
+  },
+  {
+    icon: <CreditCard className="h-5 w-5" />,
+    title: "Paiement de l'acheteur",
+    text: "L'acheteur dispose de 48 heures pour effectuer le règlement intégral du véhicule.",
+  },
+  {
+    icon: <Banknote className="h-5 w-5" />,
+    title: "Versement au vendeur",
+    text: "Après réception effective des fonds, Bidlik déduit sa commission puis procède au versement du montant net au vendeur avant la remise du véhicule.",
+  },
 ];
 
 const AFTER_CLOSE = [
-  { title: "Fin des enchères", text: "Clôture de la session." },
-  { title: "Validation", text: "Contrôle de l'adjudication." },
-  { title: "Confirmation", text: "Vente officiellement confirmée." },
-  { title: "Paiement acheteur", text: "Sous 48h ouvrées." },
-  { title: "Versement vendeur", text: "Après encaissement effectif." },
-  { title: "Remise du véhicule", text: "Sur bon de sortie signé." },
+  { title: "Fin des enchères", text: "Clôture officielle de la session." },
+  { title: "Validation de l'adjudication", text: "Contrôle et confirmation de la meilleure offre." },
+  { title: "Paiement de l'acheteur", text: "Règlement effectué sous 48 heures." },
+  { title: "Confirmation du règlement", text: "Encaissement effectif validé par Bidlik." },
+  { title: "Versement du montant net", text: "Virement au vendeur après commission." },
+  { title: "Remise du véhicule", text: "Organisation de la remise à l'acheteur." },
 ];
 
 /* -------------------- Building blocks -------------------- */
@@ -318,7 +466,7 @@ function Section({
   return (
     <section className={alt ? "bg-secondary/40 py-20" : "py-20"}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="max-w-2xl">
+        <div className="max-w-3xl">
           <p className="font-sans text-xs font-semibold uppercase tracking-[0.3em] text-accent">
             {eyebrow}
           </p>
@@ -346,7 +494,7 @@ function InfoCard({ icon, title, text }: { icon: React.ReactNode; title: string;
 
 function FlowStep({ n, title, text }: { n: number; title: string; text: string }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)]">
+    <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)] transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]">
       <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-sm font-bold text-accent-foreground">
         {n}
       </div>
@@ -372,7 +520,7 @@ function PaymentCard({ icon, title, text }: { icon: React.ReactNode; title: stri
 
 function Advantage({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
   return (
-    <div className="group rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)] transition-all hover:-translate-y-1 hover:border-accent/50">
+    <div className="group rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)] transition-all hover:-translate-y-1 hover:border-accent/50 hover:shadow-[var(--shadow-elevated)]">
       <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent [&>svg]:h-5 [&>svg]:w-5">
         {icon}
       </div>
@@ -384,7 +532,7 @@ function Advantage({ icon, title, text }: { icon: React.ReactNode; title: string
 
 function PracticeCard({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
   return (
-    <div className="flex gap-4 rounded-2xl border-l-4 border-l-accent border-y border-r border-border bg-card p-5 shadow-[var(--shadow-card)]">
+    <div className="flex gap-4 rounded-2xl border-l-4 border-l-accent border-y border-r border-border bg-card p-5 shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]">
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary [&>svg]:h-5 [&>svg]:w-5">
         {icon}
       </div>
