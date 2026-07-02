@@ -59,7 +59,7 @@ type AuctionRow = {
   status: AuctionStatus;
   visibility: AuctionVisibility;
   auction_type: AuctionType;
-  top_bidder_id: string | null;
+  top_bidder_id?: string | null;
   cars?: (Partial<CarRow> & { id: string; marque: string; modele: string }) | null;
 };
 
@@ -371,7 +371,7 @@ export const supabaseApi: ApiClient = {
       .eq("event_id", id)
       .order("ends_at", { ascending: true });
     if (lotsErr) throw new Error(lotsErr.message);
-    const mappedLots = (lots as AuctionRow[]).map((r) => mapAuction(r));
+    const mappedLots = (lots as unknown as AuctionRow[]).map((r) => mapAuction(r));
     return {
       event: mapEvent(ev as EventRow, mappedLots.map((l) => l.id)),
       lots: mappedLots,
