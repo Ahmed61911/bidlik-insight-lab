@@ -645,16 +645,16 @@ export type ProcessedValidation = {
 };
 
 async function listProcessedValidations(): Promise<ProcessedValidation[]> {
-  const { data, error } = await supabase
-    .from("auctions")
-    .select("id, car_id, current_price, status, top_bidder_id, validated_at, updated_at, payment_deadline, cars(marque, modele, annee, vendeur_nom)")
-    .in("status", ["validated", "cancelled"])
-    .order("updated_at", { ascending: false })
-    .limit(100);
+  const { data, error } = await supabase.rpc("admin_list_processed_validations");
   if (error) throw new Error(error.message);
-  const rows = data ?? [];
+  const rows = (data ?? []) as Array<{
+    id: string; car_id: string; current_price: number; status: string;
+    top_bidder_id: string | null; validated_at: string | null; updated_at: string;
+    payment_deadline: string | null;
+    marque: string; modele: string; annee: number; vendeur_nom: string;
+  }>;
   const bidderIds = Array.from(new Set(rows.map((r) => r.top_bidder_id).filter(Boolean) as string[]));
-  const auctionIds = rows.map((r) => r.id as string);
+  const auctionIds = rows.map((r) => r.id);
 
   const [profsRes, paysRes] = await Promise.all([
     bidderIds.length
@@ -678,19 +678,18 @@ async function listProcessedValidations(): Promise<ProcessedValidation[]> {
   }
 
   return rows.map((r) => {
-    const c = r.cars as { marque: string; modele: string; annee: number; vendeur_nom: string } | null;
-    const pay = payByAuction.get(r.id as string);
+    const pay = payByAuction.get(r.id);
     return {
-      auctionId: r.id as string,
-      carId: r.car_id as string,
-      carLabel: c ? `${c.marque} ${c.modele} (${c.annee})` : (r.car_id as string),
-      acheteurNom: r.top_bidder_id ? nameById.get(r.top_bidder_id as string) ?? "Acheteur" : "—",
-      vendeurNom: c?.vendeur_nom ?? "—",
-      prixFinal: r.current_price as number,
+      auctionId: r.id,
+      carId: r.car_id,
+      carLabel: `${r.marque} ${r.modele} (${r.annee})`,
+      acheteurNom: r.top_bidder_id ? nameById.get(r.top_bidder_id) ?? "Acheteur" : "—",
+      vendeurNom: r.vendeur_nom ?? "—",
+      prixFinal: r.current_price,
       decision: r.status === "validated" ? "validee" : "annulee",
-      decideLe: (r.validated_at as string) ?? (r.updated_at as string) ?? null,
+      decideLe: r.validated_at ?? r.updated_at ?? null,
       paymentStatus: (pay?.status as ProcessedValidation["paymentStatus"]) ?? "aucun",
-      paymentDeadline: (r.payment_deadline as string) ?? null,
+      paymentDeadline: r.payment_deadline,
     };
   });
 }
