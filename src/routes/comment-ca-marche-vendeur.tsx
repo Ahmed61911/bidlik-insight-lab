@@ -577,7 +577,3 @@ function Faq({ q, a }: { q: string; a: string }) {
     </AccordionItem>
   );
 }
-
-// Unused imports guard: keep tree-shakable icons referenced if introduced later.
-void Key;
-void HandshakeIcon;
