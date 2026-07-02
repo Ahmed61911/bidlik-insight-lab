@@ -345,29 +345,6 @@ export async function listMyPendingPaymentAuctions(): Promise<PendingPaymentAuct
   });
 }
 
-// (moved return above — old block removed below)
-function __removedOldBlock__(): PendingPaymentAuction[] {
-  return [] as PendingPaymentAuction[];
-
-  return (auctions ?? []).map((a) => {
-    const car = a.cars as { marque: string; modele: string; annee: number } | null;
-    const p = payByAuction.get(a.id as string);
-    return {
-      auctionId: a.id as string,
-      carId: a.car_id as string,
-      marque: car?.marque ?? "",
-      modele: car?.modele ?? "",
-      annee: car?.annee ?? 0,
-      prixFinal: a.current_price as number,
-      validatedAt: (a.validated_at as string) ?? null,
-      paymentDeadline: (a.payment_deadline as string) ?? null,
-      paymentStatus: (p?.status as PendingPaymentAuction["paymentStatus"]) ?? "none",
-      paymentId: p?.id ?? null,
-      proofUrl: p?.proof_url ?? null,
-      proofName: p?.proof_name ?? null,
-    };
-  });
-}
 
 export async function uploadBuyerProof(file: File): Promise<{ path: string; name: string }> {
   const { data: userData } = await supabase.auth.getUser();
