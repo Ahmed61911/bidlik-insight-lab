@@ -518,6 +518,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_auction_stats: {
+        Args: { p_since: string }
+        Returns: {
+          closed_month_total: number
+          closed_month_with_bids: number
+          live_auctions: number
+          pending_validations: number
+          total_auctions: number
+          total_validated_volume: number
+          validated_month_count: number
+          validated_month_volume: number
+        }[]
+      }
       admin_delete_payment: { Args: { p_id: string }; Returns: undefined }
       admin_get_auction: {
         Args: { p_id: string }
@@ -720,6 +733,41 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_list_pending_validations: {
+        Args: never
+        Returns: {
+          admin_validation_deadline: string
+          annee: number
+          car_id: string
+          closed_at: string
+          current_price: number
+          ends_at: string
+          id: string
+          marque: string
+          modele: string
+          prix_attendu: number
+          top_bidder_id: string
+          updated_at: string
+          vendeur_nom: string
+        }[]
+      }
+      admin_list_processed_validations: {
+        Args: never
+        Returns: {
+          annee: number
+          car_id: string
+          current_price: number
+          id: string
+          marque: string
+          modele: string
+          payment_deadline: string
+          status: Database["public"]["Enums"]["auction_status_t"]
+          top_bidder_id: string
+          updated_at: string
+          validated_at: string
+          vendeur_nom: string
+        }[]
+      }
       admin_list_profiles: {
         Args: never
         Returns: {
@@ -731,6 +779,14 @@ export type Database = {
           nom: string
           telephone: string
           user_id: string
+        }[]
+      }
+      admin_revenue_series: {
+        Args: { p_since: string }
+        Returns: {
+          current_price: number
+          status: Database["public"]["Enums"]["auction_status_t"]
+          updated_at: string
         }[]
       }
       admin_set_payment_status: {
