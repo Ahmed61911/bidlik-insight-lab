@@ -348,6 +348,17 @@ function CarFormDialog({ existing, onClose, onSaved }: { existing?: CarRow; onCl
           <h3 className="text-lg font-semibold text-foreground">{isEdit ? `Modifier voiture ${existing!.id}` : "Nouvelle voiture"}</h3>
           <button onClick={onClose} className="rounded-md p-1 text-muted-foreground hover:bg-secondary"><X className="h-4 w-4" /></button>
         </div>
+        {lockedFields.size > 0 && (
+          <div className="mb-4 flex items-start gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-xs text-emerald-800 dark:text-emerald-300">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>
+              Un rapport d'expert a été validé pour cette voiture. Les champs
+              vérifiés (marque, modèle, MEC, kilométrage, couleurs, carburant,
+              transmission, carrosserie) sont verrouillés.
+            </p>
+          </div>
+        )}
+
         <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
           <Field label="ID">
             <input disabled value={nextId} className="input opacity-60 font-mono" />
