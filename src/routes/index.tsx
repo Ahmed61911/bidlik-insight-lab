@@ -63,9 +63,10 @@ function HomeV3() {
               Achetez en toute confiance.
             </h1>
             <p className="mt-6 max-w-xl text-base text-white/75 sm:text-lg">
-              BIDLIK organise des enchères en ligne entre entreprises, loueurs
-              et marchands automobiles référencés au Maroc. Transparent,
-              sécurisé, sans tracas.
+              BIDLIK organise des enchères en ligne entre professionnels et
+              particuliers, ainsi qu'avec des entreprises, des loueurs et des
+              marchands automobiles référencés au Maroc. Une plateforme
+              transparente, sécurisée et sans tracas.
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <Link
