@@ -59,7 +59,7 @@ type AuctionRow = {
   status: AuctionStatus;
   visibility: AuctionVisibility;
   auction_type: AuctionType;
-  top_bidder_id: string | null;
+  top_bidder_id?: string | null;
   cars?: (Partial<CarRow> & { id: string; marque: string; modele: string }) | null;
 };
 
@@ -154,7 +154,7 @@ function mapAuction(row: AuctionRow, carOverride?: Car): Auction {
     bidCount: row.bid_count,
     status: row.status,
     visibility: row.visibility,
-    topBidderId: row.top_bidder_id,
+    topBidderId: row.top_bidder_id ?? null,
     auctionType: row.auction_type,
     eventId: row.event_id,
   };
@@ -215,11 +215,12 @@ async function tick() {
 export const supabaseApi: ApiClient = {
   async listAuctions(filter) {
     await tick();
-    const { data: userRes } = await supabase.auth.getUser();
-    const auctionCols = userRes.user ? "*" : PUBLIC_AUCTION_COLUMNS;
+    // Always use the safe column projection — sensitive fields (top_bidder_id, reserve prices)
+    // are restricted at the DB layer via column-level GRANTs and are fetched through
+    // role-scoped SECURITY DEFINER RPCs when needed.
     let q = supabase
       .from("auctions")
-      .select(`${auctionCols}, cars(${PUBLIC_CAR_COLUMNS})`)
+      .select(`${PUBLIC_AUCTION_COLUMNS}, cars(${PUBLIC_CAR_COLUMNS})`)
       .order("ends_at", { ascending: true });
     if (filter === "live") q = q.in("status", ["live", "scheduled"]);
     else if (filter === "closed") q = q.in("status", ["closed", "validated", "cancelled"]);
@@ -230,16 +231,26 @@ export const supabaseApi: ApiClient = {
 
   async getAuction(id) {
     await tick();
-    const { data: userRes } = await supabase.auth.getUser();
-    const auctionCols = userRes.user ? "*" : PUBLIC_AUCTION_COLUMNS;
     const { data, error } = await supabase
       .from("auctions")
-      .select(`${auctionCols}, cars(${PUBLIC_CAR_COLUMNS})`)
+      .select(`${PUBLIC_AUCTION_COLUMNS}, cars(${PUBLIC_CAR_COLUMNS})`)
       .eq("id", id)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!data) throw new Error("Enchère introuvable");
-    return mapAuction(data as unknown as AuctionRow);
+    const auction = mapAuction(data as unknown as AuctionRow);
+    // Enrich topBidderId with the caller's own identity when they lead — this is the
+    // only case where the client can safely know the top bidder id.
+    try {
+      const { data: leading } = await supabase.rpc("am_i_top_bidder", { p_id: id });
+      if (leading === true) {
+        const { data: userRes } = await supabase.auth.getUser();
+        if (userRes.user) auction.topBidderId = userRes.user.id;
+      }
+    } catch {
+      /* ignore */
+    }
+    return auction;
   },
 
   async listBids(auctionId) {
@@ -356,11 +367,11 @@ export const supabaseApi: ApiClient = {
     if (!ev) throw new Error("Événement d'enchère introuvable");
     const { data: lots, error: lotsErr } = await supabase
       .from("auctions")
-      .select("*, cars(*)")
+      .select(`${PUBLIC_AUCTION_COLUMNS}, cars(${PUBLIC_CAR_COLUMNS})`)
       .eq("event_id", id)
       .order("ends_at", { ascending: true });
     if (lotsErr) throw new Error(lotsErr.message);
-    const mappedLots = (lots as AuctionRow[]).map((r) => mapAuction(r));
+    const mappedLots = (lots as unknown as AuctionRow[]).map((r) => mapAuction(r));
     return {
       event: mapEvent(ev as EventRow, mappedLots.map((l) => l.id)),
       lots: mappedLots,

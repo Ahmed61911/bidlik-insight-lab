@@ -135,47 +135,23 @@ function nextCarId(existing: string[]): string {
 async function getStats(): Promise<AdminStats> {
   const monthStart = startOfMonthISO();
 
-  const [
-    totalAuctionsRes,
-    liveAuctionsRes,
-    pendingValidationsRes,
-    validatedMonthRes,
-    closedMonthRes,
-    allClosedMonthRes,
-    rolesRes,
-    allValidatedRes,
-    paidPaymentsRes,
-  ] = await Promise.all([
-    supabase.from("auctions").select("id", { count: "exact", head: true }),
-    supabase.from("auctions").select("id", { count: "exact", head: true }).eq("status", "live"),
-    supabase.from("auctions").select("id", { count: "exact", head: true }).eq("status", "closed"),
-    supabase
-      .from("auctions")
-      .select("current_price")
-      .eq("status", "validated")
-      .gte("updated_at", monthStart),
-    supabase
-      .from("auctions")
-      .select("id, bid_count")
-      .in("status", ["closed", "validated"])
-      .gte("updated_at", monthStart),
-    supabase
-      .from("auctions")
-      .select("id", { count: "exact", head: true })
-      .in("status", ["closed", "validated", "cancelled"])
-      .gte("updated_at", monthStart),
+  const [statsRes, rolesRes, paidPaymentsRes] = await Promise.all([
+    supabase.rpc("admin_auction_stats", { p_since: monthStart }),
     supabase.from("user_roles").select("role, user_id"),
-    supabase.from("auctions").select("current_price").eq("status", "validated"),
     supabase.from("payments").select("amount").eq("status", "paid"),
   ]);
+  if (statsRes.error) throw new Error(statsRes.error.message);
+  const s = (statsRes.data as Array<{
+    total_auctions: number; live_auctions: number; pending_validations: number;
+    validated_month_count: number; validated_month_volume: number;
+    closed_month_total: number; closed_month_with_bids: number;
+    total_validated_volume: number;
+  }>)?.[0];
 
-  const validated = validatedMonthRes.data ?? [];
-  const volumeMois = validated.reduce((s, r) => s + (r.current_price ?? 0), 0);
+  const volumeMois = Number(s?.validated_month_volume ?? 0);
   const caMois = Math.round(volumeMois * COMMISSION_RATE);
-
-  const closedMonth = closedMonthRes.data ?? [];
-  const closedTotal = allClosedMonthRes.count ?? 0;
-  const withBids = closedMonth.filter((r) => (r.bid_count ?? 0) > 0).length;
+  const closedTotal = Number(s?.closed_month_total ?? 0);
+  const withBids = Number(s?.closed_month_with_bids ?? 0);
   const tauxConversion = closedTotal > 0 ? withBids / closedTotal : 0;
 
   const roles = rolesRes.data ?? [];
@@ -183,38 +159,35 @@ async function getStats(): Promise<AdminStats> {
   const count = (role: string) => roles.filter((r) => r.role === role).length;
 
   return {
-    totalAuctions: totalAuctionsRes.count ?? 0,
-    liveAuctions: liveAuctionsRes.count ?? 0,
+    totalAuctions: Number(s?.total_auctions ?? 0),
+    liveAuctions: Number(s?.live_auctions ?? 0),
     totalUsers: uniqueUsers.size,
     acheteursActifs: count("acheteur"),
     vendeursActifs: count("vendeur"),
     experts: count("expert"),
-    ventesValideesMois: validated.length,
+    ventesValideesMois: Number(s?.validated_month_count ?? 0),
     caMois,
     volumeMois,
-    totalVentesValidees: (allValidatedRes.data ?? []).reduce((s, r) => s + (r.current_price ?? 0), 0),
-    totalVentesEncaissees: (paidPaymentsRes.data ?? []).reduce((s, r) => s + (r.amount ?? 0), 0),
+    totalVentesValidees: Number(s?.total_validated_volume ?? 0),
+    totalVentesEncaissees: (paidPaymentsRes.data ?? []).reduce((sum, r) => sum + (r.amount ?? 0), 0),
     tauxConversion,
-    enchersValidationsEnAttente: pendingValidationsRes.count ?? 0,
+    enchersValidationsEnAttente: Number(s?.pending_validations ?? 0),
   };
 }
 
 async function getRevenue(days = 30): Promise<RevenuePoint[]> {
   const since = new Date(Date.now() - (days - 1) * 86_400_000);
   since.setHours(0, 0, 0, 0);
-  const { data, error } = await supabase
-    .from("auctions")
-    .select("current_price, updated_at, status")
-    .in("status", ["closed", "validated"])
-    .gte("updated_at", since.toISOString());
+  const { data, error } = await supabase.rpc("admin_revenue_series", { p_since: since.toISOString() });
   if (error) throw new Error(error.message);
+  const rows = (data ?? []) as Array<{ current_price: number; updated_at: string; status: string }>;
   const buckets = new Map<string, { ca: number; ventes: number }>();
   for (let i = 0; i < days; i++) {
     const d = new Date(since.getTime() + i * 86_400_000);
     buckets.set(d.toISOString().slice(0, 10), { ca: 0, ventes: 0 });
   }
-  for (const row of data ?? []) {
-    const key = new Date(row.updated_at as string).toISOString().slice(0, 10);
+  for (const row of rows) {
+    const key = new Date(row.updated_at).toISOString().slice(0, 10);
     const b = buckets.get(key);
     if (!b) continue;
     b.ventes += 1;
@@ -306,10 +279,8 @@ async function createUser(input: {
 /* ──────────────────────────── cars ──────────────────────────── */
 
 async function listCars(): Promise<(Car & { proprietaireId: string })[]> {
-  const { data, error } = await supabase
-    .from("cars")
-    .select("*")
-    .order("created_at", { ascending: false });
+  // Sensitive columns aren't directly readable by authenticated users; use admin RPC.
+  const { data, error } = await supabase.rpc("admin_list_cars");
   if (error) throw new Error(error.message);
   return (data as CarRow[]).map((r) => ({ ...mapCar(r), proprietaireId: r.vendeur_id ?? "" }));
 }
@@ -328,24 +299,28 @@ async function createCar(
     annee: input.annee,
     prix_attendu: input.prixAttendu,
   };
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("cars")
     .insert(payload as never)
-    .select("*")
+    .select("id")
     .single();
   if (error) throw new Error(error.message);
-  return mapCar(data as CarRow);
+  const { data: full, error: fErr } = await supabase.rpc("admin_list_cars_by_ids", { p_ids: [id] });
+  if (fErr) throw new Error(fErr.message);
+  return mapCar((full as CarRow[])[0]);
 }
 
 async function updateCar(id: string, patch: Partial<Car>): Promise<Car> {
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("cars")
     .update(carPatchToRow(patch) as never)
     .eq("id", id)
-    .select("*")
+    .select("id")
     .single();
   if (error) throw new Error(error.message);
-  return mapCar(data as CarRow);
+  const { data: full, error: fErr } = await supabase.rpc("admin_list_cars_by_ids", { p_ids: [id] });
+  if (fErr) throw new Error(fErr.message);
+  return mapCar((full as CarRow[])[0]);
 }
 
 async function deleteCar(id: string): Promise<void> {
@@ -463,25 +438,13 @@ async function assignExpert(carId: string, expertId: string): Promise<void> {
 /* ─────────────────────── auctions / events ─────────────────────── */
 
 async function listExpertiseReady(): Promise<(Car & { proprietaireId: string; noteFinale: number })[]> {
-  const { data: assignments, error: aErr } = await supabase
-    .from("expert_assignments")
-    .select("car_id, note_finale")
-    .eq("status", "rapport_recu");
-  if (aErr) throw new Error(aErr.message);
-  const ids = (assignments ?? []).map((a) => a.car_id as string);
-  if (ids.length === 0) return [];
-  const { data: cars, error: cErr } = await supabase
-    .from("cars")
-    .select("*")
-    .in("id", ids)
-    .eq("status", "open");
-  if (cErr) throw new Error(cErr.message);
-  const noteByCar = new Map<string, number>();
-  for (const a of assignments ?? []) noteByCar.set(a.car_id as string, (a.note_finale as number) ?? 0);
-  return (cars as CarRow[]).map((r) => ({
-    ...mapCar(r),
-    proprietaireId: r.vendeur_id ?? "",
-    noteFinale: noteByCar.get(r.id) ?? 0,
+  const { data, error } = await supabase.rpc("admin_list_expertise_ready");
+  if (error) throw new Error(error.message);
+  const rows = (data ?? []) as Array<{ car: CarRow; note_finale: number }>;
+  return rows.map((r) => ({
+    ...mapCar(r.car),
+    proprietaireId: r.car.vendeur_id ?? "",
+    noteFinale: r.note_finale ?? 0,
   }));
 }
 
@@ -502,7 +465,7 @@ async function insertAuctionRow(car: CarRow, opts: CreateAuctionOpts) {
   const status = startsAtMs <= Date.now() ? "live" : "scheduled";
   const auctionType = opts.auctionType ?? "ouverte";
   const id = `${car.id}-${Date.now().toString(36)}`;
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("auctions")
     .insert({
       id,
@@ -516,7 +479,7 @@ async function insertAuctionRow(car: CarRow, opts: CreateAuctionOpts) {
       visibility: opts.visibility ?? "ouvert",
       auction_type: auctionType,
     } as never)
-    .select("*")
+    .select("id")
     .single();
   if (error) throw new Error(error.message);
 
@@ -529,23 +492,21 @@ async function insertAuctionRow(car: CarRow, opts: CreateAuctionOpts) {
     } as never)
     .eq("id", car.id);
 
-  return data as { id: string };
+  return { id };
 }
 
 async function createAuctionFromCar(carId: string, opts: CreateAuctionOpts): Promise<Auction> {
-  const { data: car, error } = await supabase.from("cars").select("*").eq("id", carId).maybeSingle();
+  // Fetch car via SECURITY DEFINER (admins get sensitive columns).
+  const { data: car, error } = await supabase.rpc("get_car_full", { p_car_id: carId });
   if (error) throw new Error(error.message);
   if (!car) throw new Error("Voiture introuvable");
   if ((car as CarRow).status !== "open") throw new Error("Cette voiture est déjà en enchère");
   const inserted = await insertAuctionRow(car as CarRow, opts);
-  // Re-fetch with joined car to build Auction
-  const { data: full } = await supabase
-    .from("auctions")
-    .select("*, cars(*)")
-    .eq("id", inserted.id)
-    .single();
-  const c = mapCar((full as { cars: CarRow }).cars);
-  const f = full as Record<string, unknown>;
+  // Re-fetch full auction row via admin RPC
+  const { data: fullAuction, error: aErr } = await supabase.rpc("admin_get_auction", { p_id: inserted.id });
+  if (aErr) throw new Error(aErr.message);
+  const c = mapCar(car as CarRow);
+  const f = fullAuction as Record<string, unknown>;
   return {
     id: f.id as string,
     car: c,
@@ -561,6 +522,7 @@ async function createAuctionFromCar(carId: string, opts: CreateAuctionOpts): Pro
     eventId: (f.event_id as string) ?? null,
   };
 }
+
 
 async function createMultiCarEvent(input: {
   title: string;
@@ -593,10 +555,7 @@ async function createMultiCarEvent(input: {
   if (evErr) throw new Error(evErr.message);
 
   const carIds = input.items.map((it) => it.carId);
-  const { data: cars, error: cErr } = await supabase
-    .from("cars")
-    .select("*")
-    .in("id", carIds);
+  const { data: cars, error: cErr } = await supabase.rpc("admin_list_cars_by_ids", { p_ids: carIds });
   if (cErr) throw new Error(cErr.message);
   const carById = new Map<string, CarRow>((cars as CarRow[]).map((c) => [c.id, c]));
 
@@ -632,13 +591,14 @@ async function createMultiCarEvent(input: {
 /* ──────────────────────────── validations ──────────────────────────── */
 
 async function listPendingValidations(): Promise<PendingValidation[]> {
-  const { data, error } = await supabase
-    .from("auctions")
-    .select("id, car_id, current_price, ends_at, top_bidder_id, updated_at, closed_at, admin_validation_deadline, cars(marque, modele, annee, vendeur_nom, prix_attendu)")
-    .eq("status", "closed")
-    .order("admin_validation_deadline", { ascending: true });
+  const { data, error } = await supabase.rpc("admin_list_pending_validations");
   if (error) throw new Error(error.message);
-  const rows = data ?? [];
+  const rows = (data ?? []) as Array<{
+    id: string; car_id: string; current_price: number; ends_at: string;
+    top_bidder_id: string | null; updated_at: string; closed_at: string | null;
+    admin_validation_deadline: string | null;
+    marque: string; modele: string; annee: number; vendeur_nom: string; prix_attendu: number;
+  }>;
   const bidderIds = Array.from(new Set(rows.map((r) => r.top_bidder_id).filter(Boolean) as string[]));
   const { data: profs } = bidderIds.length
     ? await supabase.from("profiles").select("user_id, nom").in("user_id", bidderIds)
@@ -646,20 +606,19 @@ async function listPendingValidations(): Promise<PendingValidation[]> {
   const nameById = new Map((profs ?? []).map((p) => [p.user_id as string, p.nom as string]));
 
   return rows.map((r) => {
-    const c = r.cars as { marque: string; modele: string; annee: number; vendeur_nom: string; prix_attendu: number } | null;
-    const ecart = (r.current_price as number) - (c?.prix_attendu ?? 0);
+    const ecart = r.current_price - (r.prix_attendu ?? 0);
     const raison: PendingValidation["raison"] = Math.abs(ecart) > 5000 ? "ecart_prix" : "verification_paiement";
     return {
-      auctionId: r.id as string,
-      carId: r.car_id as string,
-      carLabel: c ? `${c.marque} ${c.modele} (${c.annee})` : (r.car_id as string),
-      vendeurNom: c?.vendeur_nom ?? "—",
-      acheteurNom: r.top_bidder_id ? nameById.get(r.top_bidder_id as string) ?? "Acheteur" : "—",
-      prixFinal: r.current_price as number,
-      prixAttendu: c?.prix_attendu ?? 0,
-      termineLe: new Date(r.ends_at as string).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" }),
+      auctionId: r.id,
+      carId: r.car_id,
+      carLabel: `${r.marque} ${r.modele} (${r.annee})`,
+      vendeurNom: r.vendeur_nom ?? "—",
+      acheteurNom: r.top_bidder_id ? nameById.get(r.top_bidder_id) ?? "Acheteur" : "—",
+      prixFinal: r.current_price,
+      prixAttendu: r.prix_attendu ?? 0,
+      termineLe: new Date(r.ends_at).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" }),
       raison,
-      adminValidationDeadline: (r.admin_validation_deadline as string) ?? null,
+      adminValidationDeadline: r.admin_validation_deadline,
     };
   });
 }
@@ -686,16 +645,16 @@ export type ProcessedValidation = {
 };
 
 async function listProcessedValidations(): Promise<ProcessedValidation[]> {
-  const { data, error } = await supabase
-    .from("auctions")
-    .select("id, car_id, current_price, status, top_bidder_id, validated_at, updated_at, payment_deadline, cars(marque, modele, annee, vendeur_nom)")
-    .in("status", ["validated", "cancelled"])
-    .order("updated_at", { ascending: false })
-    .limit(100);
+  const { data, error } = await supabase.rpc("admin_list_processed_validations");
   if (error) throw new Error(error.message);
-  const rows = data ?? [];
+  const rows = (data ?? []) as Array<{
+    id: string; car_id: string; current_price: number; status: string;
+    top_bidder_id: string | null; validated_at: string | null; updated_at: string;
+    payment_deadline: string | null;
+    marque: string; modele: string; annee: number; vendeur_nom: string;
+  }>;
   const bidderIds = Array.from(new Set(rows.map((r) => r.top_bidder_id).filter(Boolean) as string[]));
-  const auctionIds = rows.map((r) => r.id as string);
+  const auctionIds = rows.map((r) => r.id);
 
   const [profsRes, paysRes] = await Promise.all([
     bidderIds.length
@@ -719,19 +678,18 @@ async function listProcessedValidations(): Promise<ProcessedValidation[]> {
   }
 
   return rows.map((r) => {
-    const c = r.cars as { marque: string; modele: string; annee: number; vendeur_nom: string } | null;
-    const pay = payByAuction.get(r.id as string);
+    const pay = payByAuction.get(r.id);
     return {
-      auctionId: r.id as string,
-      carId: r.car_id as string,
-      carLabel: c ? `${c.marque} ${c.modele} (${c.annee})` : (r.car_id as string),
-      acheteurNom: r.top_bidder_id ? nameById.get(r.top_bidder_id as string) ?? "Acheteur" : "—",
-      vendeurNom: c?.vendeur_nom ?? "—",
-      prixFinal: r.current_price as number,
+      auctionId: r.id,
+      carId: r.car_id,
+      carLabel: `${r.marque} ${r.modele} (${r.annee})`,
+      acheteurNom: r.top_bidder_id ? nameById.get(r.top_bidder_id) ?? "Acheteur" : "—",
+      vendeurNom: r.vendeur_nom ?? "—",
+      prixFinal: r.current_price,
       decision: r.status === "validated" ? "validee" : "annulee",
-      decideLe: (r.validated_at as string) ?? (r.updated_at as string) ?? null,
+      decideLe: r.validated_at ?? r.updated_at ?? null,
       paymentStatus: (pay?.status as ProcessedValidation["paymentStatus"]) ?? "aucun",
-      paymentDeadline: (r.payment_deadline as string) ?? null,
+      paymentDeadline: r.payment_deadline,
     };
   });
 }

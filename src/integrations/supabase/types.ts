@@ -518,7 +518,49 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_auction_stats: {
+        Args: { p_since: string }
+        Returns: {
+          closed_month_total: number
+          closed_month_with_bids: number
+          live_auctions: number
+          pending_validations: number
+          total_auctions: number
+          total_validated_volume: number
+          validated_month_count: number
+          validated_month_volume: number
+        }[]
+      }
       admin_delete_payment: { Args: { p_id: string }; Returns: undefined }
+      admin_get_auction: {
+        Args: { p_id: string }
+        Returns: {
+          admin_validation_deadline: string | null
+          auction_type: Database["public"]["Enums"]["auction_type_t"]
+          bid_count: number
+          car_id: string
+          closed_at: string | null
+          created_at: string
+          current_price: number
+          ends_at: string
+          event_id: string | null
+          id: string
+          payment_deadline: string | null
+          starting_price: number
+          starts_at: string
+          status: Database["public"]["Enums"]["auction_status_t"]
+          top_bidder_id: string | null
+          updated_at: string
+          validated_at: string | null
+          visibility: Database["public"]["Enums"]["auction_visibility_t"]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "auctions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       admin_get_profile: {
         Args: { p_user_id: string }
         Returns: {
@@ -531,6 +573,128 @@ export type Database = {
           telephone: string
           user_id: string
           ville: string
+        }[]
+      }
+      admin_list_auctions: {
+        Args: never
+        Returns: {
+          admin_validation_deadline: string | null
+          auction_type: Database["public"]["Enums"]["auction_type_t"]
+          bid_count: number
+          car_id: string
+          closed_at: string | null
+          created_at: string
+          current_price: number
+          ends_at: string
+          event_id: string | null
+          id: string
+          payment_deadline: string | null
+          starting_price: number
+          starts_at: string
+          status: Database["public"]["Enums"]["auction_status_t"]
+          top_bidder_id: string | null
+          updated_at: string
+          validated_at: string | null
+          visibility: Database["public"]["Enums"]["auction_visibility_t"]
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "auctions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      admin_list_cars: {
+        Args: never
+        Returns: {
+          annee: number
+          body_type: string | null
+          carburant: Database["public"]["Enums"]["carburant_t"]
+          carte_grise_barree: boolean
+          couleur_exterieur: string
+          couleur_interieur: string
+          created_at: string
+          date_vente: string | null
+          delivery_status: Database["public"]["Enums"]["delivery_status_t"]
+          finition: string
+          id: string
+          images: Json
+          kilometrage: number
+          main_levee: boolean
+          marque: string
+          minimum_accepted_price: number | null
+          modele: string
+          nombre_cles: number
+          note_expert: number | null
+          opposition: boolean
+          payment_status: Database["public"]["Enums"]["payment_status_t"]
+          prix_attendu: number
+          prix_minimum: number | null
+          prix_plancher: number | null
+          procuration: Database["public"]["Enums"]["procuration_t"]
+          puissance_fiscale: number
+          status: Database["public"]["Enums"]["car_status"]
+          transmission: Database["public"]["Enums"]["transmission_t"]
+          type: Database["public"]["Enums"]["car_type_t"]
+          updated_at: string
+          vendeur_id: string | null
+          vendeur_nom: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "cars"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      admin_list_cars_by_ids: {
+        Args: { p_ids: string[] }
+        Returns: {
+          annee: number
+          body_type: string | null
+          carburant: Database["public"]["Enums"]["carburant_t"]
+          carte_grise_barree: boolean
+          couleur_exterieur: string
+          couleur_interieur: string
+          created_at: string
+          date_vente: string | null
+          delivery_status: Database["public"]["Enums"]["delivery_status_t"]
+          finition: string
+          id: string
+          images: Json
+          kilometrage: number
+          main_levee: boolean
+          marque: string
+          minimum_accepted_price: number | null
+          modele: string
+          nombre_cles: number
+          note_expert: number | null
+          opposition: boolean
+          payment_status: Database["public"]["Enums"]["payment_status_t"]
+          prix_attendu: number
+          prix_minimum: number | null
+          prix_plancher: number | null
+          procuration: Database["public"]["Enums"]["procuration_t"]
+          puissance_fiscale: number
+          status: Database["public"]["Enums"]["car_status"]
+          transmission: Database["public"]["Enums"]["transmission_t"]
+          type: Database["public"]["Enums"]["car_type_t"]
+          updated_at: string
+          vendeur_id: string | null
+          vendeur_nom: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "cars"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      admin_list_expertise_ready: {
+        Args: never
+        Returns: {
+          car: Database["public"]["Tables"]["cars"]["Row"]
+          note_finale: number
         }[]
       }
       admin_list_payments: {
@@ -569,6 +733,41 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_list_pending_validations: {
+        Args: never
+        Returns: {
+          admin_validation_deadline: string
+          annee: number
+          car_id: string
+          closed_at: string
+          current_price: number
+          ends_at: string
+          id: string
+          marque: string
+          modele: string
+          prix_attendu: number
+          top_bidder_id: string
+          updated_at: string
+          vendeur_nom: string
+        }[]
+      }
+      admin_list_processed_validations: {
+        Args: never
+        Returns: {
+          annee: number
+          car_id: string
+          current_price: number
+          id: string
+          marque: string
+          modele: string
+          payment_deadline: string
+          status: Database["public"]["Enums"]["auction_status_t"]
+          top_bidder_id: string
+          updated_at: string
+          validated_at: string
+          vendeur_nom: string
+        }[]
+      }
       admin_list_profiles: {
         Args: never
         Returns: {
@@ -580,6 +779,14 @@ export type Database = {
           nom: string
           telephone: string
           user_id: string
+        }[]
+      }
+      admin_revenue_series: {
+        Args: { p_since: string }
+        Returns: {
+          current_price: number
+          status: Database["public"]["Enums"]["auction_status_t"]
+          updated_at: string
         }[]
       }
       admin_set_payment_status: {
@@ -660,6 +867,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      am_i_top_bidder: { Args: { p_id: string }; Returns: boolean }
       assign_expert: {
         Args: { p_car_id: string; p_expert_id: string }
         Returns: {
@@ -719,6 +927,61 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      expert_list_car_details: {
+        Args: { p_ids: string[] }
+        Returns: {
+          annee: number
+          id: string
+          kilometrage: number
+          marque: string
+          modele: string
+          vendeur_id: string
+          vendeur_nom: string
+        }[]
+      }
+      get_car_full: {
+        Args: { p_car_id: string }
+        Returns: {
+          annee: number
+          body_type: string | null
+          carburant: Database["public"]["Enums"]["carburant_t"]
+          carte_grise_barree: boolean
+          couleur_exterieur: string
+          couleur_interieur: string
+          created_at: string
+          date_vente: string | null
+          delivery_status: Database["public"]["Enums"]["delivery_status_t"]
+          finition: string
+          id: string
+          images: Json
+          kilometrage: number
+          main_levee: boolean
+          marque: string
+          minimum_accepted_price: number | null
+          modele: string
+          nombre_cles: number
+          note_expert: number | null
+          opposition: boolean
+          payment_status: Database["public"]["Enums"]["payment_status_t"]
+          prix_attendu: number
+          prix_minimum: number | null
+          prix_plancher: number | null
+          procuration: Database["public"]["Enums"]["procuration_t"]
+          puissance_fiscale: number
+          status: Database["public"]["Enums"]["car_status"]
+          transmission: Database["public"]["Enums"]["transmission_t"]
+          type: Database["public"]["Enums"]["car_type_t"]
+          updated_at: string
+          vendeur_id: string | null
+          vendeur_nom: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "cars"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       get_my_profile: {
         Args: never
         Returns: {
@@ -753,6 +1016,84 @@ export type Database = {
           is_own: boolean
         }[]
       }
+      list_my_pending_payment_auctions: {
+        Args: never
+        Returns: {
+          admin_validation_deadline: string | null
+          auction_type: Database["public"]["Enums"]["auction_type_t"]
+          bid_count: number
+          car_id: string
+          closed_at: string | null
+          created_at: string
+          current_price: number
+          ends_at: string
+          event_id: string | null
+          id: string
+          payment_deadline: string | null
+          starting_price: number
+          starts_at: string
+          status: Database["public"]["Enums"]["auction_status_t"]
+          top_bidder_id: string | null
+          updated_at: string
+          validated_at: string | null
+          visibility: Database["public"]["Enums"]["auction_visibility_t"]
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "auctions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      list_my_seller_cars: {
+        Args: never
+        Returns: {
+          annee: number
+          body_type: string | null
+          carburant: Database["public"]["Enums"]["carburant_t"]
+          carte_grise_barree: boolean
+          couleur_exterieur: string
+          couleur_interieur: string
+          created_at: string
+          date_vente: string | null
+          delivery_status: Database["public"]["Enums"]["delivery_status_t"]
+          finition: string
+          id: string
+          images: Json
+          kilometrage: number
+          main_levee: boolean
+          marque: string
+          minimum_accepted_price: number | null
+          modele: string
+          nombre_cles: number
+          note_expert: number | null
+          opposition: boolean
+          payment_status: Database["public"]["Enums"]["payment_status_t"]
+          prix_attendu: number
+          prix_minimum: number | null
+          prix_plancher: number | null
+          procuration: Database["public"]["Enums"]["procuration_t"]
+          puissance_fiscale: number
+          status: Database["public"]["Enums"]["car_status"]
+          transmission: Database["public"]["Enums"]["transmission_t"]
+          type: Database["public"]["Enums"]["car_type_t"]
+          updated_at: string
+          vendeur_id: string | null
+          vendeur_nom: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "cars"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      my_leading_auctions: {
+        Args: { p_ids: string[] }
+        Returns: {
+          auction_id: string
+        }[]
+      }
       place_bid: {
         Args: { p_amount: number; p_auction_id: string; p_is_auto?: boolean }
         Returns: {
@@ -770,6 +1111,35 @@ export type Database = {
           to: "bids"
           isOneToOne: true
           isSetofReturn: false
+        }
+      }
+      seller_list_my_car_auctions: {
+        Args: never
+        Returns: {
+          admin_validation_deadline: string | null
+          auction_type: Database["public"]["Enums"]["auction_type_t"]
+          bid_count: number
+          car_id: string
+          closed_at: string | null
+          created_at: string
+          current_price: number
+          ends_at: string
+          event_id: string | null
+          id: string
+          payment_deadline: string | null
+          starting_price: number
+          starts_at: string
+          status: Database["public"]["Enums"]["auction_status_t"]
+          top_bidder_id: string | null
+          updated_at: string
+          validated_at: string | null
+          visibility: Database["public"]["Enums"]["auction_visibility_t"]
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "auctions"
+          isOneToOne: false
+          isSetofReturn: true
         }
       }
       submit_expert_report: {

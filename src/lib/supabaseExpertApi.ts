@@ -52,15 +52,14 @@ async function fetchInspections(expertId: string): Promise<ExpertInspection[]> {
   if (assignments.length === 0) return [];
 
   const carIds = Array.from(new Set(assignments.map((a) => a.car_id)));
-  const { data: cars, error: cErr } = await supabase
-    .from("cars")
-    .select("id, marque, modele, annee, kilometrage, vendeur_id, vendeur_nom")
-    .in("id", carIds);
+  // Use SECURITY DEFINER RPC — vendeur_id is not directly readable by authenticated users.
+  const { data: cars, error: cErr } = await supabase.rpc("expert_list_car_details", { p_ids: carIds });
   if (cErr) throw cErr;
-  const carMap = new Map((cars ?? []).map((c) => [c.id, c]));
+  const carRows = (cars ?? []) as Array<{ id: string; marque: string; modele: string; annee: number; kilometrage: number; vendeur_id: string | null; vendeur_nom: string | null }>;
+  const carMap = new Map(carRows.map((c) => [c.id, c]));
 
   const vendorIds = Array.from(
-    new Set((cars ?? []).map((c) => c.vendeur_id).filter((v): v is string => !!v)),
+    new Set(carRows.map((c) => c.vendeur_id).filter((v): v is string => !!v)),
   );
   const villeByVendor = new Map<string, string>();
   if (vendorIds.length > 0) {

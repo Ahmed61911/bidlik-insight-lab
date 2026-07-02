@@ -85,33 +85,37 @@ function deriveStage(
 }
 
 async function fetchMyCars(uid: string): Promise<SellerCar[]> {
-  const { data: cars, error } = await supabase
-    .from("cars")
-    .select(
-      "id, marque, modele, annee, kilometrage, prix_attendu, note_expert, status, payment_status, delivery_status, created_at",
-    )
-    .eq("vendeur_id", uid)
-    .order("created_at", { ascending: false });
+  // Cars: use SECURITY DEFINER RPC — sensitive fields (payment_status, delivery_status)
+  // are not directly readable by authenticated users. RPC filters to auth.uid()'s cars.
+  const { data: carsRaw, error } = await supabase.rpc("list_my_seller_cars");
   if (error) throw error;
-  const rows = (cars ?? []) as CarRow[];
+  const rows = ((carsRaw ?? []) as Array<Record<string, unknown>>).map((r) => ({
+    id: r.id as string,
+    marque: r.marque as string,
+    modele: r.modele as string,
+    annee: r.annee as number,
+    kilometrage: r.kilometrage as number,
+    prix_attendu: r.prix_attendu as number,
+    note_expert: (r.note_expert as number | null) ?? null,
+    status: r.status as CarStatus,
+    payment_status: r.payment_status as PaymentStatus,
+    delivery_status: r.delivery_status as DeliveryStatus,
+    created_at: r.created_at as string,
+  })) as CarRow[];
   if (rows.length === 0) return [];
   const carIds = rows.map((c) => c.id);
 
-  const [auctionsRes, assignmentsRes] = await Promise.all([
-    supabase
-      .from("auctions")
-      .select("id, car_id, status, current_price, bid_count, top_bidder_id")
-      .in("car_id", carIds),
-    supabase
-      .from("expert_assignments")
-      .select("car_id, status, expert_id")
-      .in("car_id", carIds),
-  ]);
-  if (auctionsRes.error) throw auctionsRes.error;
+  // Auctions for own cars: use SECURITY DEFINER RPC — top_bidder_id is not readable directly.
+  const { data: rawAuctions, error: auctionsErr } = await supabase.rpc("seller_list_my_car_auctions");
+  const assignmentsRes = await supabase
+    .from("expert_assignments")
+    .select("car_id, status, expert_id")
+    .in("car_id", carIds);
+  if (auctionsErr) throw auctionsErr;
   if (assignmentsRes.error) throw assignmentsRes.error;
 
   const auctionMap = new Map<string, AuctionRow>();
-  ((auctionsRes.data ?? []) as AuctionRow[]).forEach((a) => auctionMap.set(a.car_id, a));
+  ((rawAuctions ?? []) as AuctionRow[]).filter((a) => carIds.includes(a.car_id)).forEach((a) => auctionMap.set(a.car_id, a));
   const assignMap = new Map<string, AssignmentRow>();
   ((assignmentsRes.data ?? []) as AssignmentRow[]).forEach((a) => assignMap.set(a.car_id, a));
 

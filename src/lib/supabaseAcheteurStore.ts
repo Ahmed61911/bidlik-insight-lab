@@ -49,7 +49,6 @@ type AuctionRow = {
   bid_count: number;
   ends_at: string;
   status: string;
-  top_bidder_id: string | null;
 };
 type CarRow = {
   id: string;
@@ -85,9 +84,14 @@ async function refreshEncheres(uid: string) {
 
   const { data: auctions } = await supabase
     .from("auctions")
-    .select("id, car_id, current_price, bid_count, ends_at, status, top_bidder_id")
+    .select("id, car_id, current_price, bid_count, ends_at, status")
     .in("id", auctionIds);
   const aRows = (auctions ?? []) as AuctionRow[];
+
+  // Fetch which of these auctions the current user is currently leading. top_bidder_id
+  // is not exposed to authenticated users; a role-scoped RPC returns only ids the caller leads.
+  const { data: leadingRows } = await supabase.rpc("my_leading_auctions", { p_ids: auctionIds });
+  const leadingSet = new Set(((leadingRows ?? []) as Array<{ auction_id: string }>).map((r) => r.auction_id));
 
   const carIds = Array.from(new Set(aRows.map((a) => a.car_id)));
   const { data: cars } = await supabase
@@ -99,7 +103,7 @@ async function refreshEncheres(uid: string) {
 
   const encheres: MonEnchere[] = aRows.map((a) => {
     const car = carMap.get(a.car_id);
-    const isLeader = a.top_bidder_id === uid;
+    const isLeader = leadingSet.has(a.id);
     return {
       auctionId: a.id,
       carId: a.car_id,
@@ -279,15 +283,30 @@ export async function listMyPendingPaymentAuctions(): Promise<PendingPaymentAuct
   const uid = userData.user?.id;
   if (!uid) return [];
 
-  const { data: auctions, error } = await supabase
-    .from("auctions")
-    .select("id, car_id, current_price, validated_at, payment_deadline, status, cars(marque, modele, annee)")
-    .eq("top_bidder_id", uid)
-    .in("status", ["validated"])
-    .order("payment_deadline", { ascending: true });
+  // Use SECURITY DEFINER RPC — top_bidder_id is not directly readable by authenticated users.
+  const { data: rawAuctions, error } = await supabase.rpc("list_my_pending_payment_auctions");
   if (error) throw new Error(error.message);
-
-  const auctionIds = (auctions ?? []).map((a) => a.id as string);
+  const auctionRows = (rawAuctions ?? []) as Array<{
+    id: string;
+    car_id: string;
+    current_price: number;
+    validated_at: string | null;
+    payment_deadline: string | null;
+    status: string;
+  }>;
+  const auctionIds = auctionRows.map((a) => a.id);
+  // Fetch safe car info in a second call
+  const carIds = Array.from(new Set(auctionRows.map((a) => a.car_id)));
+  const carMap = new Map<string, { marque: string; modele: string; annee: number }>();
+  if (carIds.length > 0) {
+    const { data: cars } = await supabase
+      .from("cars")
+      .select("id, marque, modele, annee")
+      .in("id", carIds);
+    (cars ?? []).forEach((c) =>
+      carMap.set(c.id as string, { marque: c.marque as string, modele: c.modele as string, annee: c.annee as number }),
+    );
+  }
   const payByAuction = new Map<string, { id: string; status: string; proof_url: string | null; proof_name: string | null }>();
   if (auctionIds.length > 0) {
     const { data: pays } = await supabase
@@ -306,18 +325,18 @@ export async function listMyPendingPaymentAuctions(): Promise<PendingPaymentAuct
     );
   }
 
-  return (auctions ?? []).map((a) => {
-    const car = a.cars as { marque: string; modele: string; annee: number } | null;
-    const p = payByAuction.get(a.id as string);
+  return auctionRows.map((a) => {
+    const car = carMap.get(a.car_id) ?? null;
+    const p = payByAuction.get(a.id);
     return {
-      auctionId: a.id as string,
-      carId: a.car_id as string,
+      auctionId: a.id,
+      carId: a.car_id,
       marque: car?.marque ?? "",
       modele: car?.modele ?? "",
       annee: car?.annee ?? 0,
-      prixFinal: a.current_price as number,
-      validatedAt: (a.validated_at as string) ?? null,
-      paymentDeadline: (a.payment_deadline as string) ?? null,
+      prixFinal: a.current_price,
+      validatedAt: a.validated_at,
+      paymentDeadline: a.payment_deadline,
       paymentStatus: (p?.status as PendingPaymentAuction["paymentStatus"]) ?? "none",
       paymentId: p?.id ?? null,
       proofUrl: p?.proof_url ?? null,
@@ -325,6 +344,7 @@ export async function listMyPendingPaymentAuctions(): Promise<PendingPaymentAuct
     };
   });
 }
+
 
 export async function uploadBuyerProof(file: File): Promise<{ path: string; name: string }> {
   const { data: userData } = await supabase.auth.getUser();
