@@ -222,10 +222,14 @@ function install() {
 
   void refreshAll();
 
-  supabase.auth.onAuthStateChange(() => {
+  supabase.auth.onAuthStateChange((event) => {
+    // Only react to identity transitions. INITIAL_SESSION and TOKEN_REFRESHED
+    // fire on every mount / hourly refresh and would thrash the store.
+    if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
     snapshot = { encheres: [], paiements: [], notifications: [], userId: null };
     void refreshAll();
   });
+
 
   // Realtime: any auction/bid/notification change triggers a coalesced refresh.
   const channel = supabase
