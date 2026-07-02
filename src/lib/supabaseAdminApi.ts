@@ -591,13 +591,14 @@ async function createMultiCarEvent(input: {
 /* ──────────────────────────── validations ──────────────────────────── */
 
 async function listPendingValidations(): Promise<PendingValidation[]> {
-  const { data, error } = await supabase
-    .from("auctions")
-    .select("id, car_id, current_price, ends_at, top_bidder_id, updated_at, closed_at, admin_validation_deadline, cars(marque, modele, annee, vendeur_nom, prix_attendu)")
-    .eq("status", "closed")
-    .order("admin_validation_deadline", { ascending: true });
+  const { data, error } = await supabase.rpc("admin_list_pending_validations");
   if (error) throw new Error(error.message);
-  const rows = data ?? [];
+  const rows = (data ?? []) as Array<{
+    id: string; car_id: string; current_price: number; ends_at: string;
+    top_bidder_id: string | null; updated_at: string; closed_at: string | null;
+    admin_validation_deadline: string | null;
+    marque: string; modele: string; annee: number; vendeur_nom: string; prix_attendu: number;
+  }>;
   const bidderIds = Array.from(new Set(rows.map((r) => r.top_bidder_id).filter(Boolean) as string[]));
   const { data: profs } = bidderIds.length
     ? await supabase.from("profiles").select("user_id, nom").in("user_id", bidderIds)
@@ -605,20 +606,19 @@ async function listPendingValidations(): Promise<PendingValidation[]> {
   const nameById = new Map((profs ?? []).map((p) => [p.user_id as string, p.nom as string]));
 
   return rows.map((r) => {
-    const c = r.cars as { marque: string; modele: string; annee: number; vendeur_nom: string; prix_attendu: number } | null;
-    const ecart = (r.current_price as number) - (c?.prix_attendu ?? 0);
+    const ecart = r.current_price - (r.prix_attendu ?? 0);
     const raison: PendingValidation["raison"] = Math.abs(ecart) > 5000 ? "ecart_prix" : "verification_paiement";
     return {
-      auctionId: r.id as string,
-      carId: r.car_id as string,
-      carLabel: c ? `${c.marque} ${c.modele} (${c.annee})` : (r.car_id as string),
-      vendeurNom: c?.vendeur_nom ?? "—",
-      acheteurNom: r.top_bidder_id ? nameById.get(r.top_bidder_id as string) ?? "Acheteur" : "—",
-      prixFinal: r.current_price as number,
-      prixAttendu: c?.prix_attendu ?? 0,
-      termineLe: new Date(r.ends_at as string).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" }),
+      auctionId: r.id,
+      carId: r.car_id,
+      carLabel: `${r.marque} ${r.modele} (${r.annee})`,
+      vendeurNom: r.vendeur_nom ?? "—",
+      acheteurNom: r.top_bidder_id ? nameById.get(r.top_bidder_id) ?? "Acheteur" : "—",
+      prixFinal: r.current_price,
+      prixAttendu: r.prix_attendu ?? 0,
+      termineLe: new Date(r.ends_at).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" }),
       raison,
-      adminValidationDeadline: (r.admin_validation_deadline as string) ?? null,
+      adminValidationDeadline: r.admin_validation_deadline,
     };
   });
 }
