@@ -460,7 +460,7 @@ function CarFormDialog({ existing, onClose, onSaved }: { existing?: CarRow; onCl
             )}
           </Field>
           <Field label="Finition"><input value={form.finition} onChange={(e) => setForm({ ...form, finition: e.target.value })} className="input" /></Field>
-          <Field label="Transmission">
+          <Field label="Transmission" locked={isLocked("transmission")}>
             <Dropdown
               value={form.transmission}
               onChange={(v) => setForm({ ...form, transmission: v as typeof form.transmission })}
