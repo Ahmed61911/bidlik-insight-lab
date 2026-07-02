@@ -497,8 +497,9 @@ function CarFormDialog({ existing, onClose, onSaved }: { existing?: CarRow; onCl
               <Field label="Prix minimum (MAD)"><input type="number" min={0} value={form.prixMinimum} onChange={(e) => setForm({ ...form, prixMinimum: +e.target.value })} className="input" /></Field>
             </div>
           </div>
-          <Field label="Couleur extérieure"><input value={form.couleurExterieur} onChange={(e) => setForm({ ...form, couleurExterieur: e.target.value })} className="input" /></Field>
-          <Field label="Couleur intérieure"><input value={form.couleurInterieur} onChange={(e) => setForm({ ...form, couleurInterieur: e.target.value })} className="input" /></Field>
+          <Field label="Couleur extérieure" locked={isLocked("couleurExterieur")}><input value={form.couleurExterieur} onChange={(e) => setForm({ ...form, couleurExterieur: e.target.value })} className="input" /></Field>
+          <Field label="Couleur intérieure" locked={isLocked("couleurInterieur")}><input value={form.couleurInterieur} onChange={(e) => setForm({ ...form, couleurInterieur: e.target.value })} className="input" /></Field>
+
           <Field label="Nombre de clés"><input type="number" min={0} value={form.nombreCles} onChange={(e) => setForm({ ...form, nombreCles: +e.target.value })} className="input" /></Field>
           <Field label="Puissance fiscale (CV)"><input type="number" min={1} value={form.puissanceFiscale} onChange={(e) => setForm({ ...form, puissanceFiscale: +e.target.value })} className="input" /></Field>
           <Field label="Opposition">
