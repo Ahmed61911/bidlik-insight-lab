@@ -115,7 +115,7 @@ async function fetchMyCars(uid: string): Promise<SellerCar[]> {
   if (assignmentsRes.error) throw assignmentsRes.error;
 
   const auctionMap = new Map<string, AuctionRow>();
-  ((auctionsRes.data ?? []) as AuctionRow[]).forEach((a) => auctionMap.set(a.car_id, a));
+  ((rawAuctions ?? []) as AuctionRow[]).filter((a) => carIds.includes(a.car_id)).forEach((a) => auctionMap.set(a.car_id, a));
   const assignMap = new Map<string, AssignmentRow>();
   ((assignmentsRes.data ?? []) as AssignmentRow[]).forEach((a) => assignMap.set(a.car_id, a));
 
