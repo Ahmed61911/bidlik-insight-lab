@@ -52,9 +52,10 @@
   --color-surface: var(--surface);
   --color-surface-elevated: var(--surface-elevated);
 
-  --font-display: "Parkson", "Fraunces", Georgia, serif;
-  --font-sans: "Yalta Sans", system-ui, sans-serif;
-  --font-mono-brand: "Yalta Sans", "Outfit", system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-sans: "Outfit", system-ui, sans-serif;
+  --font-mono-brand: "Outfit", system-ui, sans-serif;
+
 
   --shadow-card: 0 1px 2px oklch(0 0 0 / 0.04), 0 8px 24px oklch(0.2 0.05 260 / 0.06);
   --shadow-elevated: 0 4px 12px oklch(0 0 0 / 0.08), 0 24px 48px oklch(0.2 0.05 260 / 0.12);
