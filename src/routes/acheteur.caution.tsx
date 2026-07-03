@@ -187,8 +187,22 @@ function CautionPage() {
                       </button>
                     )}
                   </div>
-                  <div className="shrink-0 text-right">
+                  <div className="flex shrink-0 flex-col items-end gap-2">
                     <p className="text-lg font-bold text-foreground">{formatMad(p.montant)}</p>
+                    {p.status === "en_attente" && (
+                      <button
+                        onClick={() => cancelCaution(p.id)}
+                        disabled={cancellingId === p.id}
+                        className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2.5 py-1 text-xs font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-60"
+                      >
+                        {cancellingId === p.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-3.5 w-3.5" />
+                        )}
+                        Annuler
+                      </button>
+                    )}
                   </div>
                 </div>
               </li>
