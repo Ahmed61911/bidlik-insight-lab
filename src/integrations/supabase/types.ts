@@ -781,41 +781,79 @@ export type Database = {
           user_id: string
         }[]
       }
-      admin_refund_caution: {
-        Args: {
-          p_id: string
-          p_notes?: string
-          p_proof_name?: string
-          p_proof_url?: string
-          p_reference?: string
-        }
-        Returns: {
-          amount: number
-          auction_id: string | null
-          bank: string | null
-          car_id: string | null
-          created_at: string
-          due_date: string | null
-          id: string
-          notes: string | null
-          paid_at: string | null
-          payment_method: string | null
-          proof_name: string | null
-          proof_url: string | null
-          recorded_by: string | null
-          reference: string | null
-          status: string
-          type: string
-          updated_at: string
-          user_id: string
-        }
-        SetofOptions: {
-          from: "*"
-          to: "payments"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
+      admin_refund_caution:
+        | {
+            Args: {
+              p_id: string
+              p_notes?: string
+              p_proof_name?: string
+              p_proof_url?: string
+              p_reference?: string
+            }
+            Returns: {
+              amount: number
+              auction_id: string | null
+              bank: string | null
+              car_id: string | null
+              created_at: string
+              due_date: string | null
+              id: string
+              notes: string | null
+              paid_at: string | null
+              payment_method: string | null
+              proof_name: string | null
+              proof_url: string | null
+              recorded_by: string | null
+              reference: string | null
+              status: string
+              type: string
+              updated_at: string
+              user_id: string
+            }
+            SetofOptions: {
+              from: "*"
+              to: "payments"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+        | {
+            Args: {
+              p_bank?: string
+              p_id: string
+              p_notes?: string
+              p_payment_method?: string
+              p_proof_name?: string
+              p_proof_url?: string
+              p_reference?: string
+            }
+            Returns: {
+              amount: number
+              auction_id: string | null
+              bank: string | null
+              car_id: string | null
+              created_at: string
+              due_date: string | null
+              id: string
+              notes: string | null
+              paid_at: string | null
+              payment_method: string | null
+              proof_name: string | null
+              proof_url: string | null
+              recorded_by: string | null
+              reference: string | null
+              status: string
+              type: string
+              updated_at: string
+              user_id: string
+            }
+            SetofOptions: {
+              from: "*"
+              to: "payments"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
       admin_revenue_series: {
         Args: { p_since: string }
         Returns: {
