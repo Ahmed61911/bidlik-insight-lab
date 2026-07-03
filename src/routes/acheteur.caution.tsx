@@ -110,10 +110,10 @@ function CautionPage() {
                     to="/acheteur/caution-paiement"
                     className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground hover:opacity-90"
                   >
-                    Payer la caution par carte
+                    Déposer ma caution
                   </Link>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Paiement sécurisé via CMI (3D Secure) — Visa / Mastercard / CMI.
+                    Virement, chèque ou espèces — validation manuelle par un administrateur. Paiement par carte bientôt disponible.
                   </p>
                 </>
               )}

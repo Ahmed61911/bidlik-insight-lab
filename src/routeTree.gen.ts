@@ -44,6 +44,7 @@ import { Route as AdminUtilisateursRouteImport } from './routes/admin.utilisateu
 import { Route as AdminPaiementsRouteImport } from './routes/admin.paiements'
 import { Route as AdminExpertsRouteImport } from './routes/admin.experts'
 import { Route as AdminEncheresRouteImport } from './routes/admin.encheres'
+import { Route as AdminCautionsRouteImport } from './routes/admin.cautions'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as AcheteurPaiementsRouteImport } from './routes/acheteur.paiements'
 import { Route as AcheteurNotificationsRouteImport } from './routes/acheteur.notifications'
@@ -233,6 +234,11 @@ const AdminEncheresRoute = AdminEncheresRouteImport.update({
   path: '/encheres',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCautionsRoute = AdminCautionsRouteImport.update({
+  id: '/cautions',
+  path: '/cautions',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
@@ -324,6 +330,7 @@ export interface FileRoutesByFullPath {
   '/acheteur/notifications': typeof AcheteurNotificationsRoute
   '/acheteur/paiements': typeof AcheteurPaiementsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/cautions': typeof AdminCautionsRoute
   '/admin/encheres': typeof AdminEncheresRoute
   '/admin/experts': typeof AdminExpertsRoute
   '/admin/paiements': typeof AdminPaiementsRoute
@@ -370,6 +377,7 @@ export interface FileRoutesByTo {
   '/acheteur/notifications': typeof AcheteurNotificationsRoute
   '/acheteur/paiements': typeof AcheteurPaiementsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/cautions': typeof AdminCautionsRoute
   '/admin/encheres': typeof AdminEncheresRoute
   '/admin/experts': typeof AdminExpertsRoute
   '/admin/paiements': typeof AdminPaiementsRoute
@@ -421,6 +429,7 @@ export interface FileRoutesById {
   '/acheteur/notifications': typeof AcheteurNotificationsRoute
   '/acheteur/paiements': typeof AcheteurPaiementsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/cautions': typeof AdminCautionsRoute
   '/admin/encheres': typeof AdminEncheresRoute
   '/admin/experts': typeof AdminExpertsRoute
   '/admin/paiements': typeof AdminPaiementsRoute
@@ -473,6 +482,7 @@ export interface FileRouteTypes {
     | '/acheteur/notifications'
     | '/acheteur/paiements'
     | '/admin/analytics'
+    | '/admin/cautions'
     | '/admin/encheres'
     | '/admin/experts'
     | '/admin/paiements'
@@ -519,6 +529,7 @@ export interface FileRouteTypes {
     | '/acheteur/notifications'
     | '/acheteur/paiements'
     | '/admin/analytics'
+    | '/admin/cautions'
     | '/admin/encheres'
     | '/admin/experts'
     | '/admin/paiements'
@@ -569,6 +580,7 @@ export interface FileRouteTypes {
     | '/acheteur/notifications'
     | '/acheteur/paiements'
     | '/admin/analytics'
+    | '/admin/cautions'
     | '/admin/encheres'
     | '/admin/experts'
     | '/admin/paiements'
@@ -872,6 +884,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminEncheresRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/cautions': {
+      id: '/admin/cautions'
+      path: '/cautions'
+      fullPath: '/admin/cautions'
+      preLoaderRoute: typeof AdminCautionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/analytics': {
       id: '/admin/analytics'
       path: '/analytics'
@@ -992,6 +1011,7 @@ const AcheteurRouteWithChildren = AcheteurRoute._addFileChildren(
 
 interface AdminRouteChildren {
   AdminAnalyticsRoute: typeof AdminAnalyticsRoute
+  AdminCautionsRoute: typeof AdminCautionsRoute
   AdminEncheresRoute: typeof AdminEncheresRoute
   AdminExpertsRoute: typeof AdminExpertsRoute
   AdminPaiementsRoute: typeof AdminPaiementsRoute
@@ -1004,6 +1024,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAnalyticsRoute: AdminAnalyticsRoute,
+  AdminCautionsRoute: AdminCautionsRoute,
   AdminEncheresRoute: AdminEncheresRoute,
   AdminExpertsRoute: AdminExpertsRoute,
   AdminPaiementsRoute: AdminPaiementsRoute,

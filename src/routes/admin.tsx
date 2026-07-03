@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Car, Users, ClipboardCheck, ShieldCheck, BarChart3, Gavel, ChevronDown, Wallet, UserCheck } from "lucide-react";
+import { LayoutDashboard, Car, Users, ClipboardCheck, ShieldCheck, BarChart3, Gavel, ChevronDown, Wallet, UserCheck, Coins } from "lucide-react";
 
 import { requireRole } from "@/lib/routeGuard";
 
@@ -23,6 +23,7 @@ const NAV = [
   { to: "/admin/experts", label: "Experts", icon: ShieldCheck, exact: false },
   { to: "/admin/validations", label: "Validations", icon: ClipboardCheck, exact: false },
   { to: "/admin/paiements", label: "Paiements", icon: Wallet, exact: false },
+  { to: "/admin/cautions", label: "Cautions", icon: Coins, exact: false },
   { to: "/admin/utilisateurs", label: "Utilisateurs", icon: Users, exact: false },
   { to: "/admin/verifications", label: "Validation comptes", icon: UserCheck, exact: false },
   { to: "/admin/analytics", label: "Analytics", icon: BarChart3, exact: false },
