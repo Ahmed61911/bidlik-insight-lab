@@ -269,7 +269,14 @@ function MultiCarEventDialog({
   const [selected, setSelected] = useState<Record<string, { picked: boolean; price: number; minAccepted: number }>>(
     () =>
       Object.fromEntries(
-        cars.map((c) => [c.id, { picked: false, price: Math.round(c.prixAttendu * 0.7), minAccepted: Math.round(c.prixAttendu * 0.85) }]),
+        cars.map((c) => [
+          c.id,
+          {
+            picked: false,
+            price: c.prixMinimum ?? 0,
+            minAccepted: c.prixMinimum ?? 0,
+          },
+        ]),
       ),
   );
   const [saving, setSaving] = useState(false);
@@ -281,12 +288,6 @@ function MultiCarEventDialog({
 
   function toggle(id: string) {
     setSelected((prev) => ({ ...prev, [id]: { ...prev[id], picked: !prev[id].picked } }));
-  }
-  function setPrice(id: string, price: number) {
-    setSelected((prev) => ({ ...prev, [id]: { ...prev[id], price } }));
-  }
-  function setMinAccepted(id: string, minAccepted: number) {
-    setSelected((prev) => ({ ...prev, [id]: { ...prev[id], minAccepted } }));
   }
 
   async function submit(e: React.FormEvent) {
