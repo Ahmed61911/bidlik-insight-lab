@@ -1208,6 +1208,14 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      storage_can_write_car_image: {
+        Args: { p_name: string }
+        Returns: boolean
+      }
+      storage_can_write_payment_proof_auction: {
+        Args: { p_name: string }
+        Returns: boolean
+      }
       submit_expert_report: {
         Args: { p_car_id: string; p_note: number }
         Returns: {
