@@ -90,8 +90,8 @@ function mapCar(row: CarRow): Car {
     prixMinimum: row.prix_minimum ?? null,
     minimumAcceptedPrice: row.minimum_accepted_price ?? undefined,
     images: Array.isArray(row.images) ? (row.images as string[]) : [],
-    expertImages: Array.isArray((row as { expert_images?: unknown }).expert_images)
-      ? ((row as { expert_images: string[] }).expert_images)
+    expertImages: Array.isArray((row as unknown as { expert_images?: unknown }).expert_images)
+      ? ((row as unknown as { expert_images: string[] }).expert_images)
       : [],
   };
 }
