@@ -269,7 +269,14 @@ function MultiCarEventDialog({
   const [selected, setSelected] = useState<Record<string, { picked: boolean; price: number; minAccepted: number }>>(
     () =>
       Object.fromEntries(
-        cars.map((c) => [c.id, { picked: false, price: Math.round(c.prixAttendu * 0.7), minAccepted: Math.round(c.prixAttendu * 0.85) }]),
+        cars.map((c) => [
+          c.id,
+          {
+            picked: false,
+            price: c.prixMinimum ?? 0,
+            minAccepted: c.prixMinimum ?? 0,
+          },
+        ]),
       ),
   );
   const [saving, setSaving] = useState(false);
@@ -282,29 +289,23 @@ function MultiCarEventDialog({
   function toggle(id: string) {
     setSelected((prev) => ({ ...prev, [id]: { ...prev[id], picked: !prev[id].picked } }));
   }
-  function setPrice(id: string, price: number) {
-    setSelected((prev) => ({ ...prev, [id]: { ...prev[id], price } }));
-  }
-  function setMinAccepted(id: string, minAccepted: number) {
-    setSelected((prev) => ({ ...prev, [id]: { ...prev[id], minAccepted } }));
-  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const items = cars
-      .filter((c) => selected[c.id]?.picked)
-      .map((c) => ({
-        carId: c.id,
-        startingPrice: selected[c.id].price,
-        minimumAcceptedPrice: auctionType === "fermee" ? selected[c.id].minAccepted : undefined,
-      }));
+    const pickedCars = cars.filter((c) => selected[c.id]?.picked);
+    const missing = pickedCars.find((c) => c.prixMinimum == null || c.prixPlancher == null);
+    if (missing) {
+      toast.error(`${missing.marque} ${missing.modele} : prix plancher / minimum manquant sur la fiche voiture`);
+      return;
+    }
+    const items = pickedCars.map((c) => ({
+      carId: c.id,
+      startingPrice: c.prixMinimum!,
+      minimumAcceptedPrice: auctionType === "fermee" ? c.prixMinimum! : undefined,
+    }));
     if (items.length === 0) {
       toast.error("Sélectionnez au moins une voiture");
       return;
-    }
-    if (auctionType === "fermee") {
-      const bad = items.find((it) => !it.minimumAcceptedPrice || it.minimumAcceptedPrice <= 0);
-      if (bad) { toast.error("Définissez un prix minimum accepté pour chaque voiture"); return; }
     }
     let startsAtIso: string | undefined;
     if (!scheduleNow) {
@@ -442,38 +443,27 @@ function MultiCarEventDialog({
                           <p className="text-sm font-semibold text-foreground">
                             <span className="font-mono text-primary">#{c.id}</span> — {c.marque} {c.modele} ({c.annee})
                           </p>
-                          <p className="font-mono text-[11px] text-muted-foreground">
-                            ID : {c.id} · Prix attendu : {formatMad(c.prixAttendu)}
-                          </p>
+                          <p className="font-mono text-[11px] text-muted-foreground">ID : {c.id}</p>
+                          <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                            <div className="rounded-md border border-border bg-muted/30 px-2 py-1">
+                              <span className="block text-[10px] uppercase text-muted-foreground">Prix attendu (plancher)</span>
+                              <span className="font-semibold tabular-nums text-foreground">
+                                {c.prixPlancher != null ? formatMad(c.prixPlancher) : "—"}
+                              </span>
+                            </div>
+                            <div className="rounded-md border border-border bg-muted/30 px-2 py-1">
+                              <span className="block text-[10px] uppercase text-muted-foreground">Prix départ (minimum)</span>
+                              <span className="font-semibold tabular-nums text-foreground">
+                                {c.prixMinimum != null ? formatMad(c.prixMinimum) : "—"}
+                              </span>
+                            </div>
+                          </div>
+                          {(c.prixPlancher == null || c.prixMinimum == null) && (
+                            <p className="mt-1 text-[11px] text-destructive">
+                              ⚠ Renseignez prix plancher et prix minimum dans la fiche voiture avant de créer l'enchère.
+                            </p>
+                          )}
                         </div>
-                        <label className="text-right text-xs">
-                          <span className="block text-[10px] text-muted-foreground">Prix départ (DH)</span>
-                          <input
-                            type="number"
-                            min={1}
-                            step={1000}
-                            value={s?.price ?? 0}
-                            onChange={(e) => setPrice(c.id, +e.target.value)}
-                            disabled={!s?.picked}
-                            onClick={(e) => e.stopPropagation()}
-                            className="mt-0.5 h-8 w-28 rounded-md border border-input bg-background px-2 text-right text-sm disabled:opacity-50"
-                          />
-                        </label>
-                        {auctionType === "fermee" && (
-                          <label className="text-right text-xs">
-                            <span className="block text-[10px] text-muted-foreground">Prix min. accepté (DH)</span>
-                            <input
-                              type="number"
-                              min={1}
-                              step={1000}
-                              value={s?.minAccepted ?? 0}
-                              onChange={(e) => setMinAccepted(c.id, +e.target.value)}
-                              disabled={!s?.picked}
-                              onClick={(e) => e.stopPropagation()}
-                              className="mt-0.5 h-8 w-28 rounded-md border border-accent/40 bg-background px-2 text-right text-sm disabled:opacity-50"
-                            />
-                          </label>
-                        )}
                       </label>
                     </li>
                   );
@@ -510,7 +500,7 @@ function CreateAuctionDialog({
   onCreated: () => void;
 }) {
   const navigate = useNavigate();
-  const [startingPrice, setStartingPrice] = useState(Math.round(car.prixAttendu * 0.7));
+  const startingPrice = car.prixMinimum ?? 0;
   const [durationHours, setDurationHours] = useState(24);
   const [scheduleNow, setScheduleNow] = useState(true);
   const [startsAt, setStartsAt] = useState(() => {
@@ -524,6 +514,10 @@ function CreateAuctionDialog({
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (car.prixMinimum == null || car.prixPlancher == null) {
+      toast.error("Renseignez prix plancher et prix minimum dans la fiche voiture");
+      return;
+    }
     if (startingPrice <= 0 || durationHours <= 0) {
       toast.error("Prix de départ et durée doivent être positifs");
       return;
@@ -572,17 +566,25 @@ function CreateAuctionDialog({
           <p className="text-sm text-foreground"><span className="font-mono text-primary">#{car.id}</span> — {car.marque} {car.modele} ({car.annee})</p>
         </div>
         <form onSubmit={submit} className="space-y-3">
-          <label className="block">
-            <span className="mb-1 block text-xs font-medium text-muted-foreground">Prix de départ (DH)</span>
-            <input
-              type="number"
-              min={1}
-              step={1000}
-              value={startingPrice}
-              onChange={(e) => setStartingPrice(+e.target.value)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            />
-          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-md border border-border bg-muted/30 px-3 py-2">
+              <span className="block text-[10px] uppercase text-muted-foreground">Prix attendu (plancher)</span>
+              <span className="font-semibold tabular-nums text-foreground">
+                {car.prixPlancher != null ? formatMad(car.prixPlancher) : "—"}
+              </span>
+            </div>
+            <div className="rounded-md border border-border bg-muted/30 px-3 py-2">
+              <span className="block text-[10px] uppercase text-muted-foreground">Prix départ (minimum)</span>
+              <span className="font-semibold tabular-nums text-foreground">
+                {car.prixMinimum != null ? formatMad(car.prixMinimum) : "—"}
+              </span>
+            </div>
+          </div>
+          {(car.prixPlancher == null || car.prixMinimum == null) && (
+            <p className="text-[11px] text-destructive">
+              ⚠ Renseignez prix plancher et prix minimum dans la fiche voiture avant de créer l'enchère.
+            </p>
+          )}
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-muted-foreground">Durée (heures)</span>
             <input
