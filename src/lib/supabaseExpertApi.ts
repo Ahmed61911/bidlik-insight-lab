@@ -167,16 +167,20 @@ export const supabaseExpertApi = {
     }
 
 
-    // 3. Append commercial images to the car (kept in cars.images JSON)
+    // 3. Append expert-only inspection photos (kept separate from seller images)
     if (report.images && report.images.length > 0) {
       const { data: car } = await supabase
         .from("cars")
-        .select("images")
+        .select("expert_images")
         .eq("id", carId)
         .maybeSingle();
-      const existing = Array.isArray(car?.images) ? (car?.images as string[]) : [];
+      const raw = (car as { expert_images?: unknown } | null)?.expert_images;
+      const existing = Array.isArray(raw) ? (raw as string[]) : [];
       const merged = [...existing, ...report.images].slice(0, 24);
-      await supabase.from("cars").update({ images: merged }).eq("id", carId);
+      await supabase
+        .from("cars")
+        .update({ expert_images: merged } as never)
+        .eq("id", carId);
     }
 
     // 4. Submit the final note via RPC (rounds to nearest int 0-10)

@@ -177,6 +177,7 @@ export type Database = {
           created_at: string
           date_vente: string | null
           delivery_status: Database["public"]["Enums"]["delivery_status_t"]
+          expert_images: Json
           finition: string
           id: string
           images: Json
@@ -211,6 +212,7 @@ export type Database = {
           created_at?: string
           date_vente?: string | null
           delivery_status?: Database["public"]["Enums"]["delivery_status_t"]
+          expert_images?: Json
           finition?: string
           id: string
           images?: Json
@@ -245,6 +247,7 @@ export type Database = {
           created_at?: string
           date_vente?: string | null
           delivery_status?: Database["public"]["Enums"]["delivery_status_t"]
+          expert_images?: Json
           finition?: string
           id?: string
           images?: Json
@@ -616,6 +619,7 @@ export type Database = {
           created_at: string
           date_vente: string | null
           delivery_status: Database["public"]["Enums"]["delivery_status_t"]
+          expert_images: Json
           finition: string
           id: string
           images: Json
@@ -659,6 +663,7 @@ export type Database = {
           created_at: string
           date_vente: string | null
           delivery_status: Database["public"]["Enums"]["delivery_status_t"]
+          expert_images: Json
           finition: string
           id: string
           images: Json
@@ -1119,6 +1124,7 @@ export type Database = {
           created_at: string
           date_vente: string | null
           delivery_status: Database["public"]["Enums"]["delivery_status_t"]
+          expert_images: Json
           finition: string
           id: string
           images: Json
@@ -1225,6 +1231,7 @@ export type Database = {
           created_at: string
           date_vente: string | null
           delivery_status: Database["public"]["Enums"]["delivery_status_t"]
+          expert_images: Json
           finition: string
           id: string
           images: Json

@@ -62,6 +62,8 @@ export interface Car {
   /** Sealed-bid only: minimum offer required (strictly greater). Server-validated. */
   minimumAcceptedPrice?: number;
   images: string[];
+  /** Photos submitted by the expert during inspection (admin-only view). */
+  expertImages?: string[];
 }
 
 /**
