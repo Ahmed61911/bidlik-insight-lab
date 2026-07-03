@@ -20,7 +20,7 @@ export interface MonEnchere {
   bidCount: number;
 }
 
-export type PaiementStatus = "en_attente" | "regle" | "rembourse";
+export type PaiementStatus = "en_attente" | "regle" | "rembourse" | "rejete";
 export type PaiementType = "achat" | "caution" | "remboursement_caution" | "commission" | "virement_vendeur" | "remboursement";
 
 export interface Paiement {
@@ -35,6 +35,8 @@ export interface Paiement {
   proofUrl?: string;
   proofName?: string;
   notes?: string;
+  paymentMethod?: string;
+  bank?: string;
 }
 
 export type NotifType =
