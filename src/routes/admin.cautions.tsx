@@ -29,11 +29,19 @@ const STATUS_TONE: Record<AdminPaymentStatus, string> = {
   annule: "bg-destructive/15 text-destructive",
 };
 
+type RefundMethod = "virement" | "cheque" | "especes";
+
 function AdminCautionsPage() {
   const [items, setItems] = useState<AdminPayment[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"en_attente" | "all">("en_attente");
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [refundTarget, setRefundTarget] = useState<AdminPayment | null>(null);
+  const [rMethod, setRMethod] = useState<RefundMethod>("virement");
+  const [rBank, setRBank] = useState("");
+  const [rReference, setRReference] = useState("");
+  const [rNotes, setRNotes] = useState("");
+  const [rFile, setRFile] = useState<File | null>(null);
 
   const refresh = () => {
     setLoading(true);
@@ -85,20 +93,36 @@ function AdminCautionsPage() {
     }
   };
 
-  const refund = async (id: string) => {
-    if (!window.confirm("Confirmer le remboursement de cette caution ? L'acheteur devra en redéposer une pour enchérir à nouveau.")) return;
-    const notes = window.prompt("Note / référence du remboursement (optionnel)") ?? "";
-    setBusyId(id);
+  const openRefund = (p: AdminPayment) => {
+    setRefundTarget(p);
+    setRMethod("virement");
+    setRBank("");
+    setRReference("");
+    setRNotes("");
+    setRFile(null);
+  };
+
+  const submitRefund = async () => {
+    if (!refundTarget) return;
+    if (!rFile) {
+      toast.error("Le justificatif de remboursement est obligatoire");
+      return;
+    }
+    setBusyId(refundTarget.id);
     try {
+      const { path, name } = await supabaseAdminPaiements.uploadProof(rFile);
       const { error } = await supabase.rpc("admin_refund_caution", {
-        p_id: id,
-        p_reference: null,
-        p_proof_url: null,
-        p_proof_name: null,
-        p_notes: notes || null,
+        p_id: refundTarget.id,
+        p_reference: rReference || null,
+        p_proof_url: path,
+        p_proof_name: name,
+        p_notes: rNotes || null,
+        p_payment_method: rMethod,
+        p_bank: rMethod === "virement" || rMethod === "cheque" ? (rBank || null) : null,
       } as never);
       if (error) throw new Error(error.message);
       toast.success("Caution remboursée");
+      setRefundTarget(null);
       refresh();
     } catch (e) {
       toast.error((e as Error).message);
@@ -106,6 +130,7 @@ function AdminCautionsPage() {
       setBusyId(null);
     }
   };
+
 
   return (
     <div className="space-y-4">
@@ -199,7 +224,7 @@ function AdminCautionsPage() {
                   <div className="flex shrink-0 items-center gap-2">
                     <button
                       disabled={busyId === p.id}
-                      onClick={() => refund(p.id)}
+                      onClick={() => openRefund(p)}
                       className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-sm font-semibold text-foreground hover:bg-accent disabled:opacity-60"
                     >
                       Rembourser
@@ -210,6 +235,114 @@ function AdminCautionsPage() {
             </li>
           ))}
         </ul>
+      )}
+
+      {refundTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-lg rounded-xl border border-border bg-card p-5 shadow-xl">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-foreground">Rembourser la caution</h3>
+                <p className="text-xs text-muted-foreground">
+                  {refundTarget.userNom ?? refundTarget.userEmail} · {formatMad(refundTarget.amount)}
+                </p>
+              </div>
+              <button
+                onClick={() => setRefundTarget(null)}
+                className="rounded-md p-1 text-muted-foreground hover:bg-accent"
+                aria-label="Fermer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              <div>
+                <label className="text-xs font-medium text-foreground">Mode de remboursement *</label>
+                <div className="mt-1 grid grid-cols-3 gap-2">
+                  {(["virement", "cheque", "especes"] as RefundMethod[]).map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setRMethod(m)}
+                      className={`h-9 rounded-md border px-3 text-sm font-medium capitalize ${
+                        rMethod === m
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-background text-foreground hover:bg-accent"
+                      }`}
+                    >
+                      {m === "cheque" ? "Chèque" : m === "especes" ? "Espèces" : "Virement"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {(rMethod === "virement" || rMethod === "cheque") && (
+                <div>
+                  <label className="text-xs font-medium text-foreground">Banque</label>
+                  <input
+                    value={rBank}
+                    onChange={(e) => setRBank(e.target.value)}
+                    placeholder="Ex : Attijariwafa Bank"
+                    className="mt-1 h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="text-xs font-medium text-foreground">
+                  {rMethod === "cheque" ? "N° de chèque" : "Référence"}
+                </label>
+                <input
+                  value={rReference}
+                  onChange={(e) => setRReference(e.target.value)}
+                  className="mt-1 h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-foreground">
+                  Justificatif (PDF ou image) *
+                </label>
+                <input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={(e) => setRFile(e.target.files?.[0] ?? null)}
+                  className="mt-1 block w-full text-sm text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary-foreground hover:file:opacity-90"
+                />
+                {rFile && (
+                  <p className="mt-1 text-xs text-muted-foreground">{rFile.name}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-foreground">Note (optionnel)</label>
+                <textarea
+                  value={rNotes}
+                  onChange={(e) => setRNotes(e.target.value)}
+                  rows={2}
+                  className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                onClick={() => setRefundTarget(null)}
+                className="h-9 rounded-md border border-border bg-background px-3 text-sm font-semibold hover:bg-accent"
+              >
+                Annuler
+              </button>
+              <button
+                disabled={busyId === refundTarget.id || !rFile}
+                onClick={submitRefund}
+                className="h-9 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90 disabled:opacity-60"
+              >
+                {busyId === refundTarget.id ? "Envoi…" : "Confirmer le remboursement"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
