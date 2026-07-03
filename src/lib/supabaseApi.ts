@@ -99,10 +99,10 @@ type EventRow = {
 // financial and legal fields are excluded — also enforced at the database
 // layer via column-level GRANTs to the `anon` role.
 const PUBLIC_CAR_COLUMNS =
-  "id, vendeur_nom, type, marque, modele, finition, transmission, carburant, " +
+  "id, type, marque, modele, finition, transmission, carburant, " +
   "annee, kilometrage, couleur_exterieur, couleur_interieur, note_expert, " +
-  "nombre_cles, puissance_fiscale, images, status, created_at, updated_at, " +
-  "prix_attendu";
+  "nombre_cles, puissance_fiscale, images, status, created_at, updated_at";
+
 
 // Auction columns safe for anon — excludes top_bidder_id (user identity).
 const PUBLIC_AUCTION_COLUMNS =
