@@ -500,7 +500,7 @@ function CreateAuctionDialog({
   onCreated: () => void;
 }) {
   const navigate = useNavigate();
-  const [startingPrice, setStartingPrice] = useState(Math.round(car.prixAttendu * 0.7));
+  const startingPrice = car.prixMinimum ?? 0;
   const [durationHours, setDurationHours] = useState(24);
   const [scheduleNow, setScheduleNow] = useState(true);
   const [startsAt, setStartsAt] = useState(() => {
@@ -514,6 +514,10 @@ function CreateAuctionDialog({
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (car.prixMinimum == null || car.prixPlancher == null) {
+      toast.error("Renseignez prix plancher et prix minimum dans la fiche voiture");
+      return;
+    }
     if (startingPrice <= 0 || durationHours <= 0) {
       toast.error("Prix de départ et durée doivent être positifs");
       return;
