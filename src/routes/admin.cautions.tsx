@@ -85,6 +85,28 @@ function AdminCautionsPage() {
     }
   };
 
+  const refund = async (id: string) => {
+    if (!window.confirm("Confirmer le remboursement de cette caution ? L'acheteur devra en redéposer une pour enchérir à nouveau.")) return;
+    const notes = window.prompt("Note / référence du remboursement (optionnel)") ?? "";
+    setBusyId(id);
+    try {
+      const { error } = await supabase.rpc("admin_refund_caution", {
+        p_id: id,
+        p_reference: null,
+        p_proof_url: null,
+        p_proof_name: null,
+        p_notes: notes || null,
+      } as never);
+      if (error) throw new Error(error.message);
+      toast.success("Caution remboursée");
+      refresh();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -170,6 +192,17 @@ function AdminCautionsPage() {
                       className="inline-flex h-9 items-center gap-1.5 rounded-md bg-emerald-600 px-3 text-sm font-semibold text-white shadow-sm hover:opacity-90 disabled:opacity-60"
                     >
                       <Check className="h-4 w-4" /> Valider
+                    </button>
+                  </div>
+                )}
+                {p.status === "paye" && (
+                  <div className="flex shrink-0 items-center gap-2">
+                    <button
+                      disabled={busyId === p.id}
+                      onClick={() => refund(p.id)}
+                      className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-sm font-semibold text-foreground hover:bg-accent disabled:opacity-60"
+                    >
+                      Rembourser
                     </button>
                   </div>
                 )}
