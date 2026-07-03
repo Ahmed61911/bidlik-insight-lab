@@ -292,20 +292,20 @@ function MultiCarEventDialog({
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const items = cars
-      .filter((c) => selected[c.id]?.picked)
-      .map((c) => ({
-        carId: c.id,
-        startingPrice: selected[c.id].price,
-        minimumAcceptedPrice: auctionType === "fermee" ? selected[c.id].minAccepted : undefined,
-      }));
+    const pickedCars = cars.filter((c) => selected[c.id]?.picked);
+    const missing = pickedCars.find((c) => c.prixMinimum == null || c.prixPlancher == null);
+    if (missing) {
+      toast.error(`${missing.marque} ${missing.modele} : prix plancher / minimum manquant sur la fiche voiture`);
+      return;
+    }
+    const items = pickedCars.map((c) => ({
+      carId: c.id,
+      startingPrice: c.prixMinimum!,
+      minimumAcceptedPrice: auctionType === "fermee" ? c.prixMinimum! : undefined,
+    }));
     if (items.length === 0) {
       toast.error("Sélectionnez au moins une voiture");
       return;
-    }
-    if (auctionType === "fermee") {
-      const bad = items.find((it) => !it.minimumAcceptedPrice || it.minimumAcceptedPrice <= 0);
-      if (bad) { toast.error("Définissez un prix minimum accepté pour chaque voiture"); return; }
     }
     let startsAtIso: string | undefined;
     if (!scheduleNow) {
