@@ -77,7 +77,7 @@ export function SiteHeader() {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           {auth.isAuthenticated && auth.user ? (
-            <UserMenu name={auth.user.nom} role={userRoles[0]} onLogout={handleLogout} />
+            <UserMenu name={auth.user.nom} role={userRoles[0]} roles={userRoles} onLogout={handleLogout} />
           ) : (
             <>
               <Link
@@ -128,7 +128,7 @@ export function SiteHeader() {
   );
 }
 
-function UserMenu({ name, role, onLogout }: { name: string; role: Role; onLogout: () => void }) {
+function UserMenu({ name, role, roles, onLogout }: { name: string; role: Role; roles?: Role[]; onLogout: () => void }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -141,6 +141,7 @@ function UserMenu({ name, role, onLogout }: { name: string; role: Role; onLogout
   }, []);
 
   const initials = name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
+  const hideMonEspace = roles?.some((r) => r === "vendeur" || r === "expert") ?? false;
 
   return (
     <div ref={ref} className="relative">
@@ -159,14 +160,16 @@ function UserMenu({ name, role, onLogout }: { name: string; role: Role; onLogout
             <p className="text-xs text-muted-foreground">Connecté en tant que</p>
             <p className="text-sm font-semibold text-foreground capitalize">{role}</p>
           </div>
-          <Link
-            to={ROLE_HOME[role] as never}
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground hover:bg-secondary"
-          >
-            <User className="h-4 w-4" />
-            Mon espace
-          </Link>
+          {!hideMonEspace && (
+            <Link
+              to={ROLE_HOME[role] as never}
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground hover:bg-secondary"
+            >
+              <User className="h-4 w-4" />
+              Mon espace
+            </Link>
+          )}
           <Link
             to="/mon-compte"
             onClick={() => setOpen(false)}
