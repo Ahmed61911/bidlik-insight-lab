@@ -566,17 +566,25 @@ function CreateAuctionDialog({
           <p className="text-sm text-foreground"><span className="font-mono text-primary">#{car.id}</span> — {car.marque} {car.modele} ({car.annee})</p>
         </div>
         <form onSubmit={submit} className="space-y-3">
-          <label className="block">
-            <span className="mb-1 block text-xs font-medium text-muted-foreground">Prix de départ (DH)</span>
-            <input
-              type="number"
-              min={1}
-              step={1000}
-              value={startingPrice}
-              onChange={(e) => setStartingPrice(+e.target.value)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            />
-          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-md border border-border bg-muted/30 px-3 py-2">
+              <span className="block text-[10px] uppercase text-muted-foreground">Prix attendu (plancher)</span>
+              <span className="font-semibold tabular-nums text-foreground">
+                {car.prixPlancher != null ? formatMad(car.prixPlancher) : "—"}
+              </span>
+            </div>
+            <div className="rounded-md border border-border bg-muted/30 px-3 py-2">
+              <span className="block text-[10px] uppercase text-muted-foreground">Prix départ (minimum)</span>
+              <span className="font-semibold tabular-nums text-foreground">
+                {car.prixMinimum != null ? formatMad(car.prixMinimum) : "—"}
+              </span>
+            </div>
+          </div>
+          {(car.prixPlancher == null || car.prixMinimum == null) && (
+            <p className="text-[11px] text-destructive">
+              ⚠ Renseignez prix plancher et prix minimum dans la fiche voiture avant de créer l'enchère.
+            </p>
+          )}
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-muted-foreground">Durée (heures)</span>
             <input
