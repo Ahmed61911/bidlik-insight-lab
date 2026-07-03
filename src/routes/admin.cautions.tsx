@@ -224,7 +224,7 @@ function AdminCautionsPage() {
                   <div className="flex shrink-0 items-center gap-2">
                     <button
                       disabled={busyId === p.id}
-                      onClick={() => refund(p.id)}
+                      onClick={() => openRefund(p)}
                       className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-sm font-semibold text-foreground hover:bg-accent disabled:opacity-60"
                     >
                       Rembourser
