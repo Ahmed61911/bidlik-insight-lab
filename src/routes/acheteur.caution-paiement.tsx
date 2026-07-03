@@ -66,7 +66,7 @@ function CautionPaiementPage() {
         p_amount: CAUTION_AMOUNT,
         p_reference: reference.trim(),
         p_proof_url: path,
-        p_proof_name: file.name,
+        p_proof_name: uploaded.name,
         p_notes: notes.trim(),
         p_payment_method: method,
         p_bank: bank.trim(),
