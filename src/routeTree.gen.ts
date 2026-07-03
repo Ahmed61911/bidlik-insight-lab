@@ -13,6 +13,7 @@ import { Route as VendeurRouteImport } from './routes/vendeur'
 import { Route as VehiculesRouteImport } from './routes/vehicules'
 import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
 import { Route as TrustRouteImport } from './routes/trust'
+import { Route as MonCompteRouteImport } from './routes/mon-compte'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InscriptionEnAttenteRouteImport } from './routes/inscription-en-attente'
 import { Route as ExpertRouteImport } from './routes/expert'
@@ -75,6 +76,11 @@ const UnauthorizedRoute = UnauthorizedRouteImport.update({
 const TrustRoute = TrustRouteImport.update({
   id: '/trust',
   path: '/trust',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MonCompteRoute = MonCompteRouteImport.update({
+  id: '/mon-compte',
+  path: '/mon-compte',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -307,6 +313,7 @@ export interface FileRoutesByFullPath {
   '/expert': typeof ExpertRouteWithChildren
   '/inscription-en-attente': typeof InscriptionEnAttenteRoute
   '/login': typeof LoginRoute
+  '/mon-compte': typeof MonCompteRoute
   '/trust': typeof TrustRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/vehicules': typeof VehiculesRoute
@@ -353,6 +360,7 @@ export interface FileRoutesByTo {
   '/comment-ca-marche-vendeur': typeof CommentCaMarcheVendeurRoute
   '/inscription-en-attente': typeof InscriptionEnAttenteRoute
   '/login': typeof LoginRoute
+  '/mon-compte': typeof MonCompteRoute
   '/trust': typeof TrustRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/vehicules': typeof VehiculesRoute
@@ -402,6 +410,7 @@ export interface FileRoutesById {
   '/expert': typeof ExpertRouteWithChildren
   '/inscription-en-attente': typeof InscriptionEnAttenteRoute
   '/login': typeof LoginRoute
+  '/mon-compte': typeof MonCompteRoute
   '/trust': typeof TrustRoute
   '/unauthorized': typeof UnauthorizedRoute
   '/vehicules': typeof VehiculesRoute
@@ -453,6 +462,7 @@ export interface FileRouteTypes {
     | '/expert'
     | '/inscription-en-attente'
     | '/login'
+    | '/mon-compte'
     | '/trust'
     | '/unauthorized'
     | '/vehicules'
@@ -499,6 +509,7 @@ export interface FileRouteTypes {
     | '/comment-ca-marche-vendeur'
     | '/inscription-en-attente'
     | '/login'
+    | '/mon-compte'
     | '/trust'
     | '/unauthorized'
     | '/vehicules'
@@ -547,6 +558,7 @@ export interface FileRouteTypes {
     | '/expert'
     | '/inscription-en-attente'
     | '/login'
+    | '/mon-compte'
     | '/trust'
     | '/unauthorized'
     | '/vehicules'
@@ -597,6 +609,7 @@ export interface RootRouteChildren {
   ExpertRoute: typeof ExpertRouteWithChildren
   InscriptionEnAttenteRoute: typeof InscriptionEnAttenteRoute
   LoginRoute: typeof LoginRoute
+  MonCompteRoute: typeof MonCompteRoute
   TrustRoute: typeof TrustRoute
   UnauthorizedRoute: typeof UnauthorizedRoute
   VehiculesRoute: typeof VehiculesRoute
@@ -640,6 +653,13 @@ declare module '@tanstack/react-router' {
       path: '/trust'
       fullPath: '/trust'
       preLoaderRoute: typeof TrustRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mon-compte': {
+      id: '/mon-compte'
+      path: '/mon-compte'
+      fullPath: '/mon-compte'
+      preLoaderRoute: typeof MonCompteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1051,6 +1071,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExpertRoute: ExpertRouteWithChildren,
   InscriptionEnAttenteRoute: InscriptionEnAttenteRoute,
   LoginRoute: LoginRoute,
+  MonCompteRoute: MonCompteRoute,
   TrustRoute: TrustRoute,
   UnauthorizedRoute: UnauthorizedRoute,
   VehiculesRoute: VehiculesRoute,
