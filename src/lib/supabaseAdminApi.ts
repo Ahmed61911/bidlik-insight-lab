@@ -14,7 +14,7 @@ import type {
   UserRole,
 } from "@/types/admin";
 import type { Auction, AuctionEvent, Car } from "@/types/auction";
-import { getCarImages } from "./carImages";
+
 
 const COMMISSION_RATE = 0.05;
 
