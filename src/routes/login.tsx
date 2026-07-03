@@ -146,6 +146,9 @@ function LoginPage() {
           <Field label="Téléphone" type="tel" name="phone" placeholder="+212 6 00 00 00 00" required />
 
           <Field label="Mot de passe" type="password" name="password" placeholder="••••••••" required />
+          {mode === "register" && (
+            <Field label="Confirmer le mot de passe" type="password" name="password_confirm" placeholder="••••••••" required />
+          )}
 
           <button
             type="submit"
