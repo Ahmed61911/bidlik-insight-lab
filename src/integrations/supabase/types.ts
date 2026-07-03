@@ -1325,6 +1325,14 @@ export type Database = {
         Args: { p_name: string }
         Returns: boolean
       }
+      storage_can_write_payment_proof_car_payment: {
+        Args: { p_name: string }
+        Returns: boolean
+      }
+      storage_can_write_payment_proof_caution: {
+        Args: { p_name: string }
+        Returns: boolean
+      }
       submit_expert_report: {
         Args: { p_car_id: string; p_note: number }
         Returns: {
