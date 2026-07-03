@@ -86,11 +86,18 @@ function LoginPage() {
         goAfterAuth(session.user.roles);
       } else {
         const phone = String(fd.get("phone"));
+        const password = String(fd.get("password"));
+        const confirm = String(fd.get("password_confirm"));
+        if (password !== confirm) {
+          toast.error("Les mots de passe ne correspondent pas.");
+          setLoading(false);
+          return;
+        }
         await authStore.register({
           nom: String(fd.get("name")),
           email: `${phone.replace(/\D/g, "")}@bidlic.local`,
           telephone: phone,
-          password: String(fd.get("password")),
+          password,
           role: "acheteur",
         });
         toast.success("Compte créé — en attente de validation par un administrateur.");
@@ -146,6 +153,9 @@ function LoginPage() {
           <Field label="Téléphone" type="tel" name="phone" placeholder="+212 6 00 00 00 00" required />
 
           <Field label="Mot de passe" type="password" name="password" placeholder="••••••••" required />
+          {mode === "register" && (
+            <Field label="Confirmer le mot de passe" type="password" name="password_confirm" placeholder="••••••••" required />
+          )}
 
           <button
             type="submit"
