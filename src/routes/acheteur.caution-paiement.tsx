@@ -4,10 +4,10 @@ import { ArrowLeft, CreditCard, Loader2, ShieldCheck, Upload, Building2, FileChe
 import { useAuth } from "@/lib/auth";
 import { formatMad } from "@/lib/format";
 import { supabase } from "@/integrations/supabase/client";
+import { storage, paymentPaths } from "@/lib/storage";
 import { toast } from "sonner";
 
 const CAUTION_AMOUNT = 5000;
-const BUCKET = "payment-proofs";
 
 type Method = "virement" | "cheque" | "especes";
 
@@ -55,20 +55,18 @@ function CautionPaiementPage() {
         setLoading(false);
         return;
       }
-      const ext = file.name.split(".").pop() || "bin";
-      const path = `${uid}/caution/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const up = await supabase.storage.from(BUCKET).upload(path, file, {
-        contentType: file.type || undefined,
-        cacheControl: "3600",
-        upsert: false,
+      const uploaded = await storage.uploadFile({
+        file,
+        bucket: "payment-proofs",
+        buildPath: (ext) => paymentPaths.userCaution(uid, ext),
       });
-      if (up.error) throw new Error(up.error.message);
+      const path = uploaded.path;
 
       const { error } = await supabase.rpc("buyer_submit_caution", {
         p_amount: CAUTION_AMOUNT,
         p_reference: reference.trim(),
         p_proof_url: path,
-        p_proof_name: file.name,
+        p_proof_name: uploaded.name,
         p_notes: notes.trim(),
         p_payment_method: method,
         p_bank: bank.trim(),

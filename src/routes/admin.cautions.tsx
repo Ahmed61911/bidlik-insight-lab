@@ -110,7 +110,7 @@ function AdminCautionsPage() {
     }
     setBusyId(refundTarget.id);
     try {
-      const { path, name } = await supabaseAdminPaiements.uploadProof(rFile);
+      const { path, name } = await supabaseAdminPaiements.uploadProof(rFile, "refund");
       const { error } = await supabase.rpc("admin_refund_caution", {
         p_id: refundTarget.id,
         p_reference: rReference || null,

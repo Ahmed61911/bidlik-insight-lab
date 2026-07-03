@@ -256,12 +256,10 @@ function install() {
   channel.subscribe();
 }
 
+import { storage, paymentPaths } from "@/lib/storage";
+
 export async function signedPaymentProofUrl(path: string): Promise<string> {
-  const { data, error } = await supabase.storage
-    .from("payment-proofs")
-    .createSignedUrl(path, 3600);
-  if (error) throw new Error(error.message);
-  return data.signedUrl;
+  return storage.signedUrl("payment-proofs", path);
 }
 
 /* ─────────── Buyer post-closure payment workflow ─────────── */
@@ -348,20 +346,24 @@ export async function listMyPendingPaymentAuctions(): Promise<PendingPaymentAuct
   });
 }
 
-
-export async function uploadBuyerProof(file: File): Promise<{ path: string; name: string }> {
+/**
+ * Upload a buyer's payment proof for a car they've won.
+ * File is stored under `cars/{carId}/payments/…` via the central storage service.
+ */
+export async function uploadBuyerProof(
+  file: File,
+  carId: string,
+): Promise<{ path: string; name: string }> {
   const { data: userData } = await supabase.auth.getUser();
   const uid = userData.user?.id;
   if (!uid) throw new Error("Connexion requise");
-  const ext = file.name.split(".").pop() ?? "bin";
-  const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  const { error } = await supabase.storage.from("payment-proofs").upload(path, file, {
-    cacheControl: "3600",
-    upsert: false,
-    contentType: file.type || undefined,
+  if (!carId) throw new Error("Véhicule requis");
+  const result = await storage.uploadFile({
+    file,
+    bucket: "payment-proofs",
+    buildPath: (ext) => paymentPaths.carPayment(carId, uid, ext),
   });
-  if (error) throw new Error(error.message);
-  return { path, name: file.name };
+  return { path: result.path, name: result.name };
 }
 
 export async function submitBuyerPayment(input: {

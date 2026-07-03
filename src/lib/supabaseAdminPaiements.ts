@@ -4,6 +4,7 @@
  * who attaches a proof file (PDF/image) and a payment reference.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { storage, paymentPaths } from "@/lib/storage";
 
 export type AdminPaymentType =
   | "achat"
@@ -57,7 +58,14 @@ export interface UpsertPaymentInput {
   dueDate?: string | null;
 }
 
-const BUCKET = "payment-proofs";
+
+/**
+ * Admin proof-file kind. Drives the target folder in payment-proofs bucket.
+ *  - "refund"   → admin/refunds/…
+ *  - "generic"  → admin/generic/…  (default catch-all for out-of-band settlements)
+ *  - "carPayment" → cars/{carId}/payments/…  (only when a carId is provided)
+ */
+export type AdminProofKind = "refund" | "generic" | "carPayment";
 
 export const supabaseAdminPaiements = {
   async list(): Promise<AdminPayment[]> {
@@ -126,29 +134,30 @@ export const supabaseAdminPaiements = {
     return all.filter((p) => p.type === "achat" && p.status === "en_attente");
   },
 
-  /** Upload a proof file. Returns the storage path stored as proof_url. */
-  async uploadProof(file: File): Promise<{ path: string; name: string }> {
-    const ext = file.name.split(".").pop() ?? "bin";
-    const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
-      cacheControl: "3600",
-      upsert: false,
-      contentType: file.type || undefined,
-    });
-    if (error) throw new Error(error.message);
-    return { path, name: file.name };
+  /**
+   * Upload an admin-side proof file through the central storage service.
+   * Chooses the folder from `kind`; `carId` is required only for "carPayment".
+   */
+  async uploadProof(
+    file: File,
+    kind: AdminProofKind = "generic",
+    carId?: string | null,
+  ): Promise<{ path: string; name: string }> {
+    const buildPath =
+      kind === "refund"
+        ? (ext: string) => paymentPaths.adminRefund(ext)
+        : kind === "carPayment" && carId
+          ? (ext: string) => paymentPaths.carPayment(carId, "admin", ext)
+          : (ext: string) => paymentPaths.adminGeneric(ext);
+    const r = await storage.uploadFile({ file, bucket: "payment-proofs", buildPath });
+    return { path: r.path, name: r.name };
   },
 
-  /** Create a signed URL (60 min) for downloading/viewing a proof. */
   async signedProofUrl(path: string): Promise<string> {
-    const { data, error } = await supabase.storage
-      .from(BUCKET)
-      .createSignedUrl(path, 3600);
-    if (error) throw new Error(error.message);
-    return data.signedUrl;
+    return storage.signedUrl("payment-proofs", path);
   },
 
   async removeProof(path: string): Promise<void> {
-    await supabase.storage.from(BUCKET).remove([path]);
+    await storage.remove("payment-proofs", [path]);
   },
 };
