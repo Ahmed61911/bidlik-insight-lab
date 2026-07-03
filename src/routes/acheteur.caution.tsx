@@ -1,10 +1,9 @@
 import { createFileRoute, useSearch, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { CheckCircle2, AlertCircle, Shield, Clock, XCircle, FileText, Trash2, Loader2 } from "lucide-react";
+import { useEffect } from "react";
+import { CheckCircle2, AlertCircle, Shield, Clock, XCircle, FileText } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { formatMad } from "@/lib/format";
 import { useMesPaiements, signedPaymentProofUrl } from "@/lib/supabaseAcheteurStore";
-import { supabase } from "@/integrations/supabase/client";
 import type { PaiementStatus } from "@/types/acheteur";
 import { toast } from "sonner";
 
@@ -26,7 +25,6 @@ function CautionPage() {
   const hasPending = !validated && cautionPaiements.some((p) => p.status === "en_attente");
   const wasRejected = !validated && !hasPending && latestCaution?.status === "rejete";
   const { cmi } = useSearch({ from: "/acheteur/caution" });
-  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (cmi === "ok") toast.success("Paiement reçu. Validation en cours…");
@@ -39,20 +37,6 @@ function CautionPage() {
       window.open(url, "_blank", "noopener,noreferrer");
     } catch (e) {
       toast.error((e as Error).message);
-    }
-  };
-
-  const cancelCaution = async (id: string) => {
-    if (!window.confirm("Annuler cette demande de caution ? Cette action est définitive.")) return;
-    setCancellingId(id);
-    try {
-      const { error } = await supabase.rpc("buyer_cancel_caution", { p_id: id } as never);
-      if (error) throw new Error(error.message);
-      toast.success("Demande de caution annulée.");
-    } catch (e) {
-      toast.error((e as Error).message);
-    } finally {
-      setCancellingId(null);
     }
   };
 
@@ -187,22 +171,8 @@ function CautionPage() {
                       </button>
                     )}
                   </div>
-                  <div className="flex shrink-0 flex-col items-end gap-2">
+                  <div className="shrink-0 text-right">
                     <p className="text-lg font-bold text-foreground">{formatMad(p.montant)}</p>
-                    {p.status === "en_attente" && (
-                      <button
-                        onClick={() => cancelCaution(p.id)}
-                        disabled={cancellingId === p.id}
-                        className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2.5 py-1 text-xs font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-60"
-                      >
-                        {cancellingId === p.id ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-3.5 w-3.5" />
-                        )}
-                        Annuler
-                      </button>
-                    )}
                   </div>
                 </div>
               </li>
