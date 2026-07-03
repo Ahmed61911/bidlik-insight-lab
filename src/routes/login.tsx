@@ -75,7 +75,6 @@ function LoginPage() {
     try {
       if (mode === "login") {
         const identifier = String(fd.get("phone")).trim();
-        // Accept either a phone number or, for demo accounts, an email.
         const email = identifier.includes("@")
           ? identifier
           : `${identifier.replace(/\D/g, "")}@bidlic.local`;
@@ -87,18 +86,24 @@ function LoginPage() {
         goAfterAuth(session.user.roles);
       } else {
         const phone = String(fd.get("phone"));
-        const session = await authStore.register({
+        await authStore.register({
           nom: String(fd.get("name")),
           email: `${phone.replace(/\D/g, "")}@bidlic.local`,
           telephone: phone,
           password: String(fd.get("password")),
           role: "acheteur",
         });
-        toast.success("Compte créé avec succès");
-        goAfterAuth(session.user.roles);
+        toast.success("Compte créé — en attente de validation par un administrateur.");
+        navigate({ to: "/inscription-en-attente" });
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Erreur d'authentification");
+      const code = (err as { code?: string })?.code;
+      if (code === "PENDING_ACTIVATION") {
+        toast.info("Votre compte n'est pas encore validé par un administrateur.");
+        navigate({ to: "/inscription-en-attente" });
+      } else {
+        toast.error(err instanceof Error ? err.message : "Erreur d'authentification");
+      }
     } finally {
       setLoading(false);
     }
