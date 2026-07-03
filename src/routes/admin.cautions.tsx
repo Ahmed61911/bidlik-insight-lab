@@ -85,6 +85,28 @@ function AdminCautionsPage() {
     }
   };
 
+  const refund = async (id: string) => {
+    if (!window.confirm("Confirmer le remboursement de cette caution ? L'acheteur devra en redéposer une pour enchérir à nouveau.")) return;
+    const notes = window.prompt("Note / référence du remboursement (optionnel)") ?? "";
+    setBusyId(id);
+    try {
+      const { error } = await supabase.rpc("admin_refund_caution", {
+        p_id: id,
+        p_reference: null,
+        p_proof_url: null,
+        p_proof_name: null,
+        p_notes: notes || null,
+      } as never);
+      if (error) throw new Error(error.message);
+      toast.success("Caution remboursée");
+      refresh();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
