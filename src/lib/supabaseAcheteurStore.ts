@@ -159,6 +159,7 @@ async function refreshPaiements(uid: string) {
   const mapStatus = (s: string): Paiement["status"] => {
     if (s === "paye") return "regle";
     if (s === "rembourse") return "rembourse";
+    if (s === "annule") return "rejete";
     return "en_attente";
   };
   const carIds = Array.from(new Set(((rows ?? []) as Array<{ car_id: string | null }>).map((r) => r.car_id).filter(Boolean) as string[]));
@@ -194,6 +195,8 @@ async function refreshPaiements(uid: string) {
       proofUrl: (r.proof_url as string) ?? undefined,
       proofName: (r.proof_name as string) ?? undefined,
       notes: (r.notes as string) ?? undefined,
+      paymentMethod: (r.payment_method as string) ?? undefined,
+      bank: (r.bank as string) ?? undefined,
     };
   });
   paiements.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

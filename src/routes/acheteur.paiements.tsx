@@ -418,11 +418,12 @@ function Card({ label, value, tone }: { label: string; value: string; tone?: "ok
 }
 
 
-function Badge({ status }: { status: "en_attente" | "regle" | "rembourse" }) {
+function Badge({ status }: { status: "en_attente" | "regle" | "rembourse" | "rejete" }) {
   const map = {
     en_attente: { label: "En attente", cls: "bg-amber-100 text-amber-800" },
-    regle: { label: "Réglé", cls: "bg-emerald-100 text-emerald-800" },
+    regle: { label: "Validée", cls: "bg-emerald-100 text-emerald-800" },
     rembourse: { label: "Remboursé", cls: "bg-secondary text-secondary-foreground" },
+    rejete: { label: "Refusée", cls: "bg-destructive/15 text-destructive" },
   } as const;
   const m = map[status];
   return (
