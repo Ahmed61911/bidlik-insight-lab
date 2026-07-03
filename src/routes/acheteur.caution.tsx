@@ -1,9 +1,10 @@
 import { createFileRoute, useSearch, Link } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { CheckCircle2, AlertCircle, Shield, Clock, XCircle, FileText } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CheckCircle2, AlertCircle, Shield, Clock, XCircle, FileText, Trash2, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { formatMad } from "@/lib/format";
 import { useMesPaiements, signedPaymentProofUrl } from "@/lib/supabaseAcheteurStore";
+import { supabase } from "@/integrations/supabase/client";
 import type { PaiementStatus } from "@/types/acheteur";
 import { toast } from "sonner";
 
