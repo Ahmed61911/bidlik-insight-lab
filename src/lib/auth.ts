@@ -146,12 +146,26 @@ export const authStore = {
     }
 
     if (error) throw new Error(translateAuthError(error.message));
+
+    // Gate: account must be activated by an admin before it can be used.
+    const { data: activeData, error: activeErr } = await supabase.rpc("is_my_account_active");
+    if (activeErr) {
+      await supabase.auth.signOut();
+      throw new Error("Impossible de vérifier votre compte. Réessayez.");
+    }
+    if (activeData !== true) {
+      await supabase.auth.signOut();
+      const err = new Error("PENDING_ACTIVATION") as Error & { code?: string };
+      err.code = "PENDING_ACTIVATION";
+      throw err;
+    }
+
     const session = await sessionFromSupabase();
     if (!session) throw new Error("Connexion impossible.");
     setState({ status: "authenticated", session });
     return session;
   },
-  async register(input: RegisterInput): Promise<AuthSession> {
+  async register(input: RegisterInput): Promise<void> {
     const { error } = await supabase.auth.signUp({
       email: input.email,
       password: input.password,
@@ -161,26 +175,14 @@ export const authStore = {
           nom: input.nom,
           telephone: input.telephone,
           role: input.role,
-          actif: true,
         },
       },
     });
     if (error) throw new Error(translateAuthError(error.message));
-    // With local auto-confirm, Supabase can issue a session immediately.
-    // If not, sign in explicitly so the user can continue offline without an
-    // external email confirmation dependency.
-    let session = await sessionFromSupabase();
-    if (!session) {
-      const { error: signInErr } = await supabase.auth.signInWithPassword({
-        email: input.email,
-        password: input.password,
-      });
-      if (signInErr) throw new Error(translateAuthError(signInErr.message));
-      session = await sessionFromSupabase();
-    }
-    if (!session) throw new Error("Inscription impossible.");
-    setState({ status: "authenticated", session });
-    return session;
+    // Account is created inactive — admin must validate before login.
+    // Sign out immediately in case Supabase auto-issued a session.
+    try { await supabase.auth.signOut(); } catch { /* ignore */ }
+    setState({ status: "anonymous", session: null });
   },
   logout() {
     // Fire-and-forget — flip UI immediately for snappy UX.
