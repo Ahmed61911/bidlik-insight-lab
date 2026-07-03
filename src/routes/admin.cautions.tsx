@@ -93,20 +93,36 @@ function AdminCautionsPage() {
     }
   };
 
-  const refund = async (id: string) => {
-    if (!window.confirm("Confirmer le remboursement de cette caution ? L'acheteur devra en redéposer une pour enchérir à nouveau.")) return;
-    const notes = window.prompt("Note / référence du remboursement (optionnel)") ?? "";
-    setBusyId(id);
+  const openRefund = (p: AdminPayment) => {
+    setRefundTarget(p);
+    setRMethod("virement");
+    setRBank("");
+    setRReference("");
+    setRNotes("");
+    setRFile(null);
+  };
+
+  const submitRefund = async () => {
+    if (!refundTarget) return;
+    if (!rFile) {
+      toast.error("Le justificatif de remboursement est obligatoire");
+      return;
+    }
+    setBusyId(refundTarget.id);
     try {
+      const { path, name } = await supabaseAdminPaiements.uploadProof(rFile);
       const { error } = await supabase.rpc("admin_refund_caution", {
-        p_id: id,
-        p_reference: null,
-        p_proof_url: null,
-        p_proof_name: null,
-        p_notes: notes || null,
+        p_id: refundTarget.id,
+        p_reference: rReference || null,
+        p_proof_url: path,
+        p_proof_name: name,
+        p_notes: rNotes || null,
+        p_payment_method: rMethod,
+        p_bank: rMethod === "virement" || rMethod === "cheque" ? (rBank || null) : null,
       } as never);
       if (error) throw new Error(error.message);
       toast.success("Caution remboursée");
+      setRefundTarget(null);
       refresh();
     } catch (e) {
       toast.error((e as Error).message);
@@ -114,6 +130,7 @@ function AdminCautionsPage() {
       setBusyId(null);
     }
   };
+
 
   return (
     <div className="space-y-4">
