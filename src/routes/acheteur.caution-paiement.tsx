@@ -1,36 +1,37 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, CreditCard, Lock, Loader2, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CreditCard, Loader2, ShieldCheck, Upload, Building2, FileCheck2, Wallet, Lock } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { formatMad } from "@/lib/format";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const CAUTION_AMOUNT = 5000;
+const BUCKET = "payment-proofs";
+
+type Method = "virement" | "cheque" | "especes";
 
 export const Route = createFileRoute("/acheteur/caution-paiement")({
   head: () => ({
     meta: [
-      { title: "Paiement de la caution — Bidlik" },
-      { name: "description", content: "Déposez votre caution remboursable par carte bancaire (CMI 3D Secure) pour participer aux enchères." },
+      { title: "Dépôt de la caution — Bidlik" },
+      { name: "description", content: "Déposez votre caution remboursable par virement, chèque ou espèces. Un administrateur validera votre justificatif." },
     ],
   }),
   component: CautionPaiementPage,
 });
 
-type Profile = {
-  nom: string | null;
-  email: string | null;
-  telephone: string | null;
-  ville: string | null;
-};
-
 function CautionPaiementPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(false);
+
+  const [method, setMethod] = useState<Method>("virement");
+  const [reference, setReference] = useState("");
+  const [bank, setBank] = useState("");
+  const [notes, setNotes] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const [accept, setAccept] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (user?.cautionValidee) {
@@ -39,69 +40,49 @@ function CautionPaiementPage() {
     }
   }, [user, navigate]);
 
-  useEffect(() => {
-    (async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      const uid = sess.session?.user.id;
-      if (!uid) return;
-      const { data } = await supabase
-        .from("profiles")
-        .select("nom, email, telephone, ville")
-        .eq("user_id", uid)
-        .maybeSingle();
-      if (data) setProfile(data as Profile);
-    })();
-  }, []);
+  async function submit() {
+    if (!file) return toast.error("Veuillez joindre un justificatif (image ou PDF).");
+    if (!accept) return toast.error("Veuillez accepter les conditions.");
+    if (method !== "especes" && !reference.trim())
+      return toast.error("Merci d'indiquer la référence du paiement.");
 
-  async function payerMaintenant() {
-    if (!accept) {
-      toast.error("Veuillez accepter les conditions pour continuer.");
-      return;
-    }
     setLoading(true);
     try {
       const { data: sess } = await supabase.auth.getSession();
-      const token = sess.session?.access_token;
-      if (!token) {
+      const uid = sess.session?.user.id;
+      if (!uid) {
         toast.error("Veuillez vous reconnecter.");
         setLoading(false);
         return;
       }
-      const res = await fetch("/api/public/cmi-init", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ type: "caution", amount: CAUTION_AMOUNT }),
+      const ext = file.name.split(".").pop() || "bin";
+      const path = `${uid}/caution/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const up = await supabase.storage.from(BUCKET).upload(path, file, {
+        contentType: file.type || undefined,
+        cacheControl: "3600",
+        upsert: false,
       });
-      const data = await res.json();
-      if (!res.ok || !data?.ok) {
-        toast.error(data?.error || "Impossible d'initier le paiement.");
-        setLoading(false);
-        return;
-      }
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = data.action;
-      form.style.display = "none";
-      for (const [k, v] of Object.entries(data.fields as Record<string, string>)) {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = k;
-        input.value = String(v ?? "");
-        form.appendChild(input);
-      }
-      document.body.appendChild(form);
-      form.submit();
+      if (up.error) throw new Error(up.error.message);
+
+      const { error } = await supabase.rpc("buyer_submit_caution", {
+        p_amount: CAUTION_AMOUNT,
+        p_reference: reference.trim(),
+        p_proof_url: path,
+        p_proof_name: file.name,
+        p_notes: notes.trim(),
+        p_payment_method: method,
+        p_bank: bank.trim(),
+      } as never);
+      if (error) throw new Error(error.message);
+
+      toast.success("Justificatif envoyé. Un administrateur va valider votre caution.");
+      navigate({ to: "/acheteur/caution" });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erreur réseau");
+      toast.error(e instanceof Error ? e.message : "Erreur d'envoi");
+    } finally {
       setLoading(false);
     }
   }
-
-  const fees = 0;
-  const total = CAUTION_AMOUNT + fees;
 
   return (
     <div className="space-y-4">
@@ -114,77 +95,117 @@ function CautionPaiementPage() {
       </Link>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        {/* Left: summary + method */}
         <div className="space-y-4 lg:col-span-2">
           <section className="rounded-xl border border-border bg-card p-4 shadow-sm sm:rounded-2xl sm:p-6">
-            <h1 className="text-xl font-semibold text-foreground">Paiement de la caution</h1>
+            <h1 className="text-xl font-semibold text-foreground">Dépôt de la caution</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Caution remboursable requise pour participer aux enchères. Restituée
-              intégralement si vous ne remportez aucune enchère.
-            </p>
-
-            <div className="mt-5 space-y-3 rounded-lg border border-border bg-background p-4">
-              <Row label="Caution remboursable" value={formatMad(CAUTION_AMOUNT)} />
-              <Row label="Frais de service" value={formatMad(fees)} muted />
-              <div className="my-2 border-t border-border" />
-              <Row label="Total à payer" value={formatMad(total)} bold />
-            </div>
-          </section>
-
-          <section className="rounded-xl border border-border bg-card p-4 shadow-sm sm:rounded-2xl sm:p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Moyen de paiement
-            </h2>
-            <div className="mt-3 flex items-center gap-3 rounded-lg border-2 border-accent bg-accent/5 p-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-accent text-accent-foreground">
-                <CreditCard className="h-5 w-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-foreground">Carte bancaire (CMI)</p>
-                <p className="text-xs text-muted-foreground">
-                  Visa, Mastercard, CMI — paiement sécurisé 3D Secure
-                </p>
-              </div>
-              <CheckCircle2 className="h-5 w-5 text-accent" />
-            </div>
-            <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Lock className="h-3.5 w-3.5" />
-              Vos données de carte ne transitent jamais par Bidlik. Elles sont
-              saisies directement sur la page sécurisée de CMI.
+              Caution remboursable de <span className="font-semibold text-foreground">{formatMad(CAUTION_AMOUNT)}</span> requise pour participer aux enchères.
+              Choisissez votre mode de paiement et téléversez le justificatif. Votre caution sera activée après validation par un administrateur.
             </p>
           </section>
 
           <section className="rounded-xl border border-border bg-card p-4 shadow-sm sm:rounded-2xl sm:p-6">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Informations de facturation
+              Mode de paiement
             </h2>
-            <dl className="mt-3 grid gap-3 sm:grid-cols-2">
-              <Info label="Nom" value={profile?.nom} />
-              <Info label="Email" value={profile?.email} />
-              <Info label="Téléphone" value={profile?.telephone} />
-              <Info label="Ville" value={profile?.ville} />
-            </dl>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Ces informations proviennent de votre profil. Vous pouvez les
-              modifier dans votre compte avant de payer.
-            </p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <MethodOption
+                active={method === "virement"}
+                onClick={() => setMethod("virement")}
+                icon={<Building2 className="h-5 w-5" />}
+                title="Virement bancaire"
+                subtitle="Dépôt en caisse ou virement"
+              />
+              <MethodOption
+                active={method === "cheque"}
+                onClick={() => setMethod("cheque")}
+                icon={<FileCheck2 className="h-5 w-5" />}
+                title="Chèque"
+                subtitle="Remise ou dépôt du chèque"
+              />
+              <MethodOption
+                active={method === "especes"}
+                onClick={() => setMethod("especes")}
+                icon={<Wallet className="h-5 w-5" />}
+                title="Espèces"
+                subtitle="Dépôt en agence / caisse"
+              />
+              <MethodOption
+                disabled
+                icon={<CreditCard className="h-5 w-5" />}
+                title="Carte bancaire (CMI)"
+                subtitle="Bientôt disponible"
+              />
+            </div>
+          </section>
+
+          <section className="rounded-xl border border-border bg-card p-4 shadow-sm sm:rounded-2xl sm:p-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Informations du paiement
+            </h2>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {method !== "especes" && (
+                <Field label={method === "cheque" ? "Numéro du chèque" : "Référence du virement"} required>
+                  <input
+                    value={reference}
+                    onChange={(e) => setReference(e.target.value)}
+                    className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    placeholder={method === "cheque" ? "N° du chèque" : "Ex: VIR-2025-01234"}
+                  />
+                </Field>
+              )}
+              {method !== "especes" && (
+                <Field label="Banque">
+                  <input
+                    value={bank}
+                    onChange={(e) => setBank(e.target.value)}
+                    className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    placeholder="Nom de la banque"
+                  />
+                </Field>
+              )}
+              <Field label="Notes (facultatif)" className="sm:col-span-2">
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={3}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  placeholder="Toute information utile pour l'administrateur"
+                />
+              </Field>
+              <Field label="Justificatif (image ou PDF)" required className="sm:col-span-2">
+                <label className="flex cursor-pointer items-center justify-between gap-3 rounded-md border border-dashed border-border bg-background px-3 py-3 text-sm hover:bg-muted/50">
+                  <span className="flex items-center gap-2 text-muted-foreground">
+                    <Upload className="h-4 w-4" />
+                    {file ? file.name : "Cliquez pour sélectionner un fichier"}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*,application/pdf"
+                    className="hidden"
+                    onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                  />
+                </label>
+              </Field>
+            </div>
           </section>
         </div>
 
-        {/* Right: action card */}
         <aside className="lg:col-span-1">
           <div className="sticky top-4 space-y-4 rounded-xl border border-border bg-card p-4 shadow-sm sm:rounded-2xl sm:p-6">
             <div className="flex items-center gap-2 text-emerald-700">
               <ShieldCheck className="h-5 w-5" />
-              <span className="text-sm font-semibold">Paiement 100% sécurisé</span>
+              <span className="text-sm font-semibold">Validation manuelle</span>
             </div>
 
             <div className="rounded-lg bg-background p-3 text-center">
-              <p className="text-xs text-muted-foreground">Montant à payer</p>
-              <p className="mt-1 text-3xl font-bold text-foreground">
-                {formatMad(total)}
-              </p>
+              <p className="text-xs text-muted-foreground">Montant de la caution</p>
+              <p className="mt-1 text-3xl font-bold text-foreground">{formatMad(CAUTION_AMOUNT)}</p>
             </div>
+
+            <p className="text-xs text-muted-foreground">
+              Après envoi, votre demande apparaît comme « en attente ». Elle sera activée dès qu'un administrateur aura vérifié le justificatif.
+            </p>
 
             <label className="flex items-start gap-2 text-xs text-muted-foreground">
               <input
@@ -194,34 +215,19 @@ function CautionPaiementPage() {
                 className="mt-0.5 h-4 w-4 shrink-0 rounded border-border"
               />
               <span>
-                J'accepte que ce montant soit débité de ma carte au titre d'une
-                caution remboursable et confirme les{" "}
+                Je certifie que les informations et le justificatif fournis sont exacts et j'accepte les{" "}
                 <a href="#" className="underline">conditions générales</a>.
               </span>
             </label>
 
             <button
-              onClick={payerMaintenant}
-              disabled={loading || !accept}
+              onClick={submit}
+              disabled={loading || !accept || !file}
               className="flex w-full items-center justify-center gap-2 rounded-md bg-accent px-4 py-3 text-sm font-semibold text-accent-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Lock className="h-4 w-4" />
-              )}
-              Payer {formatMad(total)}
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
+              Envoyer le justificatif
             </button>
-
-            <p className="text-center text-[11px] text-muted-foreground">
-              Vous serez redirigé vers la page sécurisée de CMI.
-            </p>
-
-            <div className="flex items-center justify-center gap-3 border-t border-border pt-3">
-              <Badge>VISA</Badge>
-              <Badge>Mastercard</Badge>
-              <Badge>CMI</Badge>
-            </div>
           </div>
         </aside>
       </div>
@@ -229,50 +235,64 @@ function CautionPaiementPage() {
   );
 }
 
-function Row({
-  label,
-  value,
-  bold,
-  muted,
+function MethodOption({
+  active,
+  disabled,
+  onClick,
+  icon,
+  title,
+  subtitle,
 }: {
-  label: string;
-  value: string;
-  bold?: boolean;
-  muted?: boolean;
+  active?: boolean;
+  disabled?: boolean;
+  onClick?: () => void;
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
 }) {
   return (
-    <div className="flex items-center justify-between text-sm">
-      <span className={muted ? "text-muted-foreground" : "text-foreground"}>{label}</span>
-      <span
-        className={
-          bold
-            ? "text-lg font-bold text-foreground"
-            : muted
-              ? "text-muted-foreground"
-              : "font-semibold text-foreground"
-        }
-      >
-        {value}
-      </span>
-    </div>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={[
+        "flex items-start gap-3 rounded-lg border p-3 text-left transition-colors",
+        disabled
+          ? "cursor-not-allowed border-border bg-muted/40 opacity-60"
+          : active
+            ? "border-accent bg-accent/5"
+            : "border-border bg-background hover:bg-muted/50",
+      ].join(" ")}
+    >
+      <div className={[
+        "flex h-10 w-10 items-center justify-center rounded-md",
+        active ? "bg-accent text-accent-foreground" : "bg-secondary text-foreground",
+      ].join(" ")}>{icon}</div>
+      <div className="min-w-0 flex-1">
+        <p className="font-semibold text-foreground">{title}</p>
+        <p className="text-xs text-muted-foreground">{subtitle}</p>
+      </div>
+    </button>
   );
 }
 
-function Info({ label, value }: { label: string; value?: string | null }) {
+function Field({
+  label,
+  required,
+  className,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  className?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <div>
-      <dt className="text-xs uppercase tracking-wider text-muted-foreground">{label}</dt>
-      <dd className="mt-0.5 text-sm font-medium text-foreground">
-        {value || <span className="text-muted-foreground">—</span>}
-      </dd>
-    </div>
-  );
-}
-
-function Badge({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="rounded border border-border bg-background px-2 py-1 text-[10px] font-bold tracking-wider text-muted-foreground">
+    <div className={className}>
+      <label className="mb-1 block text-xs font-medium text-foreground">
+        {label} {required && <span className="text-destructive">*</span>}
+      </label>
       {children}
-    </span>
+    </div>
   );
 }
