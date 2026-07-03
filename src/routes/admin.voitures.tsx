@@ -805,6 +805,69 @@ function CarPreviewDialog({
               )}
             </div>
           </div>
+
+          {/* Expert photos — admin-only */}
+          <div className="md:col-span-2">
+            <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+              <div className="mb-3 flex items-center gap-2">
+                <Lock className="h-4 w-4 text-amber-600" />
+                <h4 className="text-sm font-semibold text-foreground">Photos d'expertise</h4>
+                <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-semibold text-amber-700 dark:text-amber-400">
+                  Admin uniquement
+                </span>
+                {expertImages.length > 0 && (
+                  <span className="ml-auto text-xs text-muted-foreground">{expertImages.length} photo{expertImages.length > 1 ? "s" : ""}</span>
+                )}
+              </div>
+              {expertImages.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Aucune photo d'expertise soumise par l'expert.
+                </p>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-secondary">
+                    <img
+                      src={expertImages[expertImgIdx]}
+                      alt={`Expertise ${expertImgIdx + 1}/${expertImages.length}`}
+                      className="h-full w-full object-cover"
+                    />
+                    {expertImages.length > 1 && (
+                      <>
+                        <button
+                          onClick={() => setExpertImgIdx((i) => (i - 1 + expertImages.length) % expertImages.length)}
+                          className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-1.5 text-white hover:bg-black/70"
+                          aria-label="Précédent"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => setExpertImgIdx((i) => (i + 1) % expertImages.length)}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-1.5 text-white hover:bg-black/70"
+                          aria-label="Suivant"
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </button>
+                        <span className="absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white">
+                          {expertImgIdx + 1} / {expertImages.length}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  <div className="grid max-h-72 grid-cols-3 gap-1.5 overflow-y-auto sm:grid-cols-2">
+                    {expertImages.map((src, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setExpertImgIdx(i)}
+                        className={`aspect-square overflow-hidden rounded-md border-2 transition-colors ${i === expertImgIdx ? "border-accent" : "border-transparent opacity-70 hover:opacity-100"}`}
+                      >
+                        <img src={src} alt="" className="h-full w-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Footer actions */}
