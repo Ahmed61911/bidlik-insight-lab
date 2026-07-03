@@ -4,6 +4,7 @@
  * who attaches a proof file (PDF/image) and a payment reference.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { storage, paymentPaths } from "@/lib/storage";
 
 export type AdminPaymentType =
   | "achat"
@@ -57,7 +58,6 @@ export interface UpsertPaymentInput {
   dueDate?: string | null;
 }
 
-import { storage, paymentPaths } from "@/lib/storage";
 
 /**
  * Admin proof-file kind. Drives the target folder in payment-proofs bucket.

@@ -259,7 +259,7 @@ function SubmitPaymentDialog({
       return toast.error("Date d'échéance du chèque requise");
     setSaving(true);
     try {
-      const up = await uploadBuyerProof(file);
+      const up = await uploadBuyerProof(file, item.carId);
       await submitBuyerPayment({
         auctionId: item.auctionId,
         amount,
