@@ -1,10 +1,9 @@
 import { createFileRoute, useSearch, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { CheckCircle2, AlertCircle, Shield, Loader2 } from "lucide-react";
+import { CheckCircle2, AlertCircle, Shield, Clock, XCircle, FileText } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { formatMad } from "@/lib/format";
-import { useMesPaiements } from "@/lib/supabaseAcheteurStore";
-import { supabase } from "@/integrations/supabase/client";
+import { useMesPaiements, signedPaymentProofUrl } from "@/lib/supabaseAcheteurStore";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/acheteur/caution")({
