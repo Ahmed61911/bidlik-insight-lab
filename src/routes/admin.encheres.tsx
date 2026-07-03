@@ -443,38 +443,27 @@ function MultiCarEventDialog({
                           <p className="text-sm font-semibold text-foreground">
                             <span className="font-mono text-primary">#{c.id}</span> — {c.marque} {c.modele} ({c.annee})
                           </p>
-                          <p className="font-mono text-[11px] text-muted-foreground">
-                            ID : {c.id} · Prix attendu : {formatMad(c.prixAttendu)}
-                          </p>
+                          <p className="font-mono text-[11px] text-muted-foreground">ID : {c.id}</p>
+                          <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                            <div className="rounded-md border border-border bg-muted/30 px-2 py-1">
+                              <span className="block text-[10px] uppercase text-muted-foreground">Prix attendu (plancher)</span>
+                              <span className="font-semibold tabular-nums text-foreground">
+                                {c.prixPlancher != null ? formatMad(c.prixPlancher) : "—"}
+                              </span>
+                            </div>
+                            <div className="rounded-md border border-border bg-muted/30 px-2 py-1">
+                              <span className="block text-[10px] uppercase text-muted-foreground">Prix départ (minimum)</span>
+                              <span className="font-semibold tabular-nums text-foreground">
+                                {c.prixMinimum != null ? formatMad(c.prixMinimum) : "—"}
+                              </span>
+                            </div>
+                          </div>
+                          {(c.prixPlancher == null || c.prixMinimum == null) && (
+                            <p className="mt-1 text-[11px] text-destructive">
+                              ⚠ Renseignez prix plancher et prix minimum dans la fiche voiture avant de créer l'enchère.
+                            </p>
+                          )}
                         </div>
-                        <label className="text-right text-xs">
-                          <span className="block text-[10px] text-muted-foreground">Prix départ (DH)</span>
-                          <input
-                            type="number"
-                            min={1}
-                            step={1000}
-                            value={s?.price ?? 0}
-                            onChange={(e) => setPrice(c.id, +e.target.value)}
-                            disabled={!s?.picked}
-                            onClick={(e) => e.stopPropagation()}
-                            className="mt-0.5 h-8 w-28 rounded-md border border-input bg-background px-2 text-right text-sm disabled:opacity-50"
-                          />
-                        </label>
-                        {auctionType === "fermee" && (
-                          <label className="text-right text-xs">
-                            <span className="block text-[10px] text-muted-foreground">Prix min. accepté (DH)</span>
-                            <input
-                              type="number"
-                              min={1}
-                              step={1000}
-                              value={s?.minAccepted ?? 0}
-                              onChange={(e) => setMinAccepted(c.id, +e.target.value)}
-                              disabled={!s?.picked}
-                              onClick={(e) => e.stopPropagation()}
-                              className="mt-0.5 h-8 w-28 rounded-md border border-accent/40 bg-background px-2 text-right text-sm disabled:opacity-50"
-                            />
-                          </label>
-                        )}
                       </label>
                     </li>
                   );
