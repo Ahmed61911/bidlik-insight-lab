@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, LogOut, User } from "lucide-react";
+import { ChevronDown, LogOut, Settings, User } from "lucide-react";
 import logo from "@/assets/bidlic-logo.svg";
 import logoDark from "@/assets/bidlic-logo-dark.png";
 import { ThemeToggle } from "@/components/ThemeToggle";
