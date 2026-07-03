@@ -26,6 +26,7 @@ function CautionPage() {
   const hasPending = !validated && cautionPaiements.some((p) => p.status === "en_attente");
   const wasRejected = !validated && !hasPending && latestCaution?.status === "rejete";
   const { cmi } = useSearch({ from: "/acheteur/caution" });
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (cmi === "ok") toast.success("Paiement reçu. Validation en cours…");
@@ -38,6 +39,20 @@ function CautionPage() {
       window.open(url, "_blank", "noopener,noreferrer");
     } catch (e) {
       toast.error((e as Error).message);
+    }
+  };
+
+  const cancelCaution = async (id: string) => {
+    if (!window.confirm("Annuler cette demande de caution ? Cette action est définitive.")) return;
+    setCancellingId(id);
+    try {
+      const { error } = await supabase.rpc("buyer_cancel_caution", { p_id: id } as never);
+      if (error) throw new Error(error.message);
+      toast.success("Demande de caution annulée.");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setCancellingId(null);
     }
   };
 
