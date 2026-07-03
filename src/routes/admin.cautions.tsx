@@ -29,11 +29,19 @@ const STATUS_TONE: Record<AdminPaymentStatus, string> = {
   annule: "bg-destructive/15 text-destructive",
 };
 
+type RefundMethod = "virement" | "cheque" | "especes";
+
 function AdminCautionsPage() {
   const [items, setItems] = useState<AdminPayment[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"en_attente" | "all">("en_attente");
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [refundTarget, setRefundTarget] = useState<AdminPayment | null>(null);
+  const [rMethod, setRMethod] = useState<RefundMethod>("virement");
+  const [rBank, setRBank] = useState("");
+  const [rReference, setRReference] = useState("");
+  const [rNotes, setRNotes] = useState("");
+  const [rFile, setRFile] = useState<File | null>(null);
 
   const refresh = () => {
     setLoading(true);
