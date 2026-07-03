@@ -610,6 +610,8 @@ function CarPreviewDialog({
   const [imgIdx, setImgIdx] = useState(0);
 
   const images = car.images && car.images.length > 0 ? car.images : [];
+  const expertImages = car.expertImages && car.expertImages.length > 0 ? car.expertImages : [];
+  const [expertImgIdx, setExpertImgIdx] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
