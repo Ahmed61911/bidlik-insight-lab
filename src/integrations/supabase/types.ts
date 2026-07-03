@@ -1183,6 +1183,10 @@ export type Database = {
         }
       }
       tick_auctions: { Args: never; Returns: undefined }
+      update_my_profile: {
+        Args: { p_nom?: string; p_telephone?: string; p_ville?: string }
+        Returns: undefined
+      }
       validate_auction: {
         Args: { p_auction_id: string; p_decision: string }
         Returns: {

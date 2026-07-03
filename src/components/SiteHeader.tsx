@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, LogOut, User } from "lucide-react";
+import { ChevronDown, LogOut, Settings, User } from "lucide-react";
 import logo from "@/assets/bidlic-logo.svg";
 import logoDark from "@/assets/bidlic-logo-dark.png";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -166,6 +166,14 @@ function UserMenu({ name, role, onLogout }: { name: string; role: Role; onLogout
           >
             <User className="h-4 w-4" />
             Mon espace
+          </Link>
+          <Link
+            to="/mon-compte"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground hover:bg-secondary"
+          >
+            <Settings className="h-4 w-4" />
+            Mon compte
           </Link>
           <button
             onClick={onLogout}
