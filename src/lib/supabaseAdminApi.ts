@@ -291,9 +291,9 @@ async function listCars(): Promise<(Car & { proprietaireId: string })[]> {
 async function createCar(
   input: Partial<Car> & Pick<Car, "marque" | "modele" | "annee" | "prixAttendu">,
 ): Promise<Car> {
-  const { data: existing, error: listErr } = await supabase.from("cars").select("id");
+  const { data: existing, error: listErr } = await supabase.rpc("admin_list_cars");
   if (listErr) throw new Error(listErr.message);
-  const id = nextCarId((existing ?? []).map((c) => c.id as string));
+  const id = nextCarId(((existing as CarRow[]) ?? []).map((c) => c.id));
   const payload = {
     id,
     ...carPatchToRow({ ...input, status: "open" }),
