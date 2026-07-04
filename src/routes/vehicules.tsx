@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Search, Car as CarIcon, Hash } from "lucide-react";
 import { api } from "@/lib/api";
 import type { Auction } from "@/types/auction";
-import { formatMad, formatDateTime, priceTier, priceTierTextClass, buyerPriceTier, buyerPriceTierTextClass } from "@/lib/format";
+import { formatMad, formatDateTime, listingPriceTier, priceTierTextClass } from "@/lib/format";
 import { requireAuth } from "@/lib/routeGuard";
 import { useAuth } from "@/lib/auth";
 import { supabaseVendeurApi } from "@/lib/supabaseVendeurApi";
@@ -149,7 +149,7 @@ function VehiculesPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((l) => (
-          <VehiculeCard key={l.id} lot={l} isVendeur={isVendeurOnly} />
+          <VehiculeCard key={l.id} lot={l} />
         ))}
       </div>
 
@@ -163,13 +163,11 @@ function VehiculesPage() {
   );
 }
 
-function VehiculeCard({ lot, isVendeur }: { lot: Auction; isVendeur: boolean }) {
+function VehiculeCard({ lot }: { lot: Auction }) {
   const c = lot.car;
   const img = c.images?.[0];
-  const priceClass = c.prixAttendu
-    ? isVendeur
-      ? priceTierTextClass(priceTier(lot.currentPrice, c.prixAttendu))
-      : buyerPriceTierTextClass(buyerPriceTier(lot.currentPrice, c.prixAttendu))
+  const priceClass = (c.prixPlancher ?? c.prixAttendu)
+    ? priceTierTextClass(listingPriceTier(lot.currentPrice, c))
     : "text-foreground";
   return (
     <article className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md">

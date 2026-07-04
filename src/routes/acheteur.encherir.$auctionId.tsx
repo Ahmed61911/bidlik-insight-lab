@@ -8,9 +8,9 @@ import type { Auction, Bid } from "@/types/auction";
 import {
   formatMad,
   formatDateTime,
-  buyerPriceTier,
-  buyerPriceTierGradientClass,
-  buyerPriceTierTextClass,
+  listingPriceTier,
+  priceTierGradientClass,
+  priceTierTextClass,
 } from "@/lib/format";
 import { Countdown } from "@/components/Countdown";
 import { CarGallery } from "@/components/CarGallery";
@@ -85,7 +85,7 @@ function EncherirPage() {
   const isSealed = auction.auctionType === "fermee";
   const displayPrice = isSealed ? (auction.car.minimumAcceptedPrice ?? auction.startingPrice) : auction.currentPrice;
   const priceLabel = isSealed ? "Prix minimum" : "Offre actuelle";
-  const tier = buyerPriceTier(displayPrice, auction.car.prixAttendu);
+  const tier = listingPriceTier(displayPrice, auction.car);
   const myLastBid = bids.find((b) => b.bidderId === "me");
   const isLeader = auction.topBidderId === "me";
 
@@ -215,7 +215,7 @@ function EncherirPage() {
         key={pulseKey}
         className={[
           "overflow-hidden rounded-xl shadow-[var(--shadow-elevated)] sm:rounded-2xl",
-          buyerPriceTierGradientClass(tier),
+          priceTierGradientClass(tier),
           "animate-pulse-bid",
         ].join(" ")}
       >
@@ -360,7 +360,7 @@ function EncherirPage() {
                         </div>
                       </div>
                       <span
-                        className={`font-bold ${buyerPriceTierTextClass(buyerPriceTier(b.amount, auction.car.prixAttendu))}`}
+                        className={`font-bold ${priceTierTextClass(listingPriceTier(b.amount, auction.car))}`}
                       >
                         {formatMad(b.amount)}
                       </span>

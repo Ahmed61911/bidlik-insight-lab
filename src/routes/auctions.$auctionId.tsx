@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { subscribeToAuction } from "@/lib/realtime";
 import type { Auction, Bid } from "@/types/auction";
-import { formatMad, formatDateTime, priceTier, priceTierTextClass, buyerPriceTier, buyerPriceTierGradientClass, buyerPriceTierTextClass } from "@/lib/format";
+import { formatMad, formatDateTime, listingPriceTier, priceTierTextClass, priceTierGradientClass } from "@/lib/format";
 import { Countdown } from "@/components/Countdown";
 import { CarGallery } from "@/components/CarGallery";
 import { SealedBidPanel } from "@/components/SealedBidPanel";
@@ -108,19 +108,10 @@ function AuctionDetailPage() {
 
   const isLive = auction.status === "live";
   const car = auction.car;
-  const useSellerPriceColors = isVendeur && !isAdmin && !isAcheteur;
-  const currentSellerTier = priceTier(auction.currentPrice, car.prixAttendu);
-  const currentBuyerTier = buyerPriceTier(auction.currentPrice, car.prixAttendu);
-  const currentGradientClass = useSellerPriceColors
-    ? currentSellerTier === "below"
-      ? "bid-gradient-below"
-      : currentSellerTier === "near"
-        ? "bid-gradient-fair"
-        : "bid-gradient-above"
-    : buyerPriceTierGradientClass(currentBuyerTier);
-  const bidAmountClass = (amount: number) => useSellerPriceColors
-    ? priceTierTextClass(priceTier(amount, car.prixAttendu))
-    : buyerPriceTierTextClass(buyerPriceTier(amount, car.prixAttendu));
+  const currentTier = listingPriceTier(auction.currentPrice, car);
+  const currentGradientClass = priceTierGradientClass(currentTier);
+  const bidAmountClass = (amount: number) =>
+    priceTierTextClass(listingPriceTier(amount, car));
 
   async function placeBid(amount: number, isAuto = false) {
     if (submitting) return;

@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import type { Auction } from "@/types/auction";
-import { formatMad, buyerPriceTier, buyerPriceTierGradientClass, timeRemaining } from "@/lib/format";
+import { formatMad, listingPriceTier, priceTierGradientClass, timeRemaining } from "@/lib/format";
 import { subscribeToAuction } from "@/lib/realtime";
 import { Countdown } from "./Countdown";
 
@@ -46,7 +46,7 @@ export function LotCard({ auction: initial }: { auction: Auction }) {
   const isSealed = auction.auctionType === "fermee";
   const displayPrice = isSealed ? (car.minimumAcceptedPrice ?? auction.startingPrice) : currentPrice;
   const priceLabel = isSealed ? "Prix minimum" : "Offre actuelle";
-  const tier = buyerPriceTier(displayPrice, car.prixAttendu);
+  const tier = listingPriceTier(displayPrice, car);
   const isLive = status === "live";
   const isScheduled = status === "scheduled";
   const img = car.images?.[0];
@@ -114,7 +114,7 @@ export function LotCard({ auction: initial }: { auction: Auction }) {
           key={pulse}
           className={[
             "rounded-lg px-2.5 py-2 animate-pulse-bid",
-            buyerPriceTierGradientClass(tier),
+            priceTierGradientClass(tier),
           ].join(" ")}
         >
           <p className={["text-[9px] font-semibold uppercase tracking-wider", "text-white/85"].join(" ")}>

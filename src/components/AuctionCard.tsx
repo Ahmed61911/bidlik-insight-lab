@@ -2,8 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { Auction } from "@/types/auction";
-import { formatMad, buyerPriceTier, buyerPriceTierGradientClass } from "@/lib/format";
-import { useAuth } from "@/lib/auth";
+import { formatMad, listingPriceTier, priceTierGradientClass } from "@/lib/format";
+
 import { Countdown } from "./Countdown";
 
 interface Props {
@@ -12,12 +12,10 @@ interface Props {
 
 export function AuctionCard({ auction }: Props) {
   const { car, currentPrice, bidCount, status } = auction;
-  const { hasRole } = useAuth();
-  const isAdmin = hasRole("admin");
   const isSealed = auction.auctionType === "fermee";
   const displayPrice = isSealed ? (car.minimumAcceptedPrice ?? auction.startingPrice) : currentPrice;
   const priceLabel = isSealed ? "Prix minimum" : "Offre actuelle";
-  const tier = buyerPriceTier(displayPrice, car.prixAttendu);
+  const tier = listingPriceTier(displayPrice, car);
   const isLive = status === "live";
   const images = car.images ?? [];
   const [activeIdx, setActiveIdx] = useState(0);
@@ -129,13 +127,13 @@ export function AuctionCard({ auction }: Props) {
         <div
           className={[
             "rounded-lg px-3 py-2.5",
-            isAdmin ? buyerPriceTierGradientClass(tier) : "bg-secondary",
+            priceTierGradientClass(tier),
           ].join(" ")}
         >
-          <p className={["text-[10px] font-semibold uppercase tracking-wider", isAdmin ? "text-white/85" : "text-muted-foreground"].join(" ")}>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-white/85">
             {priceLabel}
           </p>
-          <p className={["text-lg font-extrabold tracking-tight", isAdmin ? "text-white" : "text-foreground"].join(" ")}>
+          <p className="text-lg font-extrabold tracking-tight text-white">
             {formatMad(displayPrice)}
           </p>
         </div>

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { supabaseAdminApi } from "@/lib/supabaseAdminApi";
 import { api } from "@/lib/api";
 import type { Auction, AuctionEvent, Car } from "@/types/auction";
-import { formatMad, buyerPriceTier, buyerPriceTierTextClass } from "@/lib/format";
+import { formatMad, listingPriceTier, priceTierTextClass } from "@/lib/format";
 import { Countdown } from "@/components/Countdown";
 import {
   Table,
@@ -151,7 +151,7 @@ function AdminCreateAuctionPage() {
                   </div>
                   <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
                     <div><p className="text-[10px] uppercase text-muted-foreground">Départ</p><p className="font-medium tabular-nums">{formatMad(a.startingPrice)}</p></div>
-                    <div><p className="text-[10px] uppercase text-muted-foreground">Actuel</p><p className={`font-semibold tabular-nums ${buyerPriceTierTextClass(buyerPriceTier(a.currentPrice, a.car.prixAttendu))}`}>{formatMad(a.currentPrice)}</p></div>
+                    <div><p className="text-[10px] uppercase text-muted-foreground">Actuel</p><p className={`font-semibold tabular-nums ${priceTierTextClass(listingPriceTier(a.currentPrice, a.car))}`}>{formatMad(a.currentPrice)}</p></div>
                     <div><p className="text-[10px] uppercase text-muted-foreground">Démarrage</p><p className="text-muted-foreground">{new Date(a.startsAt).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}</p></div>
                     <div><p className="text-[10px] uppercase text-muted-foreground">Fin dans</p><Countdown endsAt={a.endsAt} compact /></div>
                   </div>
@@ -207,7 +207,7 @@ function AdminCreateAuctionPage() {
                         )}
                       </TableCell>
                       <TableCell className="text-right tabular-nums">{formatMad(a.startingPrice)}</TableCell>
-                      <TableCell className={`text-right tabular-nums font-semibold ${buyerPriceTierTextClass(buyerPriceTier(a.currentPrice, a.car.prixAttendu))}`}>{formatMad(a.currentPrice)}</TableCell>
+                      <TableCell className={`text-right tabular-nums font-semibold ${priceTierTextClass(listingPriceTier(a.currentPrice, a.car))}`}>{formatMad(a.currentPrice)}</TableCell>
                       <TableCell className="text-right text-xs text-muted-foreground">
                         {new Date(a.startsAt).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}
                       </TableCell>
