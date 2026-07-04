@@ -48,6 +48,7 @@ import { Route as AdminCautionsRouteImport } from './routes/admin.cautions'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as AcheteurPaiementsRouteImport } from './routes/acheteur.paiements'
 import { Route as AcheteurNotificationsRouteImport } from './routes/acheteur.notifications'
+import { Route as AcheteurGagneesRouteImport } from './routes/acheteur.gagnees'
 import { Route as AcheteurEncheresRouteImport } from './routes/acheteur.encheres'
 import { Route as AcheteurCautionPaiementRouteImport } from './routes/acheteur.caution-paiement'
 import { Route as AcheteurCautionRouteImport } from './routes/acheteur.caution'
@@ -254,6 +255,11 @@ const AcheteurNotificationsRoute = AcheteurNotificationsRouteImport.update({
   path: '/notifications',
   getParentRoute: () => AcheteurRoute,
 } as any)
+const AcheteurGagneesRoute = AcheteurGagneesRouteImport.update({
+  id: '/gagnees',
+  path: '/gagnees',
+  getParentRoute: () => AcheteurRoute,
+} as any)
 const AcheteurEncheresRoute = AcheteurEncheresRouteImport.update({
   id: '/encheres',
   path: '/encheres',
@@ -327,6 +333,7 @@ export interface FileRoutesByFullPath {
   '/acheteur/caution': typeof AcheteurCautionRoute
   '/acheteur/caution-paiement': typeof AcheteurCautionPaiementRoute
   '/acheteur/encheres': typeof AcheteurEncheresRoute
+  '/acheteur/gagnees': typeof AcheteurGagneesRoute
   '/acheteur/notifications': typeof AcheteurNotificationsRoute
   '/acheteur/paiements': typeof AcheteurPaiementsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
@@ -374,6 +381,7 @@ export interface FileRoutesByTo {
   '/acheteur/caution': typeof AcheteurCautionRoute
   '/acheteur/caution-paiement': typeof AcheteurCautionPaiementRoute
   '/acheteur/encheres': typeof AcheteurEncheresRoute
+  '/acheteur/gagnees': typeof AcheteurGagneesRoute
   '/acheteur/notifications': typeof AcheteurNotificationsRoute
   '/acheteur/paiements': typeof AcheteurPaiementsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
@@ -426,6 +434,7 @@ export interface FileRoutesById {
   '/acheteur/caution': typeof AcheteurCautionRoute
   '/acheteur/caution-paiement': typeof AcheteurCautionPaiementRoute
   '/acheteur/encheres': typeof AcheteurEncheresRoute
+  '/acheteur/gagnees': typeof AcheteurGagneesRoute
   '/acheteur/notifications': typeof AcheteurNotificationsRoute
   '/acheteur/paiements': typeof AcheteurPaiementsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
@@ -479,6 +488,7 @@ export interface FileRouteTypes {
     | '/acheteur/caution'
     | '/acheteur/caution-paiement'
     | '/acheteur/encheres'
+    | '/acheteur/gagnees'
     | '/acheteur/notifications'
     | '/acheteur/paiements'
     | '/admin/analytics'
@@ -526,6 +536,7 @@ export interface FileRouteTypes {
     | '/acheteur/caution'
     | '/acheteur/caution-paiement'
     | '/acheteur/encheres'
+    | '/acheteur/gagnees'
     | '/acheteur/notifications'
     | '/acheteur/paiements'
     | '/admin/analytics'
@@ -577,6 +588,7 @@ export interface FileRouteTypes {
     | '/acheteur/caution'
     | '/acheteur/caution-paiement'
     | '/acheteur/encheres'
+    | '/acheteur/gagnees'
     | '/acheteur/notifications'
     | '/acheteur/paiements'
     | '/admin/analytics'
@@ -912,6 +924,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AcheteurNotificationsRouteImport
       parentRoute: typeof AcheteurRoute
     }
+    '/acheteur/gagnees': {
+      id: '/acheteur/gagnees'
+      path: '/gagnees'
+      fullPath: '/acheteur/gagnees'
+      preLoaderRoute: typeof AcheteurGagneesRouteImport
+      parentRoute: typeof AcheteurRoute
+    }
     '/acheteur/encheres': {
       id: '/acheteur/encheres'
       path: '/encheres'
@@ -989,6 +1008,7 @@ interface AcheteurRouteChildren {
   AcheteurCautionRoute: typeof AcheteurCautionRoute
   AcheteurCautionPaiementRoute: typeof AcheteurCautionPaiementRoute
   AcheteurEncheresRoute: typeof AcheteurEncheresRoute
+  AcheteurGagneesRoute: typeof AcheteurGagneesRoute
   AcheteurNotificationsRoute: typeof AcheteurNotificationsRoute
   AcheteurPaiementsRoute: typeof AcheteurPaiementsRoute
   AcheteurIndexRoute: typeof AcheteurIndexRoute
@@ -999,6 +1019,7 @@ const AcheteurRouteChildren: AcheteurRouteChildren = {
   AcheteurCautionRoute: AcheteurCautionRoute,
   AcheteurCautionPaiementRoute: AcheteurCautionPaiementRoute,
   AcheteurEncheresRoute: AcheteurEncheresRoute,
+  AcheteurGagneesRoute: AcheteurGagneesRoute,
   AcheteurNotificationsRoute: AcheteurNotificationsRoute,
   AcheteurPaiementsRoute: AcheteurPaiementsRoute,
   AcheteurIndexRoute: AcheteurIndexRoute,
