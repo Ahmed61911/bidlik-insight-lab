@@ -538,8 +538,8 @@ function ExpertiseSection({
   ];
   return (
     <section className="mt-8 rounded-xl border border-border bg-card p-5 shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
           <h2 className="text-lg font-bold text-foreground">Rapport d'expertise</h2>
           {expertise.rapportRecuLe && (
             <p className="mt-0.5 text-xs text-muted-foreground">
@@ -548,7 +548,7 @@ function ExpertiseSection({
           )}
         </div>
         {expertise.noteFinale != null && (
-          <div className="rounded-lg bg-accent/10 px-3 py-1.5 text-base font-bold text-accent">
+          <div className="shrink-0 rounded-lg bg-accent/10 px-3 py-1.5 text-base font-bold text-accent">
             ★ {expertise.noteFinale}/10
           </div>
         )}
