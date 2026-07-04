@@ -17,7 +17,7 @@ export function AuctionCard({ auction }: Props) {
   const isSealed = auction.auctionType === "fermee";
   const displayPrice = isSealed ? (car.minimumAcceptedPrice ?? auction.startingPrice) : currentPrice;
   const priceLabel = isSealed ? "Prix minimum" : "Offre actuelle";
-  const tier = buyerPriceTier(displayPrice, car.prixAttendu);
+  const tier = listingPriceTier(displayPrice, car);
   const isLive = status === "live";
   const images = car.images ?? [];
   const [activeIdx, setActiveIdx] = useState(0);
