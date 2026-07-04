@@ -1,34 +1,70 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Truck, CheckCircle2, XCircle, Clock, Download, FileText, Star } from "lucide-react";
-import { api } from "@/lib/api";
 import { getCarExpertise } from "@/lib/supabaseApi";
 import { supabase } from "@/integrations/supabase/client";
 import { storage } from "@/lib/storage";
-import type { Auction } from "@/types/auction";
 import type { CarExpertise } from "@/types/expert";
 import { formatMad, formatDateTime } from "@/lib/format";
 import { CarGallery } from "@/components/CarGallery";
 import { DeadlineCountdown } from "@/components/DeadlineCountdown";
 import { requireRole } from "@/lib/routeGuard";
+import { getCarImages } from "@/lib/carImages";
+
+type WonAuction = {
+  id: string;
+  status: "closed" | "validated" | "cancelled" | "live" | "scheduled";
+  current_price: number;
+  starting_price: number;
+  starts_at: string;
+  ends_at: string;
+  closed_at: string | null;
+  validated_at: string | null;
+  payment_deadline: string | null;
+  bid_count: number;
+  auction_type: string;
+  visibility: string;
+};
+type WonCar = {
+  id: string;
+  marque: string;
+  modele: string;
+  annee: number;
+  finition: string | null;
+  kilometrage: number;
+  transmission: string;
+  carburant: string;
+  couleur_exterieur: string | null;
+  couleur_interieur: string | null;
+  puissance_fiscale: number;
+  nombre_cles: number;
+  procuration: string;
+  body_type: string | null;
+  note_expert: number | null;
+  status: string;
+  payment_status: "non_paye" | "paye";
+  delivery_status: "non_livre" | "livre";
+  images: string[] | null;
+  expert_images: string[] | null;
+  vendeur_nom: string;
+};
+type WonPayload = { auction: WonAuction; car: WonCar };
+type WonStatus = "en_attente" | "validee" | "livree" | "annulee";
+
+async function fetchWon(auctionId: string): Promise<WonPayload> {
+  const { data, error } = await supabase.rpc("get_my_won_car_details", { p_auction_id: auctionId });
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("Introuvable");
+  return data as unknown as WonPayload;
+}
 
 export const Route = createFileRoute("/acheteur/gagnees/$auctionId")({
+  ssr: false,
   beforeLoad: ({ location }) => requireRole(["acheteur"], location.href),
   loader: async ({ params }) => {
-    const auction = await api.getAuction(params.auctionId);
-    const expertise = await getCarExpertise(auction.car.id).catch(() => null);
-    const { data: meta } = await supabase
-      .from("auctions")
-      .select("closed_at, validated_at, payment_deadline")
-      .eq("id", params.auctionId)
-      .maybeSingle();
-    return {
-      auction,
-      expertise,
-      closedAt: (meta?.closed_at as string | null) ?? null,
-      validatedAt: (meta?.validated_at as string | null) ?? null,
-      paymentDeadline: (meta?.payment_deadline as string | null) ?? null,
-    };
+    const payload = await fetchWon(params.auctionId);
+    const expertise = await getCarExpertise(payload.car.id).catch(() => null);
+    return { payload, expertise };
   },
   errorComponent: ({ error, reset }) => {
     const router = useRouter();
@@ -55,45 +91,35 @@ export const Route = createFileRoute("/acheteur/gagnees/$auctionId")({
   component: WonCarDetailsPage,
 });
 
-type WonStatus = "en_attente" | "validee" | "livree" | "annulee";
-
-function computeStatus(a: Auction): WonStatus {
-  if (a.status === "cancelled" || a.car.status === "vendu_annulee") return "annulee";
-  if (a.car.deliveryStatus === "livre") return "livree";
-  if (a.status === "validated") return "validee";
+function computeStatus(p: WonPayload): WonStatus {
+  if (p.auction.status === "cancelled" || p.car.status === "vendu_annulee") return "annulee";
+  if (p.car.delivery_status === "livre") return "livree";
+  if (p.auction.status === "validated") return "validee";
   return "en_attente";
 }
 
 function WonCarDetailsPage() {
-  const { auction: initial, expertise, closedAt, validatedAt, paymentDeadline } = Route.useLoaderData();
-  const [auction, setAuction] = useState<Auction>(initial);
-  const [meta, setMeta] = useState({ closedAt, validatedAt, paymentDeadline });
+  const { payload: initial, expertise } = Route.useLoaderData();
+  const [payload, setPayload] = useState<WonPayload>(initial);
   const [reportUrl, setReportUrl] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
     async function refresh() {
-      const fresh = await api.getAuction(initial.id).catch(() => null);
-      const { data } = await supabase
-        .from("auctions")
-        .select("closed_at, validated_at, payment_deadline")
-        .eq("id", initial.id)
-        .maybeSingle();
-      if (!alive) return;
-      if (fresh) setAuction(fresh);
-      if (data) setMeta({
-        closedAt: (data.closed_at as string | null) ?? null,
-        validatedAt: (data.validated_at as string | null) ?? null,
-        paymentDeadline: (data.payment_deadline as string | null) ?? null,
-      });
+      try {
+        const fresh = await fetchWon(initial.auction.id);
+        if (alive) setPayload(fresh);
+      } catch {
+        /* noop */
+      }
     }
     const ch = supabase
-      .channel(`won-car-${initial.id}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "auctions", filter: `id=eq.${initial.id}` }, () => void refresh())
+      .channel(`won-car-${initial.auction.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "auctions", filter: `id=eq.${initial.auction.id}` }, () => void refresh())
       .on("postgres_changes", { event: "*", schema: "public", table: "cars", filter: `id=eq.${initial.car.id}` }, () => void refresh())
       .subscribe();
     return () => { alive = false; void supabase.removeChannel(ch); };
-  }, [initial.id, initial.car.id]);
+  }, [initial.auction.id, initial.car.id]);
 
   useEffect(() => {
     let alive = true;
@@ -111,8 +137,9 @@ function WonCarDetailsPage() {
     return () => { alive = false; };
   }, [expertise]);
 
-  const status = computeStatus(auction);
-  const car = auction.car;
+  const status = computeStatus(payload);
+  const { car, auction } = payload;
+  const images = car.images && car.images.length ? car.images : getCarImages(car.marque);
 
   return (
     <div className="space-y-5">
@@ -133,14 +160,19 @@ function WonCarDetailsPage() {
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Prix final :{" "}
-              <span className="font-semibold text-foreground">{formatMad(auction.currentPrice)}</span>
+              <span className="font-semibold text-foreground">{formatMad(auction.current_price)}</span>
+              {car.payment_status === "paye" && (
+                <span className="ml-2 rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-800">
+                  Payée
+                </span>
+              )}
             </p>
           </div>
           <StatusBadge status={status} />
         </div>
       </header>
 
-      <CarGallery images={car.images} marque={car.marque} modele={car.modele} />
+      <CarGallery images={images} marque={car.marque} modele={car.modele} />
 
       <section className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
         <h2 className="text-sm font-semibold text-foreground">Suivi de la transaction</h2>
@@ -148,36 +180,36 @@ function WonCarDetailsPage() {
           <TimelineItem
             done={true}
             title="Enchère remportée"
-            date={meta.closedAt ?? auction.endsAt}
+            date={auction.closed_at ?? auction.ends_at}
           />
           <TimelineItem
-            done={auction.status === "validated" || auction.status === "cancelled" || car.deliveryStatus === "livre"}
+            done={auction.status === "validated" || auction.status === "cancelled" || car.delivery_status === "livre"}
             active={status === "en_attente"}
             title="Validation par l'administrateur"
-            date={meta.validatedAt}
+            date={auction.validated_at}
             note={status === "en_attente" ? "En attente…" : undefined}
           />
           <TimelineItem
-            done={car.paymentStatus === "paye"}
-            active={status === "validee" && car.paymentStatus !== "paye"}
+            done={car.payment_status === "paye"}
+            active={status === "validee" && car.payment_status !== "paye"}
             title="Paiement du véhicule"
-            note={car.paymentStatus === "paye" ? "Payé" : undefined}
+            note={car.payment_status === "paye" ? "Payé" : undefined}
             extra={
-              status === "validee" && car.paymentStatus !== "paye" && meta.paymentDeadline ? (
+              status === "validee" && car.payment_status !== "paye" && auction.payment_deadline ? (
                 <span className="inline-flex items-center gap-1.5 text-xs text-amber-700">
-                  <Clock className="h-3.5 w-3.5" /> Sous : <DeadlineCountdown deadline={meta.paymentDeadline} />
+                  <Clock className="h-3.5 w-3.5" /> Sous : <DeadlineCountdown deadline={auction.payment_deadline} />
                 </span>
               ) : null
             }
           />
           <TimelineItem
-            done={car.deliveryStatus === "livre"}
-            active={car.paymentStatus === "paye" && car.deliveryStatus !== "livre"}
+            done={car.delivery_status === "livre"}
+            active={car.payment_status === "paye" && car.delivery_status !== "livre"}
             title="Livraison du véhicule"
-            note={car.deliveryStatus === "livre" ? "Livré" : status === "annulee" ? "—" : "En attente"}
+            note={car.delivery_status === "livre" ? "Livré" : status === "annulee" ? "—" : "En attente"}
           />
         </ul>
-        {status === "validee" && car.paymentStatus !== "paye" && (
+        {status === "validee" && car.payment_status !== "paye" && (
           <Link
             to="/acheteur/paiements"
             className="mt-4 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
@@ -196,12 +228,14 @@ function WonCarDetailsPage() {
           <Info label="Kilométrage" value={`${car.kilometrage.toLocaleString("fr-MA")} km`} />
           <Info label="Carburant" value={car.carburant} />
           <Info label="Boîte" value={car.transmission} />
+          <Info label="Carrosserie" value={car.body_type || "—"} />
           <Info label="Finition" value={car.finition || "—"} />
-          <Info label="Couleur ext." value={car.couleurExterieur || "—"} />
-          <Info label="Couleur int." value={car.couleurInterieur || "—"} />
-          <Info label="Puissance fiscale" value={`${car.puissanceFiscale} CV`} />
-          <Info label="Nombre de clés" value={String(car.nombreCles)} />
+          <Info label="Couleur ext." value={car.couleur_exterieur || "—"} />
+          <Info label="Couleur int." value={car.couleur_interieur || "—"} />
+          <Info label="Puissance fiscale" value={`${car.puissance_fiscale} CV`} />
+          <Info label="Nombre de clés" value={String(car.nombre_cles)} />
           <Info label="Procuration" value={car.procuration} />
+          <Info label="Vendeur" value={car.vendeur_nom || "—"} />
         </dl>
       </section>
 

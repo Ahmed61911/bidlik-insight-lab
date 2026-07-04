@@ -1197,6 +1197,7 @@ export type Database = {
           ville: string
         }[]
       }
+      get_my_won_car_details: { Args: { p_auction_id: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
