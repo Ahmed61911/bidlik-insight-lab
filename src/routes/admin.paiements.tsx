@@ -502,7 +502,7 @@ function PaymentDialog({
         </div>
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <Field label="Utilisateur">
+          <Field label="Bénéficiaire">
             <select
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
