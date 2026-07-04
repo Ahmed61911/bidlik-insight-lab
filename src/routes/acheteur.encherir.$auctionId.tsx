@@ -215,7 +215,7 @@ function EncherirPage() {
         key={pulseKey}
         className={[
           "overflow-hidden rounded-xl shadow-[var(--shadow-elevated)] sm:rounded-2xl",
-          buyerPriceTierGradientClass(tier),
+          priceTierGradientClass(tier),
           "animate-pulse-bid",
         ].join(" ")}
       >
