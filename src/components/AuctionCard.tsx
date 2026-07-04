@@ -129,13 +129,13 @@ export function AuctionCard({ auction }: Props) {
         <div
           className={[
             "rounded-lg px-3 py-2.5",
-            isAdmin ? buyerPriceTierGradientClass(tier) : "bg-secondary",
+            priceTierGradientClass(tier),
           ].join(" ")}
         >
-          <p className={["text-[10px] font-semibold uppercase tracking-wider", isAdmin ? "text-white/85" : "text-muted-foreground"].join(" ")}>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-white/85">
             {priceLabel}
           </p>
-          <p className={["text-lg font-extrabold tracking-tight", isAdmin ? "text-white" : "text-foreground"].join(" ")}>
+          <p className="text-lg font-extrabold tracking-tight text-white">
             {formatMad(displayPrice)}
           </p>
         </div>
