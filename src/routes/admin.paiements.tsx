@@ -38,6 +38,55 @@ const STATUS_TONE: Record<AdminPaymentStatus, string> = {
   annule: "bg-destructive/15 text-destructive",
 };
 
+type PaymentDirection = "entrant" | "sortant";
+
+const DIRECTION_BY_TYPE: Record<AdminPaymentType, PaymentDirection> = {
+  achat: "entrant",
+  caution: "entrant",
+  commission: "entrant",
+  virement_vendeur: "sortant",
+  remboursement: "sortant",
+};
+
+const DIRECTION_LABEL: Record<PaymentDirection, string> = {
+  entrant: "Entrant",
+  sortant: "Sortant",
+};
+
+const DIRECTION_TONE: Record<PaymentDirection, string> = {
+  entrant: "bg-emerald-100 text-emerald-900",
+  sortant: "bg-orange-100 text-orange-900",
+};
+
+function beneficiaryOf(p: AdminPayment): string {
+  switch (p.type) {
+    case "virement_vendeur":
+      return p.userNom ?? p.userEmail ?? "Vendeur";
+    case "remboursement":
+      return p.userNom ?? p.userEmail ?? "Acheteur";
+    case "achat":
+    case "caution":
+    case "commission":
+    default:
+      return "Bidlic (plateforme)";
+  }
+}
+
+function payerOf(p: AdminPayment): string {
+  switch (p.type) {
+    case "achat":
+    case "caution":
+      return p.userNom ?? p.userEmail ?? "Acheteur";
+    case "commission":
+      return "Bidlic (plateforme)";
+    case "virement_vendeur":
+    case "remboursement":
+      return "Bidlic (plateforme)";
+    default:
+      return p.userNom ?? "—";
+  }
+}
+
 function AdminPaiementsPage() {
   const [items, setItems] = useState<AdminPayment[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
