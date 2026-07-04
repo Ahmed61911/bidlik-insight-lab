@@ -12,8 +12,6 @@ interface Props {
 
 export function AuctionCard({ auction }: Props) {
   const { car, currentPrice, bidCount, status } = auction;
-  const { hasRole } = useAuth();
-  const isAdmin = hasRole("admin");
   const isSealed = auction.auctionType === "fermee";
   const displayPrice = isSealed ? (car.minimumAcceptedPrice ?? auction.startingPrice) : currentPrice;
   const priceLabel = isSealed ? "Prix minimum" : "Offre actuelle";
