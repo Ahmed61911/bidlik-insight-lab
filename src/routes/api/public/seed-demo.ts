@@ -48,10 +48,10 @@ export const Route = createFileRoute("/api/public/seed-demo")({
   server: {
     handlers: {
       POST: async () => {
-        const allowed =
-          process.env.ALLOW_DEMO_SEED === "true" ||
-          process.env.NODE_ENV !== "production";
-        if (!allowed) {
+        // Hard gate: only runs when ALLOW_DEMO_SEED is explicitly set to "true".
+        // No NODE_ENV fallback — an unset/missing env var must NOT enable seeding,
+        // otherwise anyone could reset the admin password to a public value.
+        if (process.env.ALLOW_DEMO_SEED !== "true") {
           return json({ ok: false, error: "Not found" }, 404);
         }
 
