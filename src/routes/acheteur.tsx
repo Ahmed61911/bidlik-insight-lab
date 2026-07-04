@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Gavel, Wallet, Bell, Receipt, ChevronDown } from "lucide-react";
+import { LayoutDashboard, Gavel, Trophy, Wallet, Bell, Receipt, ChevronDown } from "lucide-react";
 import { requireRole } from "@/lib/routeGuard";
 import { useMesNotifications } from "@/lib/supabaseAcheteurStore";
 
@@ -19,6 +19,7 @@ export const Route = createFileRoute("/acheteur")({
 const NAV = [
   { to: "/acheteur", label: "Vue d'ensemble", icon: LayoutDashboard, exact: true },
   { to: "/acheteur/encheres", label: "Mes enchères", icon: Gavel, exact: false },
+  { to: "/acheteur/gagnees", label: "Voitures gagnées", icon: Trophy, exact: false },
   { to: "/acheteur/paiements", label: "Paiements", icon: Receipt, exact: false },
   { to: "/acheteur/caution", label: "Caution", icon: Wallet, exact: false },
   { to: "/acheteur/notifications", label: "Notifications", icon: Bell, exact: false, badge: true },
