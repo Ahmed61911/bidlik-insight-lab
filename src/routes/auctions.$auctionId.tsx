@@ -21,7 +21,8 @@ export const Route = createFileRoute("/auctions/$auctionId")({
       api.getAuction(params.auctionId),
       api.listBids(params.auctionId),
     ]);
-    return { auction, bids };
+    const expertise = await getCarExpertise(auction.car.id).catch(() => null);
+    return { auction, bids, expertise };
   },
   head: ({ loaderData }) => {
     const car = loaderData?.auction.car;
