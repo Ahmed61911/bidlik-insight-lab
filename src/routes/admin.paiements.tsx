@@ -374,7 +374,8 @@ function AdminPaiementsPage() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
