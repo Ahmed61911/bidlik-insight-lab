@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { supabaseAdminApi } from "@/lib/supabaseAdminApi";
 import { api } from "@/lib/api";
 import type { Auction, AuctionEvent, Car } from "@/types/auction";
-import { formatMad, buyerPriceTier, buyerPriceTierTextClass } from "@/lib/format";
+import { formatMad, listingPriceTier, priceTierTextClass } from "@/lib/format";
 import { Countdown } from "@/components/Countdown";
 import {
   Table,
