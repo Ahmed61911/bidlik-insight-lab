@@ -241,7 +241,7 @@ export const ROLE_HOME: Record<Role, string> = {
 
 /** Demo accounts — created on first use through the seed server route. */
 export const DEMO_ACCOUNTS: Array<{ email: string; phone: string; password: string; role: Role; nom: string }> = [
-  { email: "admin@bidlic.ma", phone: "+212 600 000 001", password: "Admin1234!", role: "admin", nom: "Admin Bidlic" },
+  { email: "admin@bidlic.ma", phone: "+212 600 000 001", password: "Admin1234!", role: "admin", nom: "Admin Bidlik" },
   { email: "expert@bidlic.ma", phone: "+212 600 000 002", password: "Expert1234!", role: "expert", nom: "Youssef El Amrani" },
   { email: "vendeur@bidlic.ma", phone: "+212 600 000 003", password: "Vendeur1234!", role: "vendeur", nom: "Karim Bennani" },
   { email: "acheteur@bidlic.ma", phone: "+212 600 000 004", password: "Acheteur1234!", role: "acheteur", nom: "Salma Idrissi" },

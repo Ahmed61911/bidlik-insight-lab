@@ -8,7 +8,7 @@ export const Route = createFileRoute("/acheteur")({
   beforeLoad: ({ location }) => requireRole(["acheteur"], location.href),
   head: () => ({
     meta: [
-      { title: "Espace acheteur — Bidlic" },
+      { title: "Espace acheteur — Bidlik" },
       { name: "description", content: "Suivez vos enchères, votre caution et vos paiements." },
       { name: "robots", content: "noindex,nofollow" },
     ],

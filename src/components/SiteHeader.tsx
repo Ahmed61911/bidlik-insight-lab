@@ -37,8 +37,8 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 md:h-16">
         <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="Bidlic" className="h-12 w-auto md:h-14 dark:hidden" />
-          <img src={logoDark} alt="Bidlic" className="hidden h-12 w-auto md:h-14 dark:block" />
+          <img src={logo} alt="Bidlik" className="h-12 w-auto md:h-14 dark:hidden" />
+          <img src={logoDark} alt="Bidlik" className="hidden h-12 w-auto md:h-14 dark:block" />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">

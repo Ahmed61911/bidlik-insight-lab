@@ -8,8 +8,8 @@ export const Route = createFileRoute("/admin")({
   beforeLoad: ({ location }) => requireRole(["admin"], location.href),
   head: () => ({
     meta: [
-      { title: "Administration — Bidlic" },
-      { name: "description", content: "Panneau d'administration Bidlic." },
+      { title: "Administration — Bidlik" },
+      { name: "description", content: "Panneau d'administration Bidlik." },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),

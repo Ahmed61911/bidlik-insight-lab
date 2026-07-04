@@ -23,7 +23,7 @@ export const Route = createFileRoute("/auctions/$auctionId")({
   },
   head: ({ loaderData }) => {
     const car = loaderData?.auction.car;
-    const title = car ? `${car.marque} ${car.modele} (${car.annee}) — Bidlic` : "Enchère — Bidlic";
+    const title = car ? `${car.marque} ${car.modele} (${car.annee}) — Bidlik` : "Enchère — Bidlik";
     return {
       meta: [
         { title },
@@ -31,7 +31,7 @@ export const Route = createFileRoute("/auctions/$auctionId")({
           name: "description",
           content: car
             ? `Enchère en cours sur ${car.marque} ${car.modele} ${car.annee}. ${car.kilometrage.toLocaleString("fr-MA")} km.`
-            : "Enchère automobile en direct sur Bidlic.",
+            : "Enchère automobile en direct sur Bidlik.",
         },
         { property: "og:title", content: title },
       ],

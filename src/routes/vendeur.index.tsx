@@ -68,7 +68,7 @@ function VendeurOverviewPage() {
           <div className="rounded-md border border-dashed border-border p-8 text-center">
             <p className="text-sm text-muted-foreground">Aucune voiture en enchère pour le moment.</p>
             <p className="mt-2 text-xs text-muted-foreground">
-              Les véhicules sont ajoutés et assignés par l'équipe Bidlic. Contactez votre référent pour confier une nouvelle voiture.
+              Les véhicules sont ajoutés et assignés par l'équipe Bidlik. Contactez votre référent pour confier une nouvelle voiture.
             </p>
           </div>
         ) : (

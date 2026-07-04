@@ -4,10 +4,10 @@ import { Clock, CheckCircle2, ShieldCheck } from "lucide-react";
 export const Route = createFileRoute("/inscription-en-attente")({
   head: () => ({
     meta: [
-      { title: "Inscription en attente — Bidlic" },
+      { title: "Inscription en attente — Bidlik" },
       {
         name: "description",
-        content: "Votre compte Bidlic est créé et en attente de validation par un administrateur.",
+        content: "Votre compte Bidlik est créé et en attente de validation par un administrateur.",
       },
     ],
   }),
@@ -25,7 +25,7 @@ function PendingPage() {
           Votre compte est en attente de validation
         </h1>
         <p className="mt-3 text-sm text-muted-foreground sm:text-base">
-          Merci pour votre inscription sur <strong>Bidlic</strong>. Votre compte a bien été créé,
+          Merci pour votre inscription sur <strong>Bidlik</strong>. Votre compte a bien été créé,
           mais il doit d'abord être <strong>vérifié par un administrateur</strong> avant que vous
           puissiez vous connecter et participer aux enchères.
         </p>

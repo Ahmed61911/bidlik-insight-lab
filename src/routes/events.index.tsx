@@ -21,8 +21,8 @@ export const Route = createFileRoute("/events/")({
   beforeLoad: ({ location }) => requireRole(["acheteur", "admin", "vendeur"], location.href),
   head: () => ({
     meta: [
-      { title: "Événements d'enchères — Bidlic" },
-      { name: "description", content: "Découvrez les ventes multi-voitures à venir et en cours sur Bidlic." },
+      { title: "Événements d'enchères — Bidlik" },
+      { name: "description", content: "Découvrez les ventes multi-voitures à venir et en cours sur Bidlik." },
     ],
   }),
   component: EventsListPage,

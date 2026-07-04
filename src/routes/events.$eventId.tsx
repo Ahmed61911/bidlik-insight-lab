@@ -18,7 +18,7 @@ export const Route = createFileRoute("/events/$eventId")({
     const t = loaderData?.event.title ?? "Événement";
     return {
       meta: [
-        { title: `${t} — Bidlic` },
+        { title: `${t} — Bidlik` },
         { name: "description", content: "Vente multi-voitures avec enchères indépendantes par lot." },
       ],
     };

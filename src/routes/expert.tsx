@@ -6,7 +6,7 @@ export const Route = createFileRoute("/expert")({
   beforeLoad: ({ location }) => requireRole(["expert", "admin"], location.href),
   head: () => ({
     meta: [
-      { title: "Espace expert — Bidlic" },
+      { title: "Espace expert — Bidlik" },
       { name: "description", content: "Gérez vos inspections et soumettez vos rapports." },
       { name: "robots", content: "noindex,nofollow" },
     ],

@@ -20,11 +20,11 @@ export const Route = createFileRoute("/auctions/")({
   beforeLoad: ({ location }) => requireRole(["acheteur", "admin", "vendeur"], location.href),
   head: () => ({
     meta: [
-      { title: "Enchères — Bidlic" },
+      { title: "Enchères — Bidlik" },
       {
         name: "description",
         content:
-          "Toutes les enchères Bidlic : événements multi-voitures avec dates, type et nombre de lots.",
+          "Toutes les enchères Bidlik : événements multi-voitures avec dates, type et nombre de lots.",
       },
     ],
   }),

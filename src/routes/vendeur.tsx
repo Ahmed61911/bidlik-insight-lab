@@ -7,14 +7,14 @@ const PAGE_META: Record<string, { title: string; description: string }> = {
   "/vendeur/voitures": { title: "Mes voitures", description: "Tous vos véhicules soumis et leur statut." },
   "/vendeur/encheres": { title: "Mes enchères", description: "Suivez uniquement les enchères qui contiennent vos véhicules." },
   "/vendeur/historique": { title: "Historique", description: "Toutes vos ventes finalisées et voitures retirées." },
-  "/vendeur/paiements": { title: "Paiements", description: "Historique des virements et commissions Bidlic." },
+  "/vendeur/paiements": { title: "Paiements", description: "Historique des virements et commissions Bidlik." },
 };
 
 export const Route = createFileRoute("/vendeur")({
   beforeLoad: ({ location }) => requireRole(["vendeur", "admin"], location.href),
   head: () => ({
     meta: [
-      { title: "Espace vendeur — Bidlic" },
+      { title: "Espace vendeur — Bidlik" },
       { name: "description", content: "Gérez vos véhicules, suivez vos enchères et vos paiements." },
       { name: "robots", content: "noindex,nofollow" },
     ],
