@@ -71,6 +71,26 @@ export function priceTierBgClass(tier: PriceTier): string {
   return tier === "below" ? "bg-destructive" : tier === "near" ? "bg-warning" : "bg-success";
 }
 
+export function priceTierGradientClass(tier: PriceTier): string {
+  return tier === "below" ? "bid-gradient-below" : tier === "near" ? "bid-gradient-fair" : "bid-gradient-above";
+}
+
+/**
+ * Listing price tier — unified color for the current price displayed on
+ * every listing, for every user role.
+ *  - Reference: prixPlancher (fallback prixAttendu).
+ *  - < 90%  → rouge (below)
+ *  - 90-99% → orange (near)
+ *  - ≥ 100% → vert (above)
+ */
+export function listingPriceTier(
+  current: number,
+  car: { prixPlancher?: number | null; prixAttendu?: number | null },
+): PriceTier {
+  const reference = car.prixPlancher ?? car.prixAttendu ?? 0;
+  return priceTier(current, reference);
+}
+
 /**
  * Buyer/Admin perspective price tier (inverse of seller):
  *  - "deal"  : current < 90% of expected      → green (bonne affaire pour l'acheteur)
