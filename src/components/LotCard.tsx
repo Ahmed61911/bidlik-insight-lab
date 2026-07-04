@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import type { Auction } from "@/types/auction";
-import { formatMad, buyerPriceTier, buyerPriceTierGradientClass, timeRemaining } from "@/lib/format";
+import { formatMad, listingPriceTier, priceTierGradientClass, timeRemaining } from "@/lib/format";
 import { subscribeToAuction } from "@/lib/realtime";
 import { Countdown } from "./Countdown";
 
