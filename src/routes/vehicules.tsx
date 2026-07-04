@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Search, Car as CarIcon, Hash } from "lucide-react";
 import { api } from "@/lib/api";
 import type { Auction } from "@/types/auction";
-import { formatMad, formatDateTime, priceTier, priceTierTextClass, buyerPriceTier, buyerPriceTierTextClass } from "@/lib/format";
+import { formatMad, formatDateTime, listingPriceTier, priceTierTextClass } from "@/lib/format";
 import { requireAuth } from "@/lib/routeGuard";
 import { useAuth } from "@/lib/auth";
 import { supabaseVendeurApi } from "@/lib/supabaseVendeurApi";
