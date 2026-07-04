@@ -103,6 +103,7 @@ function ExpertInspectionDetailPage() {
         detailsConfirmes,
         images,
         rapportPdfNom: pdfName,
+        rapportPdfDataUrl: pdfDataUrl,
       });
       toast.success(`Rapport envoyé — note ${note}/10`);
       navigate({ to: "/expert/inspections" });
