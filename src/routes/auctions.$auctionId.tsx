@@ -252,6 +252,11 @@ function AuctionDetailPage() {
             <Spec label="Carte grise barrée" value={car.carteGriseBarree ? "Oui" : "Non"} />
           </dl>
 
+          {initial.expertise && (
+            <ExpertiseSection expertise={initial.expertise} canPreviewPhotos={isAdmin || isAcheteur} />
+          )}
+
+
           {auction.auctionType === "fermee" ? (
             <section className="mt-8 rounded-xl border border-accent/30 bg-accent/5 p-6 text-sm text-foreground">
               <p className="font-semibold">🔒 Enchère à enveloppe fermée</p>
