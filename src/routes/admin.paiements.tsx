@@ -16,7 +16,8 @@ export const Route = createFileRoute("/admin/paiements")({
   component: AdminPaiementsPage,
 });
 
-const TYPE_LABEL: Record<AdminPaymentType, string> = {
+const TYPE_LABEL: Record<AdminPaymentType | "all", string> = {
+  all: "Tous types",
   achat: "Paiement achat (acheteur)",
   virement_vendeur: "Virement vendeur",
   commission: "Commission",
@@ -93,6 +94,12 @@ function AdminPaiementsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | AdminPaymentStatus>("all");
   const [directionFilter, setDirectionFilter] = useState<"all" | PaymentDirection>("all");
+  const [typeFilter, setTypeFilter] = useState<"all" | AdminPaymentType>("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [amountMin, setAmountMin] = useState("");
+  const [amountMax, setAmountMax] = useState("");
+  const [userFilter, setUserFilter] = useState("all");
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<AdminPayment | "new" | null>(null);
 
@@ -113,6 +120,20 @@ function AdminPaiementsPage() {
       items.filter((p) => {
         if (filter !== "all" && p.status !== filter) return false;
         if (directionFilter !== "all" && DIRECTION_BY_TYPE[p.type] !== directionFilter) return false;
+        if (typeFilter !== "all" && p.type !== typeFilter) return false;
+        if (userFilter !== "all" && p.userId !== userFilter) return false;
+        if (dateFrom) {
+          const d = new Date(p.paidAt ?? p.createdAt);
+          if (d < new Date(dateFrom)) return false;
+        }
+        if (dateTo) {
+          const d = new Date(p.paidAt ?? p.createdAt);
+          const to = new Date(dateTo);
+          to.setHours(23, 59, 59, 999);
+          if (d > to) return false;
+        }
+        if (amountMin && p.amount < Number(amountMin)) return false;
+        if (amountMax && p.amount > Number(amountMax)) return false;
         if (!query) return true;
         const q = query.toLowerCase();
         return (
@@ -124,8 +145,20 @@ function AdminPaiementsPage() {
           payerOf(p).toLowerCase().includes(q)
         );
       }),
-    [items, filter, directionFilter, query],
+    [items, filter, directionFilter, typeFilter, userFilter, dateFrom, dateTo, amountMin, amountMax, query],
   );
+
+  const resetFilters = () => {
+    setFilter("all");
+    setDirectionFilter("all");
+    setTypeFilter("all");
+    setUserFilter("all");
+    setDateFrom("");
+    setDateTo("");
+    setAmountMin("");
+    setAmountMax("");
+    setQuery("");
+  };
 
   const totals = useMemo(() => {
     const pending = items.filter((p) => p.status === "en_attente").reduce((s, p) => s + p.amount, 0);
@@ -252,32 +285,89 @@ function AdminPaiementsPage() {
       </section>
 
 
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Rechercher nom, email, référence, voiture…"
-          className="h-9 flex-1 rounded-md border border-border bg-background px-3 text-sm"
-        />
-        <select
-          value={directionFilter}
-          onChange={(e) => setDirectionFilter(e.target.value as typeof directionFilter)}
-          className="h-9 rounded-md border border-border bg-background px-2 text-sm"
-        >
-          <option value="all">Entrant & Sortant</option>
-          <option value="entrant">Entrant</option>
-          <option value="sortant">Sortant</option>
-        </select>
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value as typeof filter)}
-          className="h-9 rounded-md border border-border bg-background px-2 text-sm"
-        >
-          <option value="all">Tous statuts</option>
-          {(Object.keys(STATUS_LABEL) as AdminPaymentStatus[]).map((s) => (
-            <option key={s} value={s}>{STATUS_LABEL[s]}</option>
-          ))}
-        </select>
+      <div className="space-y-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Rechercher nom, email, référence, voiture…"
+            className="h-9 flex-1 rounded-md border border-border bg-background px-3 text-sm"
+          />
+          <select
+            value={userFilter}
+            onChange={(e) => setUserFilter(e.target.value)}
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+          >
+            <option value="all">Tous bénéficiaires/payeurs</option>
+            {[...users].sort((a, b) => a.nom.localeCompare(b.nom)).map((u) => (
+              <option key={u.id} value={u.id}>{u.nom} ({u.role})</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value as typeof typeFilter)}
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+          >
+            {(Object.keys(TYPE_LABEL) as ("all" | AdminPaymentType)[]).map((t) => (
+              <option key={t} value={t}>{TYPE_LABEL[t]}</option>
+            ))}
+          </select>
+          <select
+            value={directionFilter}
+            onChange={(e) => setDirectionFilter(e.target.value as typeof directionFilter)}
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+          >
+            <option value="all">Entrant & Sortant</option>
+            <option value="entrant">Entrant</option>
+            <option value="sortant">Sortant</option>
+          </select>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as typeof filter)}
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+          >
+            <option value="all">Tous statuts</option>
+            {(Object.keys(STATUS_LABEL) as AdminPaymentStatus[]).map((s) => (
+              <option key={s} value={s}>{STATUS_LABEL[s]}</option>
+            ))}
+          </select>
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            placeholder="Du"
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+          />
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            placeholder="Au"
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+          />
+          <input
+            type="number"
+            value={amountMin}
+            onChange={(e) => setAmountMin(e.target.value)}
+            placeholder="Min DH"
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+          />
+          <input
+            type="number"
+            value={amountMax}
+            onChange={(e) => setAmountMax(e.target.value)}
+            placeholder="Max DH"
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+          />
+          <button
+            onClick={resetFilters}
+            className="h-9 whitespace-nowrap rounded-md border border-border bg-background px-3 text-sm font-medium text-muted-foreground hover:bg-secondary"
+          >
+            Réinitialiser
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -518,7 +608,7 @@ function PaymentDialog({
               onChange={(e) => setType(e.target.value as AdminPaymentType)}
               className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm"
             >
-              {(Object.keys(TYPE_LABEL) as AdminPaymentType[]).map((t) => (
+              {(["achat", "virement_vendeur", "commission", "remboursement", "caution"] as AdminPaymentType[]).map((t) => (
                 <option key={t} value={t}>{TYPE_LABEL[t]}</option>
               ))}
             </select>
