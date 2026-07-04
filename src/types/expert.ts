@@ -51,6 +51,19 @@ export interface ExpertReport {
   detailsConfirmes?: boolean;
   images?: string[];         // data URLs of uploaded photos
   rapportPdfNom?: string | null;
+  rapportPdfDataUrl?: string | null;
+}
+
+/** Full expertise info displayed on the public auction page. */
+export interface CarExpertise {
+  noteFinale: number | null;
+  commentaire: string | null;
+  checklist: InspectionChecklist | null;
+  rapportUrl: string | null;
+  rapportName: string | null;
+  rapportRecuLe: string | null;
+  /** Only populated for admins and buyers (acheteurs) — otherwise null. */
+  expertImages: string[] | null;
 }
 
 export interface ExpertStats {
