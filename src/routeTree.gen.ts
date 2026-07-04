@@ -58,6 +58,7 @@ import { Route as ApiPublicCmiInitRouteImport } from './routes/api/public/cmi-in
 import { Route as ApiPublicCmiCallbackRouteImport } from './routes/api/public/cmi-callback'
 import { Route as ApiPublicAdminDeleteUserRouteImport } from './routes/api/public/admin-delete-user'
 import { Route as ApiPublicAdminCreateUserRouteImport } from './routes/api/public/admin-create-user'
+import { Route as AcheteurGagneesAuctionIdRouteImport } from './routes/acheteur.gagnees.$auctionId'
 import { Route as AcheteurEncherirAuctionIdRouteImport } from './routes/acheteur.encherir.$auctionId'
 
 const VendeurRoute = VendeurRouteImport.update({
@@ -308,6 +309,12 @@ const ApiPublicAdminCreateUserRoute =
     path: '/api/public/admin-create-user',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AcheteurGagneesAuctionIdRoute =
+  AcheteurGagneesAuctionIdRouteImport.update({
+    id: '/$auctionId',
+    path: '/$auctionId',
+    getParentRoute: () => AcheteurGagneesRoute,
+  } as any)
 const AcheteurEncherirAuctionIdRoute =
   AcheteurEncherirAuctionIdRouteImport.update({
     id: '/encherir/$auctionId',
@@ -333,7 +340,7 @@ export interface FileRoutesByFullPath {
   '/acheteur/caution': typeof AcheteurCautionRoute
   '/acheteur/caution-paiement': typeof AcheteurCautionPaiementRoute
   '/acheteur/encheres': typeof AcheteurEncheresRoute
-  '/acheteur/gagnees': typeof AcheteurGagneesRoute
+  '/acheteur/gagnees': typeof AcheteurGagneesRouteWithChildren
   '/acheteur/notifications': typeof AcheteurNotificationsRoute
   '/acheteur/paiements': typeof AcheteurPaiementsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
@@ -360,6 +367,7 @@ export interface FileRoutesByFullPath {
   '/expert/': typeof ExpertIndexRoute
   '/vendeur/': typeof VendeurIndexRoute
   '/acheteur/encherir/$auctionId': typeof AcheteurEncherirAuctionIdRoute
+  '/acheteur/gagnees/$auctionId': typeof AcheteurGagneesAuctionIdRoute
   '/api/public/admin-create-user': typeof ApiPublicAdminCreateUserRoute
   '/api/public/admin-delete-user': typeof ApiPublicAdminDeleteUserRoute
   '/api/public/cmi-callback': typeof ApiPublicCmiCallbackRoute
@@ -381,7 +389,7 @@ export interface FileRoutesByTo {
   '/acheteur/caution': typeof AcheteurCautionRoute
   '/acheteur/caution-paiement': typeof AcheteurCautionPaiementRoute
   '/acheteur/encheres': typeof AcheteurEncheresRoute
-  '/acheteur/gagnees': typeof AcheteurGagneesRoute
+  '/acheteur/gagnees': typeof AcheteurGagneesRouteWithChildren
   '/acheteur/notifications': typeof AcheteurNotificationsRoute
   '/acheteur/paiements': typeof AcheteurPaiementsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
@@ -408,6 +416,7 @@ export interface FileRoutesByTo {
   '/expert': typeof ExpertIndexRoute
   '/vendeur': typeof VendeurIndexRoute
   '/acheteur/encherir/$auctionId': typeof AcheteurEncherirAuctionIdRoute
+  '/acheteur/gagnees/$auctionId': typeof AcheteurGagneesAuctionIdRoute
   '/api/public/admin-create-user': typeof ApiPublicAdminCreateUserRoute
   '/api/public/admin-delete-user': typeof ApiPublicAdminDeleteUserRoute
   '/api/public/cmi-callback': typeof ApiPublicCmiCallbackRoute
@@ -434,7 +443,7 @@ export interface FileRoutesById {
   '/acheteur/caution': typeof AcheteurCautionRoute
   '/acheteur/caution-paiement': typeof AcheteurCautionPaiementRoute
   '/acheteur/encheres': typeof AcheteurEncheresRoute
-  '/acheteur/gagnees': typeof AcheteurGagneesRoute
+  '/acheteur/gagnees': typeof AcheteurGagneesRouteWithChildren
   '/acheteur/notifications': typeof AcheteurNotificationsRoute
   '/acheteur/paiements': typeof AcheteurPaiementsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
@@ -461,6 +470,7 @@ export interface FileRoutesById {
   '/expert/': typeof ExpertIndexRoute
   '/vendeur/': typeof VendeurIndexRoute
   '/acheteur/encherir/$auctionId': typeof AcheteurEncherirAuctionIdRoute
+  '/acheteur/gagnees/$auctionId': typeof AcheteurGagneesAuctionIdRoute
   '/api/public/admin-create-user': typeof ApiPublicAdminCreateUserRoute
   '/api/public/admin-delete-user': typeof ApiPublicAdminDeleteUserRoute
   '/api/public/cmi-callback': typeof ApiPublicCmiCallbackRoute
@@ -515,6 +525,7 @@ export interface FileRouteTypes {
     | '/expert/'
     | '/vendeur/'
     | '/acheteur/encherir/$auctionId'
+    | '/acheteur/gagnees/$auctionId'
     | '/api/public/admin-create-user'
     | '/api/public/admin-delete-user'
     | '/api/public/cmi-callback'
@@ -563,6 +574,7 @@ export interface FileRouteTypes {
     | '/expert'
     | '/vendeur'
     | '/acheteur/encherir/$auctionId'
+    | '/acheteur/gagnees/$auctionId'
     | '/api/public/admin-create-user'
     | '/api/public/admin-delete-user'
     | '/api/public/cmi-callback'
@@ -615,6 +627,7 @@ export interface FileRouteTypes {
     | '/expert/'
     | '/vendeur/'
     | '/acheteur/encherir/$auctionId'
+    | '/acheteur/gagnees/$auctionId'
     | '/api/public/admin-create-user'
     | '/api/public/admin-delete-user'
     | '/api/public/cmi-callback'
@@ -994,6 +1007,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAdminCreateUserRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/acheteur/gagnees/$auctionId': {
+      id: '/acheteur/gagnees/$auctionId'
+      path: '/$auctionId'
+      fullPath: '/acheteur/gagnees/$auctionId'
+      preLoaderRoute: typeof AcheteurGagneesAuctionIdRouteImport
+      parentRoute: typeof AcheteurGagneesRoute
+    }
     '/acheteur/encherir/$auctionId': {
       id: '/acheteur/encherir/$auctionId'
       path: '/encherir/$auctionId'
@@ -1004,11 +1024,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AcheteurGagneesRouteChildren {
+  AcheteurGagneesAuctionIdRoute: typeof AcheteurGagneesAuctionIdRoute
+}
+
+const AcheteurGagneesRouteChildren: AcheteurGagneesRouteChildren = {
+  AcheteurGagneesAuctionIdRoute: AcheteurGagneesAuctionIdRoute,
+}
+
+const AcheteurGagneesRouteWithChildren = AcheteurGagneesRoute._addFileChildren(
+  AcheteurGagneesRouteChildren,
+)
+
 interface AcheteurRouteChildren {
   AcheteurCautionRoute: typeof AcheteurCautionRoute
   AcheteurCautionPaiementRoute: typeof AcheteurCautionPaiementRoute
   AcheteurEncheresRoute: typeof AcheteurEncheresRoute
-  AcheteurGagneesRoute: typeof AcheteurGagneesRoute
+  AcheteurGagneesRoute: typeof AcheteurGagneesRouteWithChildren
   AcheteurNotificationsRoute: typeof AcheteurNotificationsRoute
   AcheteurPaiementsRoute: typeof AcheteurPaiementsRoute
   AcheteurIndexRoute: typeof AcheteurIndexRoute
@@ -1019,7 +1051,7 @@ const AcheteurRouteChildren: AcheteurRouteChildren = {
   AcheteurCautionRoute: AcheteurCautionRoute,
   AcheteurCautionPaiementRoute: AcheteurCautionPaiementRoute,
   AcheteurEncheresRoute: AcheteurEncheresRoute,
-  AcheteurGagneesRoute: AcheteurGagneesRoute,
+  AcheteurGagneesRoute: AcheteurGagneesRouteWithChildren,
   AcheteurNotificationsRoute: AcheteurNotificationsRoute,
   AcheteurPaiementsRoute: AcheteurPaiementsRoute,
   AcheteurIndexRoute: AcheteurIndexRoute,
