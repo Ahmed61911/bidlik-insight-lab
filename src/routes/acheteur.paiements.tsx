@@ -28,10 +28,72 @@ export const Route = createFileRoute("/acheteur/paiements")({
   component: PaiementsPage,
 });
 
+const TYPE_LABEL: Record<string, string> = {
+  all: "Tous types",
+  achat: "Achat",
+  caution: "Caution",
+  remboursement_caution: "Remb. caution",
+  commission: "Commission",
+  remboursement: "Remboursement",
+  virement_vendeur: "Virement vendeur",
+};
+
+const STATUS_LABEL: Record<string, string> = {
+  all: "Tous statuts",
+  en_attente: "En attente",
+  regle: "Validée",
+  rembourse: "Remboursé",
+  rejete: "Refusée",
+};
+
 function PaiementsPage() {
   const paiements = useMesPaiements();
   const [pending, setPending] = useState<PendingPaymentAuction[]>([]);
   const [submitting, setSubmitting] = useState<PendingPaymentAuction | null>(null);
+
+  // Filters
+  const [query, setQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [amountMin, setAmountMin] = useState("");
+  const [amountMax, setAmountMax] = useState("");
+
+  const resetFilters = () => {
+    setQuery("");
+    setTypeFilter("all");
+    setStatusFilter("all");
+    setDateFrom("");
+    setDateTo("");
+    setAmountMin("");
+    setAmountMax("");
+  };
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const min = amountMin ? Number(amountMin) : null;
+    const max = amountMax ? Number(amountMax) : null;
+    const from = dateFrom ? new Date(dateFrom).getTime() : null;
+    const to = dateTo ? new Date(dateTo).getTime() + 24 * 60 * 60 * 1000 - 1 : null;
+    return [...paiements]
+      .filter((p) => {
+        if (typeFilter !== "all" && p.type !== typeFilter) return false;
+        if (statusFilter !== "all" && p.status !== statusFilter) return false;
+        if (min != null && p.montant < min) return false;
+        if (max != null && p.montant > max) return false;
+        const t = new Date(p.date).getTime();
+        if (from != null && t < from) return false;
+        if (to != null && t > to) return false;
+        if (q) {
+          const hay = `${p.libelle} ${p.reference} ${p.type} ${p.notes ?? ""} ${p.bank ?? ""}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      })
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [paiements, query, typeFilter, statusFilter, dateFrom, dateTo, amountMin, amountMax]);
+
 
   const refreshPending = () => {
     listMyPendingPaymentAuctions()
