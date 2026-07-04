@@ -292,7 +292,9 @@ function AdminPaiementsPage() {
             <thead className="bg-secondary/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
                 <th className="px-3 py-2">Date</th>
-                <th className="px-3 py-2">Utilisateur</th>
+                <th className="px-3 py-2">Sens</th>
+                <th className="px-3 py-2">Payeur</th>
+                <th className="px-3 py-2">Bénéficiaire</th>
                 <th className="px-3 py-2">Type</th>
                 <th className="px-3 py-2">Voiture</th>
                 <th className="px-3 py-2 text-right">Montant</th>
@@ -303,14 +305,29 @@ function AdminPaiementsPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((p) => (
+              {filtered.map((p) => {
+                const dir = DIRECTION_BY_TYPE[p.type];
+                return (
                 <tr key={p.id} className="border-t border-border align-top">
                   <td className="px-3 py-2 text-muted-foreground">
                     {new Date(p.paidAt ?? p.createdAt).toLocaleDateString("fr-FR")}
                   </td>
                   <td className="px-3 py-2">
-                    <div className="font-medium text-foreground">{p.userNom ?? "—"}</div>
-                    <div className="text-xs text-muted-foreground">{p.userEmail ?? ""}</div>
+                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${DIRECTION_TONE[dir]}`}>
+                      {DIRECTION_LABEL[dir]}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2">
+                    <div className="font-medium text-foreground">{payerOf(p)}</div>
+                    {dir === "entrant" && p.userEmail && (
+                      <div className="text-xs text-muted-foreground">{p.userEmail}</div>
+                    )}
+                  </td>
+                  <td className="px-3 py-2">
+                    <div className="font-medium text-foreground">{beneficiaryOf(p)}</div>
+                    {dir === "sortant" && p.userEmail && (
+                      <div className="text-xs text-muted-foreground">{p.userEmail}</div>
+                    )}
                   </td>
                   <td className="px-3 py-2">{TYPE_LABEL[p.type]}</td>
                   <td className="px-3 py-2">
