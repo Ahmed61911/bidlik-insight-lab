@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FileText, Upload, X } from "lucide-react";
+
 import { toast } from "sonner";
 import {
   useMesPaiements,
@@ -27,10 +28,72 @@ export const Route = createFileRoute("/acheteur/paiements")({
   component: PaiementsPage,
 });
 
+const TYPE_LABEL: Record<string, string> = {
+  all: "Tous types",
+  achat: "Achat",
+  caution: "Caution",
+  remboursement_caution: "Remb. caution",
+  commission: "Commission",
+  remboursement: "Remboursement",
+  virement_vendeur: "Virement vendeur",
+};
+
+const STATUS_LABEL: Record<string, string> = {
+  all: "Tous statuts",
+  en_attente: "En attente",
+  regle: "Validée",
+  rembourse: "Remboursé",
+  rejete: "Refusée",
+};
+
 function PaiementsPage() {
   const paiements = useMesPaiements();
   const [pending, setPending] = useState<PendingPaymentAuction[]>([]);
   const [submitting, setSubmitting] = useState<PendingPaymentAuction | null>(null);
+
+  // Filters
+  const [query, setQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [amountMin, setAmountMin] = useState("");
+  const [amountMax, setAmountMax] = useState("");
+
+  const resetFilters = () => {
+    setQuery("");
+    setTypeFilter("all");
+    setStatusFilter("all");
+    setDateFrom("");
+    setDateTo("");
+    setAmountMin("");
+    setAmountMax("");
+  };
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const min = amountMin ? Number(amountMin) : null;
+    const max = amountMax ? Number(amountMax) : null;
+    const from = dateFrom ? new Date(dateFrom).getTime() : null;
+    const to = dateTo ? new Date(dateTo).getTime() + 24 * 60 * 60 * 1000 - 1 : null;
+    return [...paiements]
+      .filter((p) => {
+        if (typeFilter !== "all" && p.type !== typeFilter) return false;
+        if (statusFilter !== "all" && p.status !== statusFilter) return false;
+        if (min != null && p.montant < min) return false;
+        if (max != null && p.montant > max) return false;
+        const t = new Date(p.date).getTime();
+        if (from != null && t < from) return false;
+        if (to != null && t > to) return false;
+        if (q) {
+          const hay = `${p.libelle} ${p.reference} ${p.type} ${p.notes ?? ""} ${p.bank ?? ""}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      })
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [paiements, query, typeFilter, statusFilter, dateFrom, dateTo, amountMin, amountMax]);
+
 
   const refreshPending = () => {
     listMyPendingPaymentAuctions()
@@ -129,13 +192,101 @@ function PaiementsPage() {
       )}
 
       <div className="rounded-xl border border-border bg-card p-4 shadow-sm sm:rounded-2xl sm:p-5">
-        <h3 className="text-sm font-semibold text-foreground">Historique complet</h3>
-        {paiements.length === 0 ? (
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-foreground">Filtres</h3>
+          <button
+            onClick={resetFilters}
+            className="text-xs font-medium text-muted-foreground hover:text-foreground"
+          >
+            Réinitialiser
+          </button>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="sm:col-span-2 lg:col-span-4">
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Recherche</label>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Libellé, référence, banque…"
+              className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Type</label>
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm"
+            >
+              {Object.keys(TYPE_LABEL).map((t) => (
+                <option key={t} value={t}>{TYPE_LABEL[t]}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Statut</label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm"
+            >
+              {Object.keys(STATUS_LABEL).map((s) => (
+                <option key={s} value={s}>{STATUS_LABEL[s]}</option>
+              ))}
+            </select>
+          </div>
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Période</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="h-9 flex-1 rounded-md border border-border bg-background px-2 text-sm"
+              />
+              <span className="text-xs text-muted-foreground">à</span>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="h-9 flex-1 rounded-md border border-border bg-background px-2 text-sm"
+              />
+            </div>
+          </div>
+          <div className="sm:col-span-2 lg:col-span-4">
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Montant (DH)</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                value={amountMin}
+                onChange={(e) => setAmountMin(e.target.value)}
+                placeholder="Min"
+                className="h-9 flex-1 rounded-md border border-border bg-background px-2 text-sm"
+              />
+              <span className="text-xs text-muted-foreground">à</span>
+              <input
+                type="number"
+                value={amountMax}
+                onChange={(e) => setAmountMax(e.target.value)}
+                placeholder="Max"
+                className="h-9 flex-1 rounded-md border border-border bg-background px-2 text-sm"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-border bg-card p-4 shadow-sm sm:rounded-2xl sm:p-5">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-foreground">Historique complet</h3>
+          <span className="text-xs text-muted-foreground">{filtered.length} paiement{filtered.length > 1 ? "s" : ""}</span>
+        </div>
+        {filtered.length === 0 ? (
           <p className="mt-3 text-sm text-muted-foreground">Aucun paiement.</p>
         ) : (
           <>
             <div className="mt-3 space-y-3 sm:hidden">
-              {paiements.map((p) => (
+              {filtered.map((p) => (
                 <article key={p.id} className="rounded-lg border border-border bg-background p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
@@ -179,7 +330,7 @@ function PaiementsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {paiements.map((p) => (
+                  {filtered.map((p) => (
                     <tr key={p.id}>
                       <td className="py-3 pr-3 text-muted-foreground">
                         {new Date(p.date).toLocaleDateString("fr-FR")}
@@ -218,6 +369,7 @@ function PaiementsPage() {
           </>
         )}
       </div>
+
 
       {submitting && (
         <SubmitPaymentDialog
