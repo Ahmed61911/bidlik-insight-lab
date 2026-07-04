@@ -149,7 +149,7 @@ function VehiculesPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((l) => (
-          <VehiculeCard key={l.id} lot={l} isVendeur={isVendeurOnly} />
+          <VehiculeCard key={l.id} lot={l} />
         ))}
       </div>
 
