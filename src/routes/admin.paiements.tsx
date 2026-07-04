@@ -120,6 +120,20 @@ function AdminPaiementsPage() {
       items.filter((p) => {
         if (filter !== "all" && p.status !== filter) return false;
         if (directionFilter !== "all" && DIRECTION_BY_TYPE[p.type] !== directionFilter) return false;
+        if (typeFilter !== "all" && p.type !== typeFilter) return false;
+        if (userFilter !== "all" && p.userId !== userFilter) return false;
+        if (dateFrom) {
+          const d = new Date(p.paidAt ?? p.createdAt);
+          if (d < new Date(dateFrom)) return false;
+        }
+        if (dateTo) {
+          const d = new Date(p.paidAt ?? p.createdAt);
+          const to = new Date(dateTo);
+          to.setHours(23, 59, 59, 999);
+          if (d > to) return false;
+        }
+        if (amountMin && p.amount < Number(amountMin)) return false;
+        if (amountMax && p.amount > Number(amountMax)) return false;
         if (!query) return true;
         const q = query.toLowerCase();
         return (
@@ -131,8 +145,20 @@ function AdminPaiementsPage() {
           payerOf(p).toLowerCase().includes(q)
         );
       }),
-    [items, filter, directionFilter, query],
+    [items, filter, directionFilter, typeFilter, userFilter, dateFrom, dateTo, amountMin, amountMax, query],
   );
+
+  const resetFilters = () => {
+    setFilter("all");
+    setDirectionFilter("all");
+    setTypeFilter("all");
+    setUserFilter("all");
+    setDateFrom("");
+    setDateTo("");
+    setAmountMin("");
+    setAmountMax("");
+    setQuery("");
+  };
 
   const totals = useMemo(() => {
     const pending = items.filter((p) => p.status === "en_attente").reduce((s, p) => s + p.amount, 0);
