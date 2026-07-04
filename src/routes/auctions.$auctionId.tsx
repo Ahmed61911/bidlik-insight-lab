@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { subscribeToAuction } from "@/lib/realtime";
 import type { Auction, Bid } from "@/types/auction";
-import { formatMad, formatDateTime, priceTier, priceTierTextClass, buyerPriceTier, buyerPriceTierGradientClass, buyerPriceTierTextClass } from "@/lib/format";
+import { formatMad, formatDateTime, listingPriceTier, priceTierTextClass, priceTierGradientClass } from "@/lib/format";
 import { Countdown } from "@/components/Countdown";
 import { CarGallery } from "@/components/CarGallery";
 import { SealedBidPanel } from "@/components/SealedBidPanel";
