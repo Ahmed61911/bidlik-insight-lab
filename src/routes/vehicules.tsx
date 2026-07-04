@@ -166,10 +166,8 @@ function VehiculesPage() {
 function VehiculeCard({ lot, isVendeur }: { lot: Auction; isVendeur: boolean }) {
   const c = lot.car;
   const img = c.images?.[0];
-  const priceClass = c.prixAttendu
-    ? isVendeur
-      ? priceTierTextClass(priceTier(lot.currentPrice, c.prixAttendu))
-      : buyerPriceTierTextClass(buyerPriceTier(lot.currentPrice, c.prixAttendu))
+  const priceClass = (c.prixPlancher ?? c.prixAttendu)
+    ? priceTierTextClass(listingPriceTier(lot.currentPrice, c))
     : "text-foreground";
   return (
     <article className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md">
