@@ -38,6 +38,7 @@ function ExpertInspectionDetailPage() {
   const [images, setImages] = useState<string[]>([]);
   const [commercialImages, setCommercialImages] = useState<string[]>([]);
   const [pdfName, setPdfName] = useState<string | null>(null);
+  const [pdfDataUrl, setPdfDataUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const imgInputRef = useRef<HTMLInputElement>(null);
   const commercialImgInputRef = useRef<HTMLInputElement>(null);
