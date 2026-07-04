@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { Auction } from "@/types/auction";
-import { formatMad, buyerPriceTier, buyerPriceTierGradientClass } from "@/lib/format";
+import { formatMad, listingPriceTier, priceTierGradientClass } from "@/lib/format";
 import { useAuth } from "@/lib/auth";
 import { Countdown } from "./Countdown";
 
