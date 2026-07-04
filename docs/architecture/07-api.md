@@ -14,7 +14,7 @@ Every response is JSON unless noted.
 ### `POST /api/public/seed-demo`
 - **Purpose**: Idempotent bootstrap of the 4 demo accounts.
 - **Auth**: none — self-contained bootstrap, safe because it only creates
-  the fixed demo emails (`admin@bidlic.ma`, …).
+  the fixed demo emails (`admin@bidlik.ma`, …).
 - **Input**: none.
 - **Logic**: `supabaseAdmin.auth.admin.listUsers()` → for each demo:
   create (`email_confirm:true`, `user_metadata: { nom, telephone, role, actif:true }`)

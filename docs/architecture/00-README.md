@@ -1,6 +1,6 @@
-# Bidlic — Architecture & Finish-in-Place Documentation
+# Bidlik — Architecture & Finish-in-Place Documentation
 
-Exhaustive reverse-engineering of the Bidlic codebase and a roadmap to finish
+Exhaustive reverse-engineering of the Bidlik codebase and a roadmap to finish
 the project on its current stack (React 19 + TanStack Start + self-hosted
 Supabase). No backend rewrite planned.
 

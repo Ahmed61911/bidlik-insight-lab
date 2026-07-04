@@ -1,8 +1,8 @@
 # 01 — Project Overview
 
-## What Bidlic is
+## What Bidlik is
 
-Bidlic is a **Moroccan real-time car-auction platform**. Sellers (particuliers,
+Bidlik is a **Moroccan real-time car-auction platform**. Sellers (particuliers,
 loueurs, entreprises) list vehicles → an expert inspects & scores them → an
 admin schedules them into open or sealed auctions → authenticated buyers place
 live bids (with anti-snipe extensions) or confidential sealed offers → the
