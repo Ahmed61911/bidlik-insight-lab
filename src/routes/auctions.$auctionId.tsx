@@ -520,3 +520,123 @@ function BidBtn({
     </button>
   );
 }
+
+function ExpertiseSection({
+  expertise,
+  canPreviewPhotos,
+}: {
+  expertise: CarExpertise;
+  canPreviewPhotos: boolean;
+}) {
+  const c = expertise.checklist;
+  const criteria: { key: keyof NonNullable<CarExpertise["checklist"]>; label: string }[] = [
+    { key: "carrosserie", label: "Carrosserie" },
+    { key: "moteur", label: "Moteur & boîte" },
+    { key: "interieur", label: "Intérieur" },
+    { key: "pneus", label: "Pneus & freins" },
+    { key: "electronique", label: "Électronique" },
+  ];
+  return (
+    <section className="mt-8 rounded-xl border border-border bg-card p-5 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-bold text-foreground">Rapport d'expertise</h2>
+          {expertise.rapportRecuLe && (
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Reçu le {new Date(expertise.rapportRecuLe).toLocaleDateString("fr-MA")}
+            </p>
+          )}
+        </div>
+        {expertise.noteFinale != null && (
+          <div className="rounded-lg bg-accent/10 px-3 py-1.5 text-base font-bold text-accent">
+            ★ {expertise.noteFinale}/10
+          </div>
+        )}
+      </div>
+
+      {c && (
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {criteria.map(({ key, label }) => {
+            const v = Number(c[key] ?? 0);
+            return (
+              <div key={String(key)}>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium text-muted-foreground">{label}</span>
+                  <span className="font-semibold text-foreground">{v}/10</span>
+                </div>
+                <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+                  <div
+                    className={[
+                      "h-full",
+                      v >= 7 ? "bg-emerald-500" : v >= 5 ? "bg-amber-500" : "bg-destructive",
+                    ].join(" ")}
+                    style={{ width: `${Math.max(0, Math.min(100, v * 10))}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+          <div className="sm:col-span-2 flex items-center gap-2 text-xs">
+            <span
+              className={[
+                "inline-flex h-2 w-2 rounded-full",
+                c.documents ? "bg-emerald-500" : "bg-destructive",
+              ].join(" ")}
+            />
+            <span className="text-muted-foreground">
+              Documents complets — {c.documents ? "oui" : "non"}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {expertise.commentaire && (
+        <div className="mt-4 rounded-lg border border-border bg-secondary/40 p-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Commentaire de l'expert
+          </p>
+          <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">{expertise.commentaire}</p>
+        </div>
+      )}
+
+      {expertise.rapportUrl && (
+        <a
+          href={expertise.rapportUrl}
+          download={expertise.rapportName ?? "rapport-expertise.pdf"}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary"
+        >
+          📄 Télécharger le rapport {expertise.rapportName ? `(${expertise.rapportName})` : ""}
+        </a>
+      )}
+
+      {canPreviewPhotos && expertise.expertImages && expertise.expertImages.length > 0 && (
+        <div className="mt-5">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Photos d'expertise ({expertise.expertImages.length})
+          </p>
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+            {expertise.expertImages.map((src, i) => (
+              <a
+                key={i}
+                href={src}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative aspect-square overflow-hidden rounded-md border border-border"
+              >
+                <img src={src} alt={`Photo expertise ${i + 1}`} className="h-full w-full object-cover" />
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!canPreviewPhotos && (
+        <p className="mt-4 rounded-md border border-dashed border-border p-3 text-xs text-muted-foreground">
+          🔒 Les photos d'expertise sont réservées aux acheteurs et administrateurs.
+        </p>
+      )}
+    </section>
+  );
+}
