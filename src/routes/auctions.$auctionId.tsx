@@ -2,6 +2,8 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
+import { getCarExpertise } from "@/lib/supabaseApi";
+import type { CarExpertise } from "@/types/expert";
 import { subscribeToAuction } from "@/lib/realtime";
 import type { Auction, Bid } from "@/types/auction";
 import { formatMad, formatDateTime, listingPriceTier, priceTierTextClass, priceTierGradientClass } from "@/lib/format";
