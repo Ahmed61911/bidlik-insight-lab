@@ -92,6 +92,7 @@ function AdminPaiementsPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | AdminPaymentStatus>("all");
+  const [directionFilter, setDirectionFilter] = useState<"all" | PaymentDirection>("all");
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<AdminPayment | "new" | null>(null);
 
