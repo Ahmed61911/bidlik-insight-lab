@@ -85,7 +85,7 @@ function EncherirPage() {
   const isSealed = auction.auctionType === "fermee";
   const displayPrice = isSealed ? (auction.car.minimumAcceptedPrice ?? auction.startingPrice) : auction.currentPrice;
   const priceLabel = isSealed ? "Prix minimum" : "Offre actuelle";
-  const tier = buyerPriceTier(displayPrice, auction.car.prixAttendu);
+  const tier = listingPriceTier(displayPrice, auction.car);
   const myLastBid = bids.find((b) => b.bidderId === "me");
   const isLeader = auction.topBidderId === "me";
 
