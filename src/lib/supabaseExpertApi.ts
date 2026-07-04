@@ -183,12 +183,16 @@ export const supabaseExpertApi = {
         .eq("id", carId);
     }
 
-    // 4. Submit the final note via RPC (rounds to nearest int 0-10)
+    // 4. Submit the final note + report metadata via RPC.
     const note = Math.round(Math.max(0, Math.min(10, report.noteFinale)));
     const { error: rErr } = await supabase.rpc("submit_expert_report", {
       p_car_id: carId,
       p_note: note,
-    });
+      p_commentaire: report.commentaire ?? null,
+      p_checklist: (report.checklist as unknown as Record<string, unknown>) ?? null,
+      p_rapport_url: report.rapportPdfDataUrl ?? null,
+      p_rapport_name: report.rapportPdfNom ?? null,
+    } as never);
     if (rErr) throw rErr;
   },
 };

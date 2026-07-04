@@ -38,6 +38,7 @@ function ExpertInspectionDetailPage() {
   const [images, setImages] = useState<string[]>([]);
   const [commercialImages, setCommercialImages] = useState<string[]>([]);
   const [pdfName, setPdfName] = useState<string | null>(null);
+  const [pdfDataUrl, setPdfDataUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const imgInputRef = useRef<HTMLInputElement>(null);
   const commercialImgInputRef = useRef<HTMLInputElement>(null);
@@ -102,6 +103,7 @@ function ExpertInspectionDetailPage() {
         detailsConfirmes,
         images,
         rapportPdfNom: pdfName,
+        rapportPdfDataUrl: pdfDataUrl,
       });
       toast.success(`Rapport envoyé — note ${note}/10`);
       navigate({ to: "/expert/inspections" });
@@ -386,7 +388,18 @@ function ExpertInspectionDetailPage() {
             type="file"
             accept="application/pdf"
             className="hidden"
-            onChange={(e) => setPdfName(e.target.files?.[0]?.name ?? null)}
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (!f) { setPdfName(null); setPdfDataUrl(null); return; }
+              if (f.size > 8 * 1024 * 1024) {
+                toast.error("Le PDF doit faire moins de 8 Mo.");
+                return;
+              }
+              setPdfName(f.name);
+              const r = new FileReader();
+              r.onload = () => setPdfDataUrl(String(r.result));
+              r.readAsDataURL(f);
+            }}
           />
           {pdfName ? (
             <span className="inline-flex items-center gap-1 text-sm text-foreground">

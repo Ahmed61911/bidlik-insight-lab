@@ -278,33 +278,45 @@ export type Database = {
         Row: {
           assigne_le: string | null
           car_id: string
+          checklist: Json | null
+          commentaire: string | null
           created_at: string
           expert_id: string | null
           id: string
           note_finale: number | null
+          rapport_name: string | null
           rapport_recu_le: string | null
+          rapport_url: string | null
           status: Database["public"]["Enums"]["expert_assignment_status_t"]
           updated_at: string
         }
         Insert: {
           assigne_le?: string | null
           car_id: string
+          checklist?: Json | null
+          commentaire?: string | null
           created_at?: string
           expert_id?: string | null
           id?: string
           note_finale?: number | null
+          rapport_name?: string | null
           rapport_recu_le?: string | null
+          rapport_url?: string | null
           status?: Database["public"]["Enums"]["expert_assignment_status_t"]
           updated_at?: string
         }
         Update: {
           assigne_le?: string | null
           car_id?: string
+          checklist?: Json | null
+          commentaire?: string | null
           created_at?: string
           expert_id?: string | null
           id?: string
           note_finale?: number | null
+          rapport_name?: string | null
           rapport_recu_le?: string | null
+          rapport_url?: string | null
           status?: Database["public"]["Enums"]["expert_assignment_status_t"]
           updated_at?: string
         }
@@ -980,11 +992,15 @@ export type Database = {
         Returns: {
           assigne_le: string | null
           car_id: string
+          checklist: Json | null
+          commentaire: string | null
           created_at: string
           expert_id: string | null
           id: string
           note_finale: number | null
+          rapport_name: string | null
           rapport_recu_le: string | null
+          rapport_url: string | null
           status: Database["public"]["Enums"]["expert_assignment_status_t"]
           updated_at: string
         }
@@ -1110,6 +1126,18 @@ export type Database = {
           modele: string
           vendeur_id: string
           vendeur_nom: string
+        }[]
+      }
+      get_car_expertise: {
+        Args: { p_car_id: string }
+        Returns: {
+          checklist: Json
+          commentaire: string
+          expert_images: Json
+          note_finale: number
+          rapport_name: string
+          rapport_recu_le: string
+          rapport_url: string
         }[]
       }
       get_car_full: {
@@ -1334,15 +1362,26 @@ export type Database = {
         Returns: boolean
       }
       submit_expert_report: {
-        Args: { p_car_id: string; p_note: number }
+        Args: {
+          p_car_id: string
+          p_checklist?: Json
+          p_commentaire?: string
+          p_note: number
+          p_rapport_name?: string
+          p_rapport_url?: string
+        }
         Returns: {
           assigne_le: string | null
           car_id: string
+          checklist: Json | null
+          commentaire: string | null
           created_at: string
           expert_id: string | null
           id: string
           note_finale: number | null
+          rapport_name: string | null
           rapport_recu_le: string | null
+          rapport_url: string | null
           status: Database["public"]["Enums"]["expert_assignment_status_t"]
           updated_at: string
         }
