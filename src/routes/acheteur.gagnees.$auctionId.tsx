@@ -17,7 +17,18 @@ export const Route = createFileRoute("/acheteur/gagnees/$auctionId")({
   loader: async ({ params }) => {
     const auction = await api.getAuction(params.auctionId);
     const expertise = await getCarExpertise(auction.car.id).catch(() => null);
-    return { auction, expertise };
+    const { data: meta } = await supabase
+      .from("auctions")
+      .select("closed_at, validated_at, payment_deadline")
+      .eq("id", params.auctionId)
+      .maybeSingle();
+    return {
+      auction,
+      expertise,
+      closedAt: (meta?.closed_at as string | null) ?? null,
+      validatedAt: (meta?.validated_at as string | null) ?? null,
+      paymentDeadline: (meta?.payment_deadline as string | null) ?? null,
+    };
   },
   errorComponent: ({ error, reset }) => {
     const router = useRouter();
@@ -54,15 +65,27 @@ function computeStatus(a: Auction): WonStatus {
 }
 
 function WonCarDetailsPage() {
-  const { auction: initial, expertise } = Route.useLoaderData();
+  const { auction: initial, expertise, closedAt, validatedAt, paymentDeadline } = Route.useLoaderData();
   const [auction, setAuction] = useState<Auction>(initial);
+  const [meta, setMeta] = useState({ closedAt, validatedAt, paymentDeadline });
   const [reportUrl, setReportUrl] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
     async function refresh() {
       const fresh = await api.getAuction(initial.id).catch(() => null);
-      if (alive && fresh) setAuction(fresh);
+      const { data } = await supabase
+        .from("auctions")
+        .select("closed_at, validated_at, payment_deadline")
+        .eq("id", initial.id)
+        .maybeSingle();
+      if (!alive) return;
+      if (fresh) setAuction(fresh);
+      if (data) setMeta({
+        closedAt: (data.closed_at as string | null) ?? null,
+        validatedAt: (data.validated_at as string | null) ?? null,
+        paymentDeadline: (data.payment_deadline as string | null) ?? null,
+      });
     }
     const ch = supabase
       .channel(`won-car-${initial.id}`)
@@ -117,7 +140,7 @@ function WonCarDetailsPage() {
         </div>
       </header>
 
-      <CarGallery images={car.images} alt={`${car.marque} ${car.modele}`} />
+      <CarGallery images={car.images} marque={car.marque} modele={car.modele} />
 
       <section className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
         <h2 className="text-sm font-semibold text-foreground">Suivi de la transaction</h2>
