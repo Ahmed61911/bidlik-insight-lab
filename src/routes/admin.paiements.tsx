@@ -16,7 +16,8 @@ export const Route = createFileRoute("/admin/paiements")({
   component: AdminPaiementsPage,
 });
 
-const TYPE_LABEL: Record<AdminPaymentType, string> = {
+const TYPE_LABEL: Record<AdminPaymentType | "all", string> = {
+  all: "Tous types",
   achat: "Paiement achat (acheteur)",
   virement_vendeur: "Virement vendeur",
   commission: "Commission",
