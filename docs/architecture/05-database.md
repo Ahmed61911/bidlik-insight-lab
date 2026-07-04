@@ -208,7 +208,7 @@ All are `SECURITY DEFINER, SET search_path=public` unless noted.
 Scheduled in the migration:
 
 ```sql
-select cron.schedule('bidlic-tick', '30 seconds', $$SELECT public.tick_auctions();$$);
+select cron.schedule('bidlik-tick', '30 seconds', $$SELECT public.tick_auctions();$$);
 ```
 
 ## Migrations

@@ -16,10 +16,10 @@ type DemoAccount = {
 };
 
 const DEMO: DemoAccount[] = [
-  { email: "admin@bidlic.ma", password: "Admin1234!", role: "admin", nom: "Admin Bidlic", telephone: "+212 600 000 001" },
-  { email: "expert@bidlic.ma", password: "Expert1234!", role: "expert", nom: "Youssef El Amrani", telephone: "+212 600 000 002" },
-  { email: "vendeur@bidlic.ma", password: "Vendeur1234!", role: "vendeur", nom: "Karim Bennani", telephone: "+212 600 000 003" },
-  { email: "acheteur@bidlic.ma", password: "Acheteur1234!", role: "acheteur", nom: "Salma Idrissi", telephone: "+212 600 000 004" },
+  { email: "admin@bidlik.ma", password: "Admin1234!", role: "admin", nom: "Admin Bidlik", telephone: "+212 600 000 001" },
+  { email: "expert@bidlik.ma", password: "Expert1234!", role: "expert", nom: "Youssef El Amrani", telephone: "+212 600 000 002" },
+  { email: "vendeur@bidlik.ma", password: "Vendeur1234!", role: "vendeur", nom: "Karim Bennani", telephone: "+212 600 000 003" },
+  { email: "acheteur@bidlik.ma", password: "Acheteur1234!", role: "acheteur", nom: "Salma Idrissi", telephone: "+212 600 000 004" },
 ];
 
 function json(body: unknown, status = 200) {

@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/admin/verifications")({
   head: () => ({
     meta: [
-      { title: "Validation des comptes — Admin Bidlic" },
+      { title: "Validation des comptes — Admin Bidlik" },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),

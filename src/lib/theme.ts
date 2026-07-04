@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 export type Theme = "light" | "dark";
-const STORAGE_KEY = "bidlic-theme";
+const STORAGE_KEY = "bidlik-theme";
 
 export function getInitialTheme(): Theme {
   if (typeof window === "undefined") return "light";

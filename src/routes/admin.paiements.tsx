@@ -68,7 +68,7 @@ function beneficiaryOf(p: AdminPayment): string {
     case "caution":
     case "commission":
     default:
-      return "Bidlic (plateforme)";
+      return "Bidlik (plateforme)";
   }
 }
 
@@ -78,10 +78,10 @@ function payerOf(p: AdminPayment): string {
     case "caution":
       return p.userNom ?? p.userEmail ?? "Acheteur";
     case "commission":
-      return "Bidlic (plateforme)";
+      return "Bidlik (plateforme)";
     case "virement_vendeur":
     case "remboursement":
-      return "Bidlic (plateforme)";
+      return "Bidlik (plateforme)";
     default:
       return p.userNom ?? "—";
   }

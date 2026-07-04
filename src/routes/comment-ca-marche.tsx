@@ -4,11 +4,11 @@ import { useAuth } from "@/lib/auth";
 export const Route = createFileRoute("/comment-ca-marche")({
   head: () => ({
     meta: [
-      { title: "Comment ça marche — Bidlic" },
+      { title: "Comment ça marche — Bidlik" },
       {
         name: "description",
         content:
-          "Découvrez le fonctionnement des enchères automobiles Bidlic : inspection, enchère 24h, paiement sécurisé.",
+          "Découvrez le fonctionnement des enchères automobiles Bidlik : inspection, enchère 24h, paiement sécurisé.",
       },
     ],
   }),
@@ -62,7 +62,7 @@ const SELLER_STEPS = [
   {
     n: "05",
     title: "Paiement et livraison",
-    text: "Après réception du paiement, la commission Bidlic est déduite et le montant net vous est viré. Vous suivez le statut depuis « Paiements ».",
+    text: "Après réception du paiement, la commission Bidlik est déduite et le montant net vous est viré. Vous suivez le statut depuis « Paiements ».",
   },
 ];
 
@@ -71,7 +71,7 @@ function HowItWorksPage() {
   const isVendeur = hasRole("vendeur") && !hasRole("admin");
 
   const steps = isVendeur ? SELLER_STEPS : BUYER_STEPS;
-  const title = isVendeur ? "Comment vendre sur Bidlic ?" : "Comment fonctionne Bidlic ?";
+  const title = isVendeur ? "Comment vendre sur Bidlik ?" : "Comment fonctionne Bidlik ?";
   const subtitle = isVendeur
     ? "Le parcours complet de la soumission de votre voiture jusqu'au virement de votre paiement."
     : "Une plateforme d'enchères automobiles transparente, en temps réel, sécurisée — au Maroc.";

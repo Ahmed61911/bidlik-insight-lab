@@ -11,8 +11,8 @@ export const Route = createFileRoute("/login")({
   }),
   head: () => ({
     meta: [
-      { title: "Connexion — Bidlic" },
-      { name: "description", content: "Connectez-vous à votre compte Bidlic pour enchérir." },
+      { title: "Connexion — Bidlik" },
+      { name: "description", content: "Connectez-vous à votre compte Bidlik pour enchérir." },
     ],
   }),
   component: LoginPage,
@@ -77,7 +77,7 @@ function LoginPage() {
         const identifier = String(fd.get("phone")).trim();
         const email = identifier.includes("@")
           ? identifier
-          : `${identifier.replace(/\D/g, "")}@bidlic.local`;
+          : `${identifier.replace(/\D/g, "")}@bidlik.local`;
         const session = await authStore.login({
           email,
           password: String(fd.get("password")),
@@ -95,7 +95,7 @@ function LoginPage() {
         }
         await authStore.register({
           nom: String(fd.get("name")),
-          email: `${phone.replace(/\D/g, "")}@bidlic.local`,
+          email: `${phone.replace(/\D/g, "")}@bidlik.local`,
           telephone: phone,
           password,
           role: "acheteur",
@@ -143,7 +143,7 @@ function LoginPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           {mode === "login"
             ? "Connectez-vous pour suivre vos enchères et placer des offres."
-            : "Rejoignez Bidlic en quelques secondes."}
+            : "Rejoignez Bidlik en quelques secondes."}
         </p>
 
         <form id="auth-form" className="mt-6 space-y-4" onSubmit={submit}>
@@ -191,7 +191,7 @@ function LoginPage() {
         )}
 
         <p className="mt-6 border-t border-border pt-4 text-center text-xs text-muted-foreground">
-          En continuant, vous acceptez les conditions générales d'utilisation de Bidlic.
+          En continuant, vous acceptez les conditions générales d'utilisation de Bidlik.
         </p>
       </div>
     </div>

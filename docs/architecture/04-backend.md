@@ -2,7 +2,7 @@
 
 ## Two-tier "backend"
 
-Bidlic has **no dedicated Node backend service**. The word "backend" spans
+Bidlik has **no dedicated Node backend service**. The word "backend" spans
 two very different runtimes:
 
 1. **Postgres** — the real backend. All business logic lives in
@@ -46,8 +46,8 @@ published-site auth, so **each handler must authorise the caller itself**.
 
 Idempotent bootstrap. On demand (called by the login page's demo
 quick-fill), lists users via `supabase.auth.admin.listUsers()` and either
-creates or updates each of the 4 demo accounts (`admin@bidlic.ma`,
-`expert@bidlic.ma`, `vendeur@bidlic.ma`, `acheteur@bidlic.ma`) with
+creates or updates each of the 4 demo accounts (`admin@bidlik.ma`,
+`expert@bidlik.ma`, `vendeur@bidlik.ma`, `acheteur@bidlik.ma`) with
 `email_confirm: true` and `user_metadata` (`nom`, `telephone`, `role`,
 `actif: true`). The `handle_new_user` trigger on `auth.users` then
 creates the matching row in `public.profiles` and `public.user_roles`.

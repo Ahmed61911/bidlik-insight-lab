@@ -199,7 +199,7 @@ None of them are business-specific; they are imported across the app by name.
 
 | Path | Purpose |
 |------|---------|
-| `assets/bidlic-logo.png`, `.svg`, `bidlic-mark.png` | Brand marks. |
+| `assets/bidlik-logo.png`, `.svg`, `bidlik-mark.png` | Brand marks. |
 | `assets/fonts/Parkson-DemiBold.woff/woff2` | Heading font. |
 | `assets/fonts/YaltaSans.woff` | Body font. |
 

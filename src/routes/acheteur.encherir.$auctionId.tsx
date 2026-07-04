@@ -46,7 +46,7 @@ export const Route = createFileRoute("/acheteur/encherir/$auctionId")({
   },
   head: ({ loaderData }) => {
     const car = loaderData?.auction.car;
-    const title = car ? `Enchérir — ${car.marque} ${car.modele}` : "Enchérir — Bidlic";
+    const title = car ? `Enchérir — ${car.marque} ${car.modele}` : "Enchérir — Bidlik";
     return {
       meta: [{ title }, { name: "robots", content: "noindex,nofollow" }],
     };

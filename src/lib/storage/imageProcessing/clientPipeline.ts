@@ -12,7 +12,7 @@
  * etc.), implement ImageProcessor in a new class and swap it in ../index.ts.
  * Upload call sites stay unchanged.
  */
-import bidlicMark from "@/assets/bidlic-mark.png";
+import bidlikMark from "@/assets/bidlik-mark.png";
 import type { ImageProcessOptions, ImageProcessor, ProcessedImage } from "../types";
 
 export const WATERMARK_MARKER = "bidlik-wm";
@@ -40,7 +40,7 @@ function loadWatermark(): Promise<HTMLImageElement | null> {
     img.crossOrigin = "anonymous";
     img.onload = () => resolve(img);
     img.onerror = () => resolve(null);
-    img.src = bidlicMark;
+    img.src = bidlikMark;
   });
   return watermarkImgPromise;
 }

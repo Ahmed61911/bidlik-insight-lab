@@ -82,7 +82,7 @@ export function SealedBidPanel({ auction }: { auction: Auction }) {
         <div className="flex items-start gap-2 rounded-md border border-accent/30 bg-accent/5 p-3 text-xs leading-relaxed text-foreground">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
           <span>
-            Vente <strong>confidentielle</strong>. Vous ne voyez ni les autres offres, ni le nombre de participants. À la clôture, l'offre la plus élevée remporte la voiture (sous validation Bidlic).
+            Vente <strong>confidentielle</strong>. Vous ne voyez ni les autres offres, ni le nombre de participants. À la clôture, l'offre la plus élevée remporte la voiture (sous validation Bidlik).
           </span>
         </div>
 

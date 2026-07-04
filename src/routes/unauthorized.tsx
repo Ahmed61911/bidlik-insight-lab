@@ -4,7 +4,7 @@ import { ShieldAlert } from "lucide-react";
 export const Route = createFileRoute("/unauthorized")({
   head: () => ({
     meta: [
-      { title: "Accès refusé — Bidlic" },
+      { title: "Accès refusé — Bidlik" },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),

@@ -13,9 +13,9 @@ export const Route = createFileRoute("/vehicules")({
   beforeLoad: ({ location }) => requireAuth(location.href),
   head: () => ({
     meta: [
-      { title: "Véhicules — Bidlic" },
-      { name: "description", content: "Catalogue des véhicules en enchère sur Bidlic. Filtrez par marque, carburant, statut et enchère." },
-      { property: "og:title", content: "Véhicules — Bidlic" },
+      { title: "Véhicules — Bidlik" },
+      { name: "description", content: "Catalogue des véhicules en enchère sur Bidlik. Filtrez par marque, carburant, statut et enchère." },
+      { property: "og:title", content: "Véhicules — Bidlik" },
       { property: "og:description", content: "Catalogue des véhicules en enchère avec filtres avancés." },
     ],
   }),
