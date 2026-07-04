@@ -285,32 +285,89 @@ function AdminPaiementsPage() {
       </section>
 
 
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Rechercher nom, email, référence, voiture…"
-          className="h-9 flex-1 rounded-md border border-border bg-background px-3 text-sm"
-        />
-        <select
-          value={directionFilter}
-          onChange={(e) => setDirectionFilter(e.target.value as typeof directionFilter)}
-          className="h-9 rounded-md border border-border bg-background px-2 text-sm"
-        >
-          <option value="all">Entrant & Sortant</option>
-          <option value="entrant">Entrant</option>
-          <option value="sortant">Sortant</option>
-        </select>
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value as typeof filter)}
-          className="h-9 rounded-md border border-border bg-background px-2 text-sm"
-        >
-          <option value="all">Tous statuts</option>
-          {(Object.keys(STATUS_LABEL) as AdminPaymentStatus[]).map((s) => (
-            <option key={s} value={s}>{STATUS_LABEL[s]}</option>
-          ))}
-        </select>
+      <div className="space-y-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Rechercher nom, email, référence, voiture…"
+            className="h-9 flex-1 rounded-md border border-border bg-background px-3 text-sm"
+          />
+          <select
+            value={userFilter}
+            onChange={(e) => setUserFilter(e.target.value)}
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+          >
+            <option value="all">Tous bénéficiaires/payeurs</option>
+            {userOptions.map((u) => (
+              <option key={u.id} value={u.id}>{u.nom} ({u.role})</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value as typeof typeFilter)}
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+          >
+            {(Object.keys(TYPE_LABEL) as ("all" | AdminPaymentType)[]).map((t) => (
+              <option key={t} value={t}>{TYPE_LABEL[t]}</option>
+            ))}
+          </select>
+          <select
+            value={directionFilter}
+            onChange={(e) => setDirectionFilter(e.target.value as typeof directionFilter)}
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+          >
+            <option value="all">Entrant & Sortant</option>
+            <option value="entrant">Entrant</option>
+            <option value="sortant">Sortant</option>
+          </select>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as typeof filter)}
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+          >
+            <option value="all">Tous statuts</option>
+            {(Object.keys(STATUS_LABEL) as AdminPaymentStatus[]).map((s) => (
+              <option key={s} value={s}>{STATUS_LABEL[s]}</option>
+            ))}
+          </select>
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            placeholder="Du"
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+          />
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            placeholder="Au"
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+          />
+          <input
+            type="number"
+            value={amountMin}
+            onChange={(e) => setAmountMin(e.target.value)}
+            placeholder="Min DH"
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+          />
+          <input
+            type="number"
+            value={amountMax}
+            onChange={(e) => setAmountMax(e.target.value)}
+            placeholder="Max DH"
+            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+          />
+          <button
+            onClick={resetFilters}
+            className="h-9 whitespace-nowrap rounded-md border border-border bg-background px-3 text-sm font-medium text-muted-foreground hover:bg-secondary"
+          >
+            Réinitialiser
+          </button>
+        </div>
       </div>
 
       {loading ? (
