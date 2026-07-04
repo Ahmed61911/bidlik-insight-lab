@@ -59,6 +59,7 @@ async function fetchWon(auctionId: string): Promise<WonPayload> {
 }
 
 export const Route = createFileRoute("/acheteur/gagnees/$auctionId")({
+  ssr: false,
   beforeLoad: ({ location }) => requireRole(["acheteur"], location.href),
   loader: async ({ params }) => {
     const payload = await fetchWon(params.auctionId);
