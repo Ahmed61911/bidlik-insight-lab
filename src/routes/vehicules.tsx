@@ -163,7 +163,7 @@ function VehiculesPage() {
   );
 }
 
-function VehiculeCard({ lot, isVendeur }: { lot: Auction; isVendeur: boolean }) {
+function VehiculeCard({ lot }: { lot: Auction }) {
   const c = lot.car;
   const img = c.images?.[0];
   const priceClass = (c.prixPlancher ?? c.prixAttendu)
