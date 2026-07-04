@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatMad } from "@/lib/format";
 import { DeadlineCountdown } from "@/components/DeadlineCountdown";
 
-export const Route = createFileRoute("/acheteur/gagnees")({
+export const Route = createFileRoute("/acheteur/gagnees/")({
   component: MesVoituresGagneesPage,
 });
 

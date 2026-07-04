@@ -48,10 +48,10 @@ import { Route as AdminCautionsRouteImport } from './routes/admin.cautions'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as AcheteurPaiementsRouteImport } from './routes/acheteur.paiements'
 import { Route as AcheteurNotificationsRouteImport } from './routes/acheteur.notifications'
-import { Route as AcheteurGagneesRouteImport } from './routes/acheteur.gagnees'
 import { Route as AcheteurEncheresRouteImport } from './routes/acheteur.encheres'
 import { Route as AcheteurCautionPaiementRouteImport } from './routes/acheteur.caution-paiement'
 import { Route as AcheteurCautionRouteImport } from './routes/acheteur.caution'
+import { Route as AcheteurGagneesIndexRouteImport } from './routes/acheteur.gagnees.index'
 import { Route as ExpertInspectionsInspectionIdRouteImport } from './routes/expert.inspections.$inspectionId'
 import { Route as ApiPublicSeedDemoRouteImport } from './routes/api/public/seed-demo'
 import { Route as ApiPublicCmiInitRouteImport } from './routes/api/public/cmi-init'
@@ -256,11 +256,6 @@ const AcheteurNotificationsRoute = AcheteurNotificationsRouteImport.update({
   path: '/notifications',
   getParentRoute: () => AcheteurRoute,
 } as any)
-const AcheteurGagneesRoute = AcheteurGagneesRouteImport.update({
-  id: '/gagnees',
-  path: '/gagnees',
-  getParentRoute: () => AcheteurRoute,
-} as any)
 const AcheteurEncheresRoute = AcheteurEncheresRouteImport.update({
   id: '/encheres',
   path: '/encheres',
@@ -274,6 +269,11 @@ const AcheteurCautionPaiementRoute = AcheteurCautionPaiementRouteImport.update({
 const AcheteurCautionRoute = AcheteurCautionRouteImport.update({
   id: '/caution',
   path: '/caution',
+  getParentRoute: () => AcheteurRoute,
+} as any)
+const AcheteurGagneesIndexRoute = AcheteurGagneesIndexRouteImport.update({
+  id: '/gagnees/',
+  path: '/gagnees/',
   getParentRoute: () => AcheteurRoute,
 } as any)
 const ExpertInspectionsInspectionIdRoute =
@@ -311,9 +311,9 @@ const ApiPublicAdminCreateUserRoute =
   } as any)
 const AcheteurGagneesAuctionIdRoute =
   AcheteurGagneesAuctionIdRouteImport.update({
-    id: '/$auctionId',
-    path: '/$auctionId',
-    getParentRoute: () => AcheteurGagneesRoute,
+    id: '/gagnees/$auctionId',
+    path: '/gagnees/$auctionId',
+    getParentRoute: () => AcheteurRoute,
   } as any)
 const AcheteurEncherirAuctionIdRoute =
   AcheteurEncherirAuctionIdRouteImport.update({
@@ -340,7 +340,6 @@ export interface FileRoutesByFullPath {
   '/acheteur/caution': typeof AcheteurCautionRoute
   '/acheteur/caution-paiement': typeof AcheteurCautionPaiementRoute
   '/acheteur/encheres': typeof AcheteurEncheresRoute
-  '/acheteur/gagnees': typeof AcheteurGagneesRouteWithChildren
   '/acheteur/notifications': typeof AcheteurNotificationsRoute
   '/acheteur/paiements': typeof AcheteurPaiementsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
@@ -374,6 +373,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cmi-init': typeof ApiPublicCmiInitRoute
   '/api/public/seed-demo': typeof ApiPublicSeedDemoRoute
   '/expert/inspections/$inspectionId': typeof ExpertInspectionsInspectionIdRoute
+  '/acheteur/gagnees/': typeof AcheteurGagneesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -389,7 +389,6 @@ export interface FileRoutesByTo {
   '/acheteur/caution': typeof AcheteurCautionRoute
   '/acheteur/caution-paiement': typeof AcheteurCautionPaiementRoute
   '/acheteur/encheres': typeof AcheteurEncheresRoute
-  '/acheteur/gagnees': typeof AcheteurGagneesRouteWithChildren
   '/acheteur/notifications': typeof AcheteurNotificationsRoute
   '/acheteur/paiements': typeof AcheteurPaiementsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
@@ -423,6 +422,7 @@ export interface FileRoutesByTo {
   '/api/public/cmi-init': typeof ApiPublicCmiInitRoute
   '/api/public/seed-demo': typeof ApiPublicSeedDemoRoute
   '/expert/inspections/$inspectionId': typeof ExpertInspectionsInspectionIdRoute
+  '/acheteur/gagnees': typeof AcheteurGagneesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -443,7 +443,6 @@ export interface FileRoutesById {
   '/acheteur/caution': typeof AcheteurCautionRoute
   '/acheteur/caution-paiement': typeof AcheteurCautionPaiementRoute
   '/acheteur/encheres': typeof AcheteurEncheresRoute
-  '/acheteur/gagnees': typeof AcheteurGagneesRouteWithChildren
   '/acheteur/notifications': typeof AcheteurNotificationsRoute
   '/acheteur/paiements': typeof AcheteurPaiementsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
@@ -477,6 +476,7 @@ export interface FileRoutesById {
   '/api/public/cmi-init': typeof ApiPublicCmiInitRoute
   '/api/public/seed-demo': typeof ApiPublicSeedDemoRoute
   '/expert/inspections/$inspectionId': typeof ExpertInspectionsInspectionIdRoute
+  '/acheteur/gagnees/': typeof AcheteurGagneesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -498,7 +498,6 @@ export interface FileRouteTypes {
     | '/acheteur/caution'
     | '/acheteur/caution-paiement'
     | '/acheteur/encheres'
-    | '/acheteur/gagnees'
     | '/acheteur/notifications'
     | '/acheteur/paiements'
     | '/admin/analytics'
@@ -532,6 +531,7 @@ export interface FileRouteTypes {
     | '/api/public/cmi-init'
     | '/api/public/seed-demo'
     | '/expert/inspections/$inspectionId'
+    | '/acheteur/gagnees/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -547,7 +547,6 @@ export interface FileRouteTypes {
     | '/acheteur/caution'
     | '/acheteur/caution-paiement'
     | '/acheteur/encheres'
-    | '/acheteur/gagnees'
     | '/acheteur/notifications'
     | '/acheteur/paiements'
     | '/admin/analytics'
@@ -581,6 +580,7 @@ export interface FileRouteTypes {
     | '/api/public/cmi-init'
     | '/api/public/seed-demo'
     | '/expert/inspections/$inspectionId'
+    | '/acheteur/gagnees'
   id:
     | '__root__'
     | '/'
@@ -600,7 +600,6 @@ export interface FileRouteTypes {
     | '/acheteur/caution'
     | '/acheteur/caution-paiement'
     | '/acheteur/encheres'
-    | '/acheteur/gagnees'
     | '/acheteur/notifications'
     | '/acheteur/paiements'
     | '/admin/analytics'
@@ -634,6 +633,7 @@ export interface FileRouteTypes {
     | '/api/public/cmi-init'
     | '/api/public/seed-demo'
     | '/expert/inspections/$inspectionId'
+    | '/acheteur/gagnees/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -937,13 +937,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AcheteurNotificationsRouteImport
       parentRoute: typeof AcheteurRoute
     }
-    '/acheteur/gagnees': {
-      id: '/acheteur/gagnees'
-      path: '/gagnees'
-      fullPath: '/acheteur/gagnees'
-      preLoaderRoute: typeof AcheteurGagneesRouteImport
-      parentRoute: typeof AcheteurRoute
-    }
     '/acheteur/encheres': {
       id: '/acheteur/encheres'
       path: '/encheres'
@@ -963,6 +956,13 @@ declare module '@tanstack/react-router' {
       path: '/caution'
       fullPath: '/acheteur/caution'
       preLoaderRoute: typeof AcheteurCautionRouteImport
+      parentRoute: typeof AcheteurRoute
+    }
+    '/acheteur/gagnees/': {
+      id: '/acheteur/gagnees/'
+      path: '/gagnees'
+      fullPath: '/acheteur/gagnees/'
+      preLoaderRoute: typeof AcheteurGagneesIndexRouteImport
       parentRoute: typeof AcheteurRoute
     }
     '/expert/inspections/$inspectionId': {
@@ -1009,10 +1009,10 @@ declare module '@tanstack/react-router' {
     }
     '/acheteur/gagnees/$auctionId': {
       id: '/acheteur/gagnees/$auctionId'
-      path: '/$auctionId'
+      path: '/gagnees/$auctionId'
       fullPath: '/acheteur/gagnees/$auctionId'
       preLoaderRoute: typeof AcheteurGagneesAuctionIdRouteImport
-      parentRoute: typeof AcheteurGagneesRoute
+      parentRoute: typeof AcheteurRoute
     }
     '/acheteur/encherir/$auctionId': {
       id: '/acheteur/encherir/$auctionId'
@@ -1024,38 +1024,28 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AcheteurGagneesRouteChildren {
-  AcheteurGagneesAuctionIdRoute: typeof AcheteurGagneesAuctionIdRoute
-}
-
-const AcheteurGagneesRouteChildren: AcheteurGagneesRouteChildren = {
-  AcheteurGagneesAuctionIdRoute: AcheteurGagneesAuctionIdRoute,
-}
-
-const AcheteurGagneesRouteWithChildren = AcheteurGagneesRoute._addFileChildren(
-  AcheteurGagneesRouteChildren,
-)
-
 interface AcheteurRouteChildren {
   AcheteurCautionRoute: typeof AcheteurCautionRoute
   AcheteurCautionPaiementRoute: typeof AcheteurCautionPaiementRoute
   AcheteurEncheresRoute: typeof AcheteurEncheresRoute
-  AcheteurGagneesRoute: typeof AcheteurGagneesRouteWithChildren
   AcheteurNotificationsRoute: typeof AcheteurNotificationsRoute
   AcheteurPaiementsRoute: typeof AcheteurPaiementsRoute
   AcheteurIndexRoute: typeof AcheteurIndexRoute
   AcheteurEncherirAuctionIdRoute: typeof AcheteurEncherirAuctionIdRoute
+  AcheteurGagneesAuctionIdRoute: typeof AcheteurGagneesAuctionIdRoute
+  AcheteurGagneesIndexRoute: typeof AcheteurGagneesIndexRoute
 }
 
 const AcheteurRouteChildren: AcheteurRouteChildren = {
   AcheteurCautionRoute: AcheteurCautionRoute,
   AcheteurCautionPaiementRoute: AcheteurCautionPaiementRoute,
   AcheteurEncheresRoute: AcheteurEncheresRoute,
-  AcheteurGagneesRoute: AcheteurGagneesRouteWithChildren,
   AcheteurNotificationsRoute: AcheteurNotificationsRoute,
   AcheteurPaiementsRoute: AcheteurPaiementsRoute,
   AcheteurIndexRoute: AcheteurIndexRoute,
   AcheteurEncherirAuctionIdRoute: AcheteurEncherirAuctionIdRoute,
+  AcheteurGagneesAuctionIdRoute: AcheteurGagneesAuctionIdRoute,
+  AcheteurGagneesIndexRoute: AcheteurGagneesIndexRoute,
 }
 
 const AcheteurRouteWithChildren = AcheteurRoute._addFileChildren(
@@ -1163,3 +1153,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
