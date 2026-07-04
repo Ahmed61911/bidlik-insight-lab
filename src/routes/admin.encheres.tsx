@@ -207,7 +207,7 @@ function AdminCreateAuctionPage() {
                         )}
                       </TableCell>
                       <TableCell className="text-right tabular-nums">{formatMad(a.startingPrice)}</TableCell>
-                      <TableCell className={`text-right tabular-nums font-semibold ${buyerPriceTierTextClass(buyerPriceTier(a.currentPrice, a.car.prixAttendu))}`}>{formatMad(a.currentPrice)}</TableCell>
+                      <TableCell className={`text-right tabular-nums font-semibold ${priceTierTextClass(listingPriceTier(a.currentPrice, a.car))}`}>{formatMad(a.currentPrice)}</TableCell>
                       <TableCell className="text-right text-xs text-muted-foreground">
                         {new Date(a.startsAt).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}
                       </TableCell>
