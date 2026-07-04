@@ -114,7 +114,7 @@ export function LotCard({ auction: initial }: { auction: Auction }) {
           key={pulse}
           className={[
             "rounded-lg px-2.5 py-2 animate-pulse-bid",
-            buyerPriceTierGradientClass(tier),
+            priceTierGradientClass(tier),
           ].join(" ")}
         >
           <p className={["text-[9px] font-semibold uppercase tracking-wider", "text-white/85"].join(" ")}>
