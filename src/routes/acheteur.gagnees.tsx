@@ -161,11 +161,11 @@ function MesVoituresGagneesPage() {
                 </div>
                 <div className="flex shrink-0 gap-3">
                   <Link
-                    to="/auctions/$auctionId"
+                    to="/acheteur/gagnees/$auctionId"
                     params={{ auctionId: r.auction_id }}
                     className="font-semibold text-accent hover:underline"
                   >
-                    Voir la fiche →
+                    Voir les détails →
                   </Link>
                   {r._s === "validee" && r.payment_status !== "paye" && (
                     <Link
