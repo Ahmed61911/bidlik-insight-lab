@@ -260,6 +260,15 @@ function AdminPaiementsPage() {
           className="h-9 flex-1 rounded-md border border-border bg-background px-3 text-sm"
         />
         <select
+          value={directionFilter}
+          onChange={(e) => setDirectionFilter(e.target.value as typeof directionFilter)}
+          className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+        >
+          <option value="all">Entrant & Sortant</option>
+          <option value="entrant">Entrant</option>
+          <option value="sortant">Sortant</option>
+        </select>
+        <select
           value={filter}
           onChange={(e) => setFilter(e.target.value as typeof filter)}
           className="h-9 rounded-md border border-border bg-background px-2 text-sm"
