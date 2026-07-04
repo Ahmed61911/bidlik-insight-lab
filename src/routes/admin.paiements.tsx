@@ -299,7 +299,7 @@ function AdminPaiementsPage() {
             className="h-9 rounded-md border border-border bg-background px-2 text-sm"
           >
             <option value="all">Tous bénéficiaires/payeurs</option>
-            {userOptions.map((u) => (
+            {[...users].sort((a, b) => a.nom.localeCompare(b.nom)).map((u) => (
               <option key={u.id} value={u.id}>{u.nom} ({u.role})</option>
             ))}
           </select>
