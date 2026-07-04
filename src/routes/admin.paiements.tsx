@@ -443,13 +443,8 @@ function PaymentDialog({
 
   // Default user list by relevance for the chosen type
   const userOptions = useMemo(() => {
-    const order = (u: AdminUser) => {
-      if (type === "virement_vendeur" && u.role === "vendeur") return 0;
-      if ((type === "achat" || type === "caution" || type === "remboursement") && u.role === "acheteur") return 0;
-      return 1;
-    };
-    return [...users].sort((a, b) => order(a) - order(b) || a.nom.localeCompare(b.nom));
-  }, [users, type]);
+    return [...users].sort((a, b) => a.nom.localeCompare(b.nom));
+  }, [users]);
 
   const save = async () => {
     if (!userId) return toast.error("Sélectionnez un utilisateur");
