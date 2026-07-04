@@ -112,16 +112,19 @@ function AdminPaiementsPage() {
     () =>
       items.filter((p) => {
         if (filter !== "all" && p.status !== filter) return false;
+        if (directionFilter !== "all" && DIRECTION_BY_TYPE[p.type] !== directionFilter) return false;
         if (!query) return true;
         const q = query.toLowerCase();
         return (
           (p.userNom ?? "").toLowerCase().includes(q) ||
           (p.userEmail ?? "").toLowerCase().includes(q) ||
           (p.reference ?? "").toLowerCase().includes(q) ||
-          (p.carLabel ?? "").toLowerCase().includes(q)
+          (p.carLabel ?? "").toLowerCase().includes(q) ||
+          beneficiaryOf(p).toLowerCase().includes(q) ||
+          payerOf(p).toLowerCase().includes(q)
         );
       }),
-    [items, filter, query],
+    [items, filter, directionFilter, query],
   );
 
   const totals = useMemo(() => {
