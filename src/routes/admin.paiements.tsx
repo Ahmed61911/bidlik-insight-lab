@@ -519,7 +519,7 @@ function PaymentDialog({
               onChange={(e) => setType(e.target.value as AdminPaymentType)}
               className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm"
             >
-              {(Object.keys(TYPE_LABEL) as AdminPaymentType[]).map((t) => (
+              {(["achat", "virement_vendeur", "commission", "remboursement", "caution"] as AdminPaymentType[]).map((t) => (
                 <option key={t} value={t}>{TYPE_LABEL[t]}</option>
               ))}
             </select>
