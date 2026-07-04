@@ -285,88 +285,117 @@ function AdminPaiementsPage() {
       </section>
 
 
-      <div className="space-y-2">
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Rechercher nom, email, référence, voiture…"
-            className="h-9 flex-1 rounded-md border border-border bg-background px-3 text-sm"
-          />
-          <select
-            value={userFilter}
-            onChange={(e) => setUserFilter(e.target.value)}
-            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
-          >
-            <option value="all">Tous bénéficiaires/payeurs</option>
-            {[...users].sort((a, b) => a.nom.localeCompare(b.nom)).map((u) => (
-              <option key={u.id} value={u.id}>{u.nom} ({u.role})</option>
-            ))}
-          </select>
-        </div>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value as typeof typeFilter)}
-            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
-          >
-            {(Object.keys(TYPE_LABEL) as ("all" | AdminPaymentType)[]).map((t) => (
-              <option key={t} value={t}>{TYPE_LABEL[t]}</option>
-            ))}
-          </select>
-          <select
-            value={directionFilter}
-            onChange={(e) => setDirectionFilter(e.target.value as typeof directionFilter)}
-            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
-          >
-            <option value="all">Entrant & Sortant</option>
-            <option value="entrant">Entrant</option>
-            <option value="sortant">Sortant</option>
-          </select>
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value as typeof filter)}
-            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
-          >
-            <option value="all">Tous statuts</option>
-            {(Object.keys(STATUS_LABEL) as AdminPaymentStatus[]).map((s) => (
-              <option key={s} value={s}>{STATUS_LABEL[s]}</option>
-            ))}
-          </select>
-          <input
-            type="date"
-            value={dateFrom}
-            onChange={(e) => setDateFrom(e.target.value)}
-            placeholder="Du"
-            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
-          />
-          <input
-            type="date"
-            value={dateTo}
-            onChange={(e) => setDateTo(e.target.value)}
-            placeholder="Au"
-            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
-          />
-          <input
-            type="number"
-            value={amountMin}
-            onChange={(e) => setAmountMin(e.target.value)}
-            placeholder="Min DH"
-            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
-          />
-          <input
-            type="number"
-            value={amountMax}
-            onChange={(e) => setAmountMax(e.target.value)}
-            placeholder="Max DH"
-            className="h-9 rounded-md border border-border bg-background px-2 text-sm"
-          />
+      <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-foreground">Filtres</h3>
           <button
             onClick={resetFilters}
-            className="h-9 whitespace-nowrap rounded-md border border-border bg-background px-3 text-sm font-medium text-muted-foreground hover:bg-secondary"
+            className="text-xs font-medium text-muted-foreground hover:text-foreground"
           >
             Réinitialiser
           </button>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="sm:col-span-2 lg:col-span-2">
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Recherche</label>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Nom, email, référence, voiture…"
+              className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
+            />
+          </div>
+          <div className="sm:col-span-2 lg:col-span-2">
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Bénéficiaire / payeur</label>
+            <select
+              value={userFilter}
+              onChange={(e) => setUserFilter(e.target.value)}
+              className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm"
+            >
+              <option value="all">Tous</option>
+              {[...users].sort((a, b) => a.nom.localeCompare(b.nom)).map((u) => (
+                <option key={u.id} value={u.id}>{u.nom} ({u.role})</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Type</label>
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value as typeof typeFilter)}
+              className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm"
+            >
+              {(Object.keys(TYPE_LABEL) as ("all" | AdminPaymentType)[]).map((t) => (
+                <option key={t} value={t}>{TYPE_LABEL[t]}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Sens</label>
+            <select
+              value={directionFilter}
+              onChange={(e) => setDirectionFilter(e.target.value as typeof directionFilter)}
+              className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm"
+            >
+              <option value="all">Entrant & Sortant</option>
+              <option value="entrant">Entrant</option>
+              <option value="sortant">Sortant</option>
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Statut</label>
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value as typeof filter)}
+              className="h-9 w-full rounded-md border border-border bg-background px-2 text-sm"
+            >
+              <option value="all">Tous statuts</option>
+              {(Object.keys(STATUS_LABEL) as AdminPaymentStatus[]).map((s) => (
+                <option key={s} value={s}>{STATUS_LABEL[s]}</option>
+              ))}
+            </select>
+          </div>
+          <div />
+
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Période</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="h-9 flex-1 rounded-md border border-border bg-background px-2 text-sm"
+              />
+              <span className="text-xs text-muted-foreground">à</span>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="h-9 flex-1 rounded-md border border-border bg-background px-2 text-sm"
+              />
+            </div>
+          </div>
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Montant (DH)</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                value={amountMin}
+                onChange={(e) => setAmountMin(e.target.value)}
+                placeholder="Min"
+                className="h-9 flex-1 rounded-md border border-border bg-background px-2 text-sm"
+              />
+              <span className="text-xs text-muted-foreground">à</span>
+              <input
+                type="number"
+                value={amountMax}
+                onChange={(e) => setAmountMax(e.target.value)}
+                placeholder="Max"
+                className="h-9 flex-1 rounded-md border border-border bg-background px-2 text-sm"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
