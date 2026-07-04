@@ -378,3 +378,27 @@ export const supabaseApi: ApiClient = {
     };
   },
 };
+
+/**
+ * Fetches the expertise info for a car (note, checklist, commentaire, report,
+ * and — only for admins/acheteurs — the inspection photos). Returns null when
+ * no expert report has been submitted yet.
+ */
+export async function getCarExpertise(carId: string): Promise<import("@/types/expert").CarExpertise | null> {
+  const { data, error } = await supabase.rpc("get_car_expertise", { p_car_id: carId } as never);
+  if (error) throw new Error(error.message);
+  const row = Array.isArray(data) ? (data[0] as Record<string, unknown> | undefined) : (data as Record<string, unknown> | null);
+  if (!row) return null;
+  const rawImages = row.expert_images;
+  const images = Array.isArray(rawImages) ? (rawImages as string[]) : null;
+  const rawChecklist = row.checklist as Record<string, unknown> | null;
+  return {
+    noteFinale: (row.note_finale as number | null) ?? null,
+    commentaire: (row.commentaire as string | null) ?? null,
+    checklist: rawChecklist as import("@/types/expert").InspectionChecklist | null,
+    rapportUrl: (row.rapport_url as string | null) ?? null,
+    rapportName: (row.rapport_name as string | null) ?? null,
+    rapportRecuLe: (row.rapport_recu_le as string | null) ?? null,
+    expertImages: images,
+  };
+}
