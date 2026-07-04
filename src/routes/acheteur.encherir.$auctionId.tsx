@@ -360,7 +360,7 @@ function EncherirPage() {
                         </div>
                       </div>
                       <span
-                        className={`font-bold ${buyerPriceTierTextClass(buyerPriceTier(b.amount, auction.car.prixAttendu))}`}
+                        className={`font-bold ${priceTierTextClass(listingPriceTier(b.amount, auction.car))}`}
                       >
                         {formatMad(b.amount)}
                       </span>
