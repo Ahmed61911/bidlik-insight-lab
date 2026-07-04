@@ -46,7 +46,7 @@ export function LotCard({ auction: initial }: { auction: Auction }) {
   const isSealed = auction.auctionType === "fermee";
   const displayPrice = isSealed ? (car.minimumAcceptedPrice ?? auction.startingPrice) : currentPrice;
   const priceLabel = isSealed ? "Prix minimum" : "Offre actuelle";
-  const tier = buyerPriceTier(displayPrice, car.prixAttendu);
+  const tier = listingPriceTier(displayPrice, car);
   const isLive = status === "live";
   const isScheduled = status === "scheduled";
   const img = car.images?.[0];
