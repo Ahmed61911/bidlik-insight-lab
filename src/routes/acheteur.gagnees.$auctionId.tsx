@@ -148,28 +148,24 @@ function WonCarDetailsPage() {
           <TimelineItem
             done={true}
             title="Enchère remportée"
-            date={auction.closedAt ?? auction.endsAt}
+            date={meta.closedAt ?? auction.endsAt}
           />
           <TimelineItem
             done={auction.status === "validated" || auction.status === "cancelled" || car.deliveryStatus === "livre"}
             active={status === "en_attente"}
             title="Validation par l'administrateur"
-            date={auction.validatedAt}
+            date={meta.validatedAt}
             note={status === "en_attente" ? "En attente…" : undefined}
           />
           <TimelineItem
             done={car.paymentStatus === "paye"}
             active={status === "validee" && car.paymentStatus !== "paye"}
             title="Paiement du véhicule"
-            note={
-              status === "validee" && car.paymentStatus !== "paye" && auction.paymentDeadline
-                ? undefined
-                : car.paymentStatus === "paye" ? "Payé" : undefined
-            }
+            note={car.paymentStatus === "paye" ? "Payé" : undefined}
             extra={
-              status === "validee" && car.paymentStatus !== "paye" && auction.paymentDeadline ? (
+              status === "validee" && car.paymentStatus !== "paye" && meta.paymentDeadline ? (
                 <span className="inline-flex items-center gap-1.5 text-xs text-amber-700">
-                  <Clock className="h-3.5 w-3.5" /> Sous : <DeadlineCountdown deadline={auction.paymentDeadline} />
+                  <Clock className="h-3.5 w-3.5" /> Sous : <DeadlineCountdown deadline={meta.paymentDeadline} />
                 </span>
               ) : null
             }
