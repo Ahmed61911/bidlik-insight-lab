@@ -94,6 +94,12 @@ function AdminPaiementsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | AdminPaymentStatus>("all");
   const [directionFilter, setDirectionFilter] = useState<"all" | PaymentDirection>("all");
+  const [typeFilter, setTypeFilter] = useState<"all" | AdminPaymentType>("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [amountMin, setAmountMin] = useState("");
+  const [amountMax, setAmountMax] = useState("");
+  const [userFilter, setUserFilter] = useState("all");
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<AdminPayment | "new" | null>(null);
 
