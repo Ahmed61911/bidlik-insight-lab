@@ -8,9 +8,9 @@ import type { Auction, Bid } from "@/types/auction";
 import {
   formatMad,
   formatDateTime,
-  buyerPriceTier,
-  buyerPriceTierGradientClass,
-  buyerPriceTierTextClass,
+  listingPriceTier,
+  priceTierGradientClass,
+  priceTierTextClass,
 } from "@/lib/format";
 import { Countdown } from "@/components/Countdown";
 import { CarGallery } from "@/components/CarGallery";
