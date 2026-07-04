@@ -1291,6 +1291,25 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      list_my_won_auctions: {
+        Args: never
+        Returns: {
+          annee: number
+          auction_id: string
+          auction_status: Database["public"]["Enums"]["auction_status_t"]
+          car_id: string
+          car_status: Database["public"]["Enums"]["car_status"]
+          closed_at: string
+          delivery_status: Database["public"]["Enums"]["delivery_status_t"]
+          marque: string
+          modele: string
+          payment_deadline: string
+          payment_status: Database["public"]["Enums"]["payment_status_t"]
+          prix_final: number
+          updated_at: string
+          validated_at: string
+        }[]
+      }
       my_leading_auctions: {
         Args: { p_ids: string[] }
         Returns: {
