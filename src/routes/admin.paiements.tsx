@@ -38,11 +38,61 @@ const STATUS_TONE: Record<AdminPaymentStatus, string> = {
   annule: "bg-destructive/15 text-destructive",
 };
 
+type PaymentDirection = "entrant" | "sortant";
+
+const DIRECTION_BY_TYPE: Record<AdminPaymentType, PaymentDirection> = {
+  achat: "entrant",
+  caution: "entrant",
+  commission: "entrant",
+  virement_vendeur: "sortant",
+  remboursement: "sortant",
+};
+
+const DIRECTION_LABEL: Record<PaymentDirection, string> = {
+  entrant: "Entrant",
+  sortant: "Sortant",
+};
+
+const DIRECTION_TONE: Record<PaymentDirection, string> = {
+  entrant: "bg-emerald-100 text-emerald-900",
+  sortant: "bg-orange-100 text-orange-900",
+};
+
+function beneficiaryOf(p: AdminPayment): string {
+  switch (p.type) {
+    case "virement_vendeur":
+      return p.userNom ?? p.userEmail ?? "Vendeur";
+    case "remboursement":
+      return p.userNom ?? p.userEmail ?? "Acheteur";
+    case "achat":
+    case "caution":
+    case "commission":
+    default:
+      return "Bidlic (plateforme)";
+  }
+}
+
+function payerOf(p: AdminPayment): string {
+  switch (p.type) {
+    case "achat":
+    case "caution":
+      return p.userNom ?? p.userEmail ?? "Acheteur";
+    case "commission":
+      return "Bidlic (plateforme)";
+    case "virement_vendeur":
+    case "remboursement":
+      return "Bidlic (plateforme)";
+    default:
+      return p.userNom ?? "—";
+  }
+}
+
 function AdminPaiementsPage() {
   const [items, setItems] = useState<AdminPayment[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | AdminPaymentStatus>("all");
+  const [directionFilter, setDirectionFilter] = useState<"all" | PaymentDirection>("all");
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<AdminPayment | "new" | null>(null);
 
@@ -62,16 +112,19 @@ function AdminPaiementsPage() {
     () =>
       items.filter((p) => {
         if (filter !== "all" && p.status !== filter) return false;
+        if (directionFilter !== "all" && DIRECTION_BY_TYPE[p.type] !== directionFilter) return false;
         if (!query) return true;
         const q = query.toLowerCase();
         return (
           (p.userNom ?? "").toLowerCase().includes(q) ||
           (p.userEmail ?? "").toLowerCase().includes(q) ||
           (p.reference ?? "").toLowerCase().includes(q) ||
-          (p.carLabel ?? "").toLowerCase().includes(q)
+          (p.carLabel ?? "").toLowerCase().includes(q) ||
+          beneficiaryOf(p).toLowerCase().includes(q) ||
+          payerOf(p).toLowerCase().includes(q)
         );
       }),
-    [items, filter, query],
+    [items, filter, directionFilter, query],
   );
 
   const totals = useMemo(() => {
@@ -207,6 +260,15 @@ function AdminPaiementsPage() {
           className="h-9 flex-1 rounded-md border border-border bg-background px-3 text-sm"
         />
         <select
+          value={directionFilter}
+          onChange={(e) => setDirectionFilter(e.target.value as typeof directionFilter)}
+          className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+        >
+          <option value="all">Entrant & Sortant</option>
+          <option value="entrant">Entrant</option>
+          <option value="sortant">Sortant</option>
+        </select>
+        <select
           value={filter}
           onChange={(e) => setFilter(e.target.value as typeof filter)}
           className="h-9 rounded-md border border-border bg-background px-2 text-sm"
@@ -230,7 +292,9 @@ function AdminPaiementsPage() {
             <thead className="bg-secondary/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
                 <th className="px-3 py-2">Date</th>
-                <th className="px-3 py-2">Utilisateur</th>
+                <th className="px-3 py-2">Sens</th>
+                <th className="px-3 py-2">Payeur</th>
+                <th className="px-3 py-2">Bénéficiaire</th>
                 <th className="px-3 py-2">Type</th>
                 <th className="px-3 py-2">Voiture</th>
                 <th className="px-3 py-2 text-right">Montant</th>
@@ -241,14 +305,29 @@ function AdminPaiementsPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((p) => (
+              {filtered.map((p) => {
+                const dir = DIRECTION_BY_TYPE[p.type];
+                return (
                 <tr key={p.id} className="border-t border-border align-top">
                   <td className="px-3 py-2 text-muted-foreground">
                     {new Date(p.paidAt ?? p.createdAt).toLocaleDateString("fr-FR")}
                   </td>
                   <td className="px-3 py-2">
-                    <div className="font-medium text-foreground">{p.userNom ?? "—"}</div>
-                    <div className="text-xs text-muted-foreground">{p.userEmail ?? ""}</div>
+                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${DIRECTION_TONE[dir]}`}>
+                      {DIRECTION_LABEL[dir]}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2">
+                    <div className="font-medium text-foreground">{payerOf(p)}</div>
+                    {dir === "entrant" && p.userEmail && (
+                      <div className="text-xs text-muted-foreground">{p.userEmail}</div>
+                    )}
+                  </td>
+                  <td className="px-3 py-2">
+                    <div className="font-medium text-foreground">{beneficiaryOf(p)}</div>
+                    {dir === "sortant" && p.userEmail && (
+                      <div className="text-xs text-muted-foreground">{p.userEmail}</div>
+                    )}
                   </td>
                   <td className="px-3 py-2">{TYPE_LABEL[p.type]}</td>
                   <td className="px-3 py-2">
@@ -295,7 +374,8 @@ function AdminPaiementsPage() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
