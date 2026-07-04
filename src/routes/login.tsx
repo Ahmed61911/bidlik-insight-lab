@@ -77,7 +77,7 @@ function LoginPage() {
         const identifier = String(fd.get("phone")).trim();
         const email = identifier.includes("@")
           ? identifier
-          : `${identifier.replace(/\D/g, "")}@bidlic.local`;
+          : `${identifier.replace(/\D/g, "")}@bidlik.local`;
         const session = await authStore.login({
           email,
           password: String(fd.get("password")),
@@ -95,7 +95,7 @@ function LoginPage() {
         }
         await authStore.register({
           nom: String(fd.get("name")),
-          email: `${phone.replace(/\D/g, "")}@bidlic.local`,
+          email: `${phone.replace(/\D/g, "")}@bidlik.local`,
           telephone: phone,
           password,
           role: "acheteur",
